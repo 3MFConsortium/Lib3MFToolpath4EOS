@@ -1,0 +1,361 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>Lib3MFToolpath4EOS conversion settings and log</title>
+<link rel="stylesheet" href="style.css">
+</head>
+<body>
+<header class="site"><a class="brand" href="index.html"><img src="images/3mf-logo.png" alt=".3MF"><span>Lib3MFToolpath4EOS</span></a><nav><a href="index.html">Library guide</a><a href="api.html">API reference</a><a href="examples.html">Examples</a><a href="power-ramps.html">Power ramps</a><a href="conversion.html" class="active">Conversion</a></nav></header>
+<div class="layout">
+<aside class="toc">
+<h3>Conversion</h3>
+<ul>
+<li><a href="#summary">Summary</a></li>
+<li><a href="#settings">Settings</a></li>
+<li><a href="#exposuresets">Exposure sets per thickness</a></li>
+<li><a href="#layers">Layer Z and thickness</a></li>
+<li><a href="#checks">Pre-flight checks</a></li>
+<li><a href="#log">Conversion log</a></li>
+<li><a href="#failures">Failed conversions</a></li>
+<li><a href="#codes">Message codes</a></li>
+<li><a href="#counters">Counters</a></li>
+<li><a href="#json">JSON format</a></li>
+</ul>
+</aside>
+<main>
+
+<h1>Conversion settings and log</h1>
+
+<section id="summary">
+<h2>Summary</h2>
+<p>Every conversion of a toolpath into an EOS task takes an <a href="api.html#EOSToolpathConversionSettings">EOSToolpathConversionSettings</a>
+object and produces an <a href="api.html#EOSConversionLog">EOSConversionLog</a>. This applies to
+<code>CreateTaskFrom3MFToolpath</code> and to raw task writers from <code>CreateRawTaskWriter</code>.</p>
+<pre><code>auto pSettings = pContext-&gt;CreateToolpathConversionSettings();   // defaults
+pSettings-&gt;SetPowerRampMode(Lib3MF4EOS::eEOSPowerRampMode::SplitHatches);
+
+auto pTask = pContext-&gt;CreateTaskFrom3MFToolpath(pModel, pConfig, pSettings, "part", "", "MyApp", "1.0");
+// wait for the future, also if it failed ...
+auto pLog = pTask-&gt;GetConversionLog();
+std::cout &lt;&lt; pLog-&gt;GetCountBySeverity(Lib3MF4EOS::eEOSLogSeverity::Warning) &lt;&lt; " warnings" &lt;&lt; std::endl;
+std::ofstream("conversion.json") &lt;&lt; pLog-&gt;ToJSON();</code></pre>
+<p>A conversion copies the settings when it starts. Changing the settings object afterwards does not affect it,
+and one object can be used for several conversions.</p>
+</section>
+
+<section id="settings">
+<h2>Settings</h2>
+<p>Each setting has a <code>Set</code> and a <code>Get</code> method, for example <code>SetMaxPowerStep</code> and
+<code>GetMaxPowerStep</code>. A setter fails with <code>INVALIDCONVERSIONSETTINGS</code> if the value is out of range, and the
+object keeps its previous value. <code>ResetToDefaults</code> restores all defaults and <code>ToJSON</code> returns the
+settings in the form they take in the <a href="#json">conversion log</a>.</p>
+<table>
+<tr><th>Setting</th><th>Default</th><th>Valid values</th><th>Meaning</th></tr>
+<tr><td><code>MaxPowerStep</code></td><td>1 W</td><td>&gt; 0</td><td>Largest laser power difference between neighbouring sub-vectors of a ramp.</td></tr>
+<tr><td><code>MinSubVectorLength</code></td><td>0.05 mm</td><td>&gt; 0</td><td>Shortest sub-vector of a ramp.</td></tr>
+<tr><td><code>PowerRampMode</code></td><td><code>Polyline</code></td><td><code>Polyline</code>, <code>SplitHatches</code>, <code>Flatten</code>, <code>Reject</code></td><td>How ramps are written, see <a href="power-ramps.html#eos">power ramps</a>.</td></tr>
+<tr><td><code>StrictMode</code></td><td>true</td><td></td><td>Refuse problems that could be corrected, for example modifier factors outside 0 to 1, a beam shape profile that the loaded EOS SDK cannot write, or toolpath layers that are not in the layer stack of the job. If false, they are corrected or left out and logged as warnings.</td></tr>
+<tr><td><code>PowerDelay</code></td><td>190 &micro;s</td><td>&ge; 0</td><td>Delay passed with every laser power change, also between the points of a polyline.</td></tr>
+<tr><td><code>MaxSpeedStep</code></td><td>10 mm/s</td><td>&gt; 0</td><td>Largest scan speed difference between neighbouring sub-vectors of a ramp.</td></tr>
+<tr><td><code>MaxFocusStep</code></td><td>0.05</td><td>&gt; 0</td><td>Largest difference of the EOS focus value (0 to 1) between neighbouring sub-vectors of a ramp.</td></tr>
+<tr><td><code>HatchWriteMode</code></td><td><code>JoinTouching</code></td><td><code>JoinTouching</code>, <code>AllPolylines</code></td><td>Join touching hatches into polylines, or write every hatch as a polyline. See <a href="power-ramps.html#joining">joining</a>.</td></tr>
+<tr><td><code>JoinTolerance</code></td><td>0.001 mm</td><td>&ge; 0</td><td>Largest gap between two vectors that still counts as touching, for joining hatches and contours.</td></tr>
+<tr><td><code>HatchPowerDeadband</code></td><td>0 W</td><td>&ge; 0</td><td>Smallest laser power change written inside polylines made of hatches.</td></tr>
+<tr><td><code>JoinContours</code></td><td>true</td><td></td><td>Join touching contour segments into one polyline.</td></tr>
+<tr><td><code>RefuseUnequalConstantHatch</code></td><td>true</td><td></td><td>Refuse a constant modifier whose factors differ at the two ends of a hatch. If false, the factor at the end is used and a warning is logged.</td></tr>
+<tr><td><code>DefaultSkywriting</code></td><td>true</td><td></td><td>Skywriting for profiles that do not specify it.</td></tr>
+<tr><td><code>DefaultHatchExposureType</code></td><td>2 (infill)</td><td>0 to 16</td><td>EOS exposure type of hatches whose profile has none.</td></tr>
+<tr><td><code>DefaultContourExposureType</code></td><td>10 (simple contour)</td><td>0 to 16</td><td>EOS exposure type of polylines and loops whose profile has none.</td></tr>
+<tr><td><code>LayerOpening</code></td><td>true</td><td></td><td>Every scanner starts each layer with the standard beam shape and a delay. Only written with EOS SDK 2.26 and later; with older SDKs it is left out and logged once.</td></tr>
+<tr><td><code>LayerOpeningDelay</code></td><td>10 &micro;s</td><td>&ge; 0</td><td>Delay of the layer opening.</td></tr>
+<tr><td><code>DwellTimeUnit</code></td><td><code>Unset</code></td><td><code>Unset</code>, <code>Microseconds</code>, <code>Milliseconds</code>, <code>Seconds</code></td><td>Unit of the dwell times (<code>
+prewaittime</code> and <code>postwaittime</code>) of the toolpath. <code>Unset</code> refuses toolpaths with dwell times (<code>DWELLTIMEUNITMISSING</code>).</td></tr>
+<tr><td><code>LayerZConvention</code></td><td><code>Top</code></td><td><code>Top</code>, <code>Base</code></td><td>Whether the Z value of a 3MF toolpath layer is the top or the base of the layer. See <a href="#layers">layer Z and thickness</a>.</td></tr>
+<tr><td><code>AllowDefaultExposureSets</code></td><td>false</td><td></td><td>Parts whose exposure set cannot be determined may use <code>_Default_DirectPart</code> and <code>_Default_ExternalSupport</code>.</td></tr>
+</table>
+<p>Non-finite numbers (infinity, NaN) are invalid for every setting.</p>
+</section>
+
+<section id="exposuresets">
+<h2>Exposure sets per thickness</h2>
+<p>A material set can have no or several exposure sets for a layer thickness. In that case the exposure set can be
+assigned per thickness, separately for parts and supports:</p>
+<pre><code>pSettings-&gt;SetExposureSetForThickness(60, false, "Part_60um");     // parts at 60 &micro;m
+pSettings-&gt;SetExposureSetForThickness(60, true, "Support_60um");   // supports at 60 &micro;m
+pSettings-&gt;SetExposureSetForThickness(60, true, "");               // removes the support assignment
+std::string sName = pSettings-&gt;GetExposureSetForThickness(60, false);
+pSettings-&gt;ClearExposureSetsForThickness();</code></pre>
+<p>The thickness must be positive.</p>
+<p><code>CreateTaskFrom3MFToolpath</code> chooses the exposure set of each part without <code>eos3mf:partparameter</code>
+in this order:</p>
+<ol>
+<li>the assignment for the part's layer thickness and support flag;</li>
+<li>the only exposure set of the material set with that thickness and support flag;</li>
+<li><code>_Default_DirectPart</code> or <code>_Default_ExternalSupport</code>, if <code>AllowDefaultExposureSets</code> is on.</li>
+</ol>
+<p>Otherwise the conversion fails with <code>EXPOSURESETAMBIGUOUS</code>. The layer thickness of a part is derived from its
+toolpath layers, see <a href="#layers">layer Z and thickness</a>. If that is not possible, the job's
+<code>materialthickness</code> (from the <code>eos3mf</code> metadata or the material set) is used.</p>
+<p>If a profile has no exposed depth of its own, the part's layer thickness is written as the exposed depth.</p>
+</section>
+
+<section id="layers">
+<h2>Layer Z and thickness</h2>
+<p>A 3MF toolpath gives one Z value per layer. EOS gives the Z of the top of a layer, measured from the build plate.
+<code>LayerZConvention</code> tells how the toolpath Z values are read:</p>
+<table>
+<tr><th>Convention</th><th>EOS layer Z</th><th>Notes</th></tr>
+<tr><td><code>Top</code></td><td>The toolpath Z.</td><td>A first layer at Z 0 fails with <code>LAYERZINVALID</code>, since a layer cannot end at the build plate.</td></tr>
+<tr><td><code>Base</code></td><td>The toolpath Z plus the layer thickness.</td><td>All parts need the same layer thickness, otherwise the conversion fails with <code>LAYERZINVALID</code>.</td></tr>
+</table>
+<p>The Z values must increase from layer to layer, otherwise the conversion fails with <code>LAYERZINVALID</code>.
+If the first layer is at a Z equal to the layer distance, both conventions are plausible. The conversion goes on with the
+chosen one and logs <code>LAYER_Z_AMBIGUOUS</code>.</p>
+<p>The layer thickness of a part is the smallest distance between the layers in which it has vectors. A part may skip layers,
+for example a part at 60 &micro;m in a job with layers every 30 &micro;m, but every distance between its layers must be a multiple
+of its thickness, with a tolerance of 1 &micro;m per layer. Otherwise the conversion fails with
+<code>LAYERTHICKNESSINCONSISTENT</code>. A part with fewer than two layers gets the smallest layer distance of the toolpath, and a
+toolpath with fewer than two layers gets the job's <code>materialthickness</code>. A part thickness that is not a multiple of the
+job's material thickness is logged as <code>PART_THICKNESS_NOT_MULTIPLE</code>.</p>
+<p>The machine target of the job is taken, in this order, from <code>eos3mf:machinetarget</code>, from the model type of the
+machine configuration, and from the material set. If none is known, the conversion fails with <code>UNKNOWNMODELTYPE</code>.
+A material set made for another machine is logged as <code>MACHINETARGET_MISMATCH</code>.</p>
+</section>
+
+<section id="checks">
+<h2>Pre-flight checks</h2>
+<p>After the job is loaded, <code>CreateTaskFrom3MFToolpath</code> asks the EOS SDK for the layer stack of the job and its process heights,
+and compares them with the toolpath:</p>
+<ul>
+<li>A toolpath layer without a layer of the stack at its Z is <code>LAYER_NOT_IN_STACK</code>. With strict mode on, the conversion fails with
+<code>LAYERSTACKMISMATCH</code>; otherwise it is a warning.</li>
+<li>Layers in which the toolpath exposes a part but the job does not, and the other way round, are logged per part as warnings.</li>
+<li>If the job needs more Z travel than the machine allows, the conversion fails with <code>PROCESSHEIGHTEXCEEDED</code>.</li>
+<li>A Z shrinkage compensation of the job (<code>accumulatedShrinkageCompensation</code>) cannot be applied to a toolpath. With strict
+mode on, the conversion fails with <code>SHRINKAGECOMPENSATIONNOTSUPPORTED</code>; otherwise it is a warning and the toolpath is
+written at its own Z.</li>
+</ul>
+<p>When all toolpath layers are on the stack, every exposed stack layer without toolpath is filled while the layers are written:
+every scanner begins one of the layer's parts and nothing is exposed (<code>LAYER_FILLED</code>, counter <code>layersFilled</code>).</p>
+<p>An EOS SDK that does not give the layer stack is logged as <code>LAYER_STACK_UNAVAILABLE</code> and the check is left out.</p>
+<p>Two methods of <a href="api.html#EOSContext">EOSContext</a> run checks without creating a task. Both return an
+<a href="api.html#EOSConversionLog">EOSConversionLog</a> and fail only for invalid arguments.</p>
+<pre><code>// The checks of CreateTaskFrom3MFToolpath, without writing layers. Failures are CHECK_FAILED errors in the log.
+auto pCoverage = pContext-&gt;CheckLayerCoverage(pModel, pConfig, pSettings);
+
+// Compares the bounds of each part's mesh with the bounds of its vectors, with a tolerance in mm.
+auto pAlignment = pContext-&gt;CheckPartToolpathAlignment(pModel, 0.2);
+std::cout &lt;&lt; pAlignment-&gt;GetSummaryValue("partsMisaligned") &lt;&lt; " parts misaligned" &lt;&lt; std::endl;</code></pre>
+<p><code>CheckPartToolpathAlignment</code> needs neither the EOS SDK nor a machine. A part is misaligned if the XY bounds of its
+vectors differ from those of its mesh by more than the tolerance, or if its layers lie below its mesh or more than one layer
+distance above it. The message then gives the differences and, if the vectors look shifted, the shift in X and Y.</p>
+</section>
+
+<section id="log">
+<h2>Conversion log</h2>
+<p>The log is available from <code>TaskCreationFuture::GetConversionLog</code> and from
+<code>EOSRawTaskWriter::GetConversionLog</code>. A future and its writer share the same log, so it keeps growing while the
+SDK creates the task. Each call returns a new handle on the same data.</p>
+<table>
+<tr><th>Method</th><th>Returns</th></tr>
+<tr><td><code>GetLogMessageCount</code>, <code>GetLogMessage</code></td><td>The messages in the order they were added: severity, code, layer index, part ID and text.</td></tr>
+<tr><td><code>GetCountBySeverity</code>, <code>HasErrors</code></td><td>Number of messages per severity, and whether there is an error.</td></tr>
+<tr><td><code>GetSummaryValue</code>, <code>GetSummaryValueCount</code>, <code>GetSummaryValueByIndex</code></td><td>The <a href="#counters">counters</a>. An unknown counter is 0.</td></tr>
+<tr><td><code>ToJSON</code></td><td>The whole log, see <a href="#json">JSON format</a>.</td></tr>
+</table>
+<p>A message that repeats for many vectors, for example a flattened ramp, is stored once per code, layer, part and text,
+and counts its repetitions. Its text ends with the number of repetitions, for example "(12 times)".</p>
+<p>The layer index is the 0-based 3MF layer index for <code>CreateTaskFrom3MFToolpath</code>, and the index passed to
+<code>WriteLayer</code> for a raw task writer. It is -1 if a message is not about a layer, and the part ID is 0 if it is
+not about a part.</p>
+<div class="note">The methods are called <code>GetLogMessageCount</code> and <code>GetLogMessage</code>, because
+<code>windows.h</code> defines <code>GetMessage</code> as a macro.</div>
+</section>
+
+<section id="failures">
+<h2>Failed conversions</h2>
+<p><code>CreateTaskFrom3MFToolpath</code> fails right away only for invalid arguments: a null model or machine
+configuration, invalid settings, or a model without a toolpath. If the conversion itself fails, for example on a
+rejected power ramp or unsupported toolpath data, it returns a future that has already failed.
+<code>HasFailed</code> is true, <code>GetErrorMessage</code> describes the problem and the log ends with a
+<code>CONVERSION_FAILED</code> error. The log still holds everything collected up to the failure, including the profiles read so far.
+This also applies to failed <a href="#layers">layer checks</a> (<code>LAYERZINVALID</code>, <code>LAYERTHICKNESSINCONSISTENT</code>)
+and <a href="#checks">pre-flight checks</a> (<code>LAYERSTACKMISMATCH</code>, <code>PROCESSHEIGHTEXCEEDED</code>,
+<code>SHRINKAGECOMPENSATIONNOTSUPPORTED</code>).</p>
+<p>If the SDK fails later while creating the task, the future fails as before and the log gets a
+<code>TASK_CREATION_FAILED</code> error.</p>
+<p><code>WriteLayer</code> of a raw task writer still throws. Its log is available from the writer.</p>
+</section>
+
+<section id="codes">
+<h2>Message codes</h2>
+<p>Codes are stable and can be used in scripts. The texts may change.</p>
+<table>
+<tr><th>Code</th><th>Severity</th><th>Meaning</th></tr>
+<tr><td><code>SDK_VERSION</code></td><td>info</td><td>The EOS SDK version and the declarations Lib3MFToolpath4EOS uses for it.</td></tr>
+<tr><td><code>SDK_VERSION_FALLBACK</code></td><td>warning</td><td>The SDK version was overridden, could not be detected, or has no declarations of its own, so the nearest lower declarations are used.</td></tr>
+<tr><td><code>POWER_RAMP_FLATTENED</code></td><td>warning</td><td>A ramp of laser power, scan speed or focus was written at its mean values, because the power ramp mode is <code>Flatten</code>. Counted per layer and part.</td></tr>
+<tr><td><code>SDK_FEATURE_UNAVAILABLE</code></td><td>warning</td><td>The layer opening or a beam shape profile was left out, because the loaded EOS SDK cannot set the beam shape. Logged once per conversion for each of the two. With strict mode on, a beam shape profile above 0 fails the conversion instead.</td></tr>
+<tr><td><code>DWELL_UNIT_MISSING</code></td><td>error</td><td>The toolpath has dwell times, but <code>DwellTimeUnit</code> is <code>Unset</code>. The conversion fails with <code>DWELLTIMEUNITMISSING</code>.</td></tr>
+<tr><td><code>LASER_MAPPING</code></td><td>info</td><td>How laser indices become scanners: the declared laser sources in ascending order, or the indices unchanged if the toolpath declares none.</td></tr>
+<tr><td><code>LASER_UNDECLARED</code></td><td>error</td><td>A segment uses a laser index that the toolpath does not declare. The conversion fails with <code>LASERINDEXUNDECLARED</code>.</td></tr>
+<tr><td><code>LASER_SYNC_REFUSED</code></td><td>error</td><td>A segment has <code>lasersync</code>, and strict mode is on. EOS lasers cannot wait for each other; the conversion fails with <code>LASERSYNCNOTSUPPORTED</code>.</td></tr>
+<tr><td><code>LASER_SYNC_IGNORED</code></td><td>warning</td><td>A segment with <code>lasersync</code> was written without waiting for the other lasers, because strict mode is off. Counted per layer.</td></tr>
+<tr><td><code>SCANNER_COUNT_UNAVAILABLE</code></td><td>warning</td><td>The machine configuration gives no number of laser scanners, so scanner indices are only checked by the EOS SDK and scanners without work in a layer get no part, which the SDK refuses.</td></tr>
+<tr><td><code>LAYER_EMPTY_SKIPPED</code></td><td>info</td><td>A toolpath layer without exposure was not written. The text gives its Z in mm. If the job's layer stack has a layer at this Z, it is filled (<code>LAYER_FILLED</code>).</td></tr>
+<tr><td><code>LAYER_FILLED</code></td><td>info</td><td>A layer of the job's layer stack without toolpath was written without exposure; every scanner begins one of the layer's parts in it. Counted per part.</td></tr>
+<tr><td><code>LAYER_FILL_SKIPPED</code></td><td>warning</td><td>Some toolpath layers are not on the layer stack of the job, so the stack layers without toolpath were not filled.</td></tr>
+<tr><td><code>PROFILE_PARAMETER_REFUSED</code></td><td>error</td><td>A toolpath profile has a parameter that cannot be written to EOS, such as <code>jumpspeed</code>, an unknown parameter or a parameter in an unknown namespace, and strict mode is on. The conversion fails with <code>PROFILEPARAMETERNOTSUPPORTED</code>.</td></tr>
+<tr><td><code>PROFILE_PARAMETER_IGNORED</code></td><td>warning</td><td>Such a parameter was left out, because strict mode is off. Logged once per profile and parameter.</td></tr>
+<tr><td><code>FACTOR_CLAMPED</code></td><td>warning</td><td>A modifier factor outside 0 to 1 was clamped, because strict mode is off. Counted per layer and part.</td></tr>
+<tr><td><code>CONSTANT_HATCH_UNEQUAL</code></td><td>warning</td><td>A hatch with different constant modifier factors at its ends was written at the factor of its end, because <code>RefuseUnequalConstantHatch</code> is off. Counted per layer and part.</td></tr>
+<tr><td><code>EXPOSURESET_ASSIGNED</code></td><td>info</td><td>A part got the exposure set that the settings assign to its thickness.</td></tr>
+<tr><td><code>EXPOSURESET_DERIVED</code></td><td>info</td><td>A part got the only exposure set of the material set with its thickness and support flag.</td></tr>
+<tr><td><code>EXPOSURESET_DEFAULT</code></td><td>warning</td><td>A part got <code>_Default_DirectPart</code> or <code>_Default_ExternalSupport</code>. The text says why no exposure set was found.</td></tr>
+<tr><td><code>EXPOSURESET_AMBIGUOUS</code></td><td>error</td><td>No exposure set could be chosen for a part, and defaults are not allowed.</td></tr>
+<tr><td><code>LAYER_Z_CONVENTION</code></td><td>info</td><td>How the toolpath Z values are read, and the offset added to them.</td></tr>
+<tr><td><code>LAYER_Z_AMBIGUOUS</code></td><td>info</td><td>The first layer is at a Z equal to the layer distance, so it could be the top or the base of the first layer.</td></tr>
+<tr><td><code>LAYER_Z_INVALID</code></td><td>error</td><td>The layer Z values do not increase, a first layer is at Z 0 with the convention <code>Top</code>, or the parts have different thicknesses with the convention <code>Base</code>. The conversion fails with <code>LAYERZINVALID</code>.</td></tr>
+<tr><td><code>PART_LAYERS</code></td><td>info</td><td>The layers of a part: their number, the first and last EOS Z and the layer thickness.</td></tr>
+<tr><td><code>PART_WITHOUT_TOOLPATH</code></td><td>warning</td><td>A part has no vectors in the toolpath, or an empty mesh.</td></tr>
+<tr><td><code>PART_THICKNESS_INCONSISTENT</code></td><td>error</td><td>The distances between the layers of a part are not multiples of one thickness. The conversion fails with <code>LAYERTHICKNESSINCONSISTENT</code>.</td></tr>
+<tr><td><code>PART_THICKNESS_NOT_MULTIPLE</code></td><td>warning</td><td>The layer thickness of a part is not a multiple of the job's material thickness.</td></tr>
+<tr><td><code>MACHINETARGET</code></td><td>info</td><td>The machine target of the job and where it comes from.</td></tr>
+<tr><td><code>MACHINETARGET_UNKNOWN</code></td><td>warning</td><td>The machine configuration has a model type that Lib3MFToolpath4EOS does not know, so it cannot give the machine target.</td></tr>
+<tr><td><code>MACHINETARGET_MISMATCH</code></td><td>warning</td><td>The material set is made for another machine than the job targets.</td></tr>
+<tr><td><code>LAYER_NOT_IN_STACK</code></td><td>error or warning</td><td>Toolpath layers have no layer at their Z in the layer stack of the job. Logged once with the number of layers; the layer index is the first of them. An error with strict mode on.</td></tr>
+<tr><td><code>PART_NOT_EXPOSED_IN_JOB</code></td><td>warning</td><td>The toolpath has vectors of a part in layers where the job does not expose it.</td></tr>
+<tr><td><code>PART_LAYERS_WITHOUT_TOOLPATH</code></td><td>warning</td><td>The job exposes a part in layers where the toolpath has no vectors of it, for example because the part skips layers.</td></tr>
+<tr><td><code>LAYER_COVERAGE_COMPLETE</code></td><td>info</td><td>All toolpath layers match the layer stack of the job.</td></tr>
+<tr><td><code>PROCESS_HEIGHTS</code></td><td>info</td><td>The Z travel the job needs and the Z travel the machine allows.</td></tr>
+<tr><td><code>PROCESS_HEIGHT_EXCEEDED</code></td><td>error</td><td>The job needs more Z travel than the machine allows. The conversion fails with <code>PROCESSHEIGHTEXCEEDED</code>.</td></tr>
+<tr><td><code>LAYER_STACK_UNAVAILABLE</code></td><td>warning</td><td>The EOS SDK does not give the layer stack, so the toolpath was not checked against it and no layers are filled.</td></tr>
+<tr><td><code>SHRINKAGE_COMPENSATION_REFUSED</code></td><td>error</td><td>The job compensates Z shrinkage, which cannot be applied to a toolpath, and strict mode is on. The conversion fails with <code>SHRINKAGECOMPENSATIONNOTSUPPORTED</code>.</td></tr>
+<tr><td><code>SHRINKAGE_COMPENSATION_IGNORED</code></td><td>warning</td><td>The job compensates Z shrinkage, and the toolpath was written at its own Z, because strict mode is off.</td></tr>
+<tr><td><code>CONVERSION_FAILED</code></td><td>error</td><td>The conversion stopped. The layer index tells where, if it happened in a layer.</td></tr>
+<tr><td><code>TASK_CREATION_FAILED</code></td><td>error</td><td>The SDK failed to create the task from the converted data.</td></tr>
+<tr><td><code>CHECK_FAILED</code></td><td>error</td><td><code>CheckLayerCoverage</code> stopped. The text gives the reason.</td></tr>
+<tr><td><code>PART_ALIGNED</code></td><td>info</td><td><code>CheckPartToolpathAlignment</code>: the vectors of a part lie within the tolerance of its mesh.</td></tr>
+<tr><td><code>PART_MISALIGNED</code></td><td>warning</td><td><code>CheckPartToolpathAlignment</code>: the vectors of a part do not fit its mesh. The text gives the differences.</td></tr>
+</table>
+</section>
+
+<section id="counters">
+<h2>Counters</h2>
+<p>Every counter is listed in the log from the start, also when it stays 0.</p>
+<table>
+<tr><th>Counter</th><th>Meaning</th></tr>
+<tr><td><code>toolpathLayers</code></td><td>Layers in the 3MF toolpath (only <code>CreateTaskFrom3MFToolpath</code>).</td></tr>
+<tr><td><code>layersWritten</code></td><td>Layers written to the raw task.</td></tr>
+<tr><td><code>layersSkipped</code></td><td>Toolpath layers without exposure that were left out.</td></tr>
+<tr><td><code>layersFilled</code></td><td>Layers of the job's layer stack without toolpath that were written without exposure.</td></tr>
+<tr><td><code>hatchesWritten</code></td><td>Hatch records written, including the sub-hatches of split ramps.</td></tr>
+<tr><td><code>polylinesWritten</code></td><td>Polylines written, including hatches written as polylines. Joined contours count once.</td></tr>
+<tr><td><code>polylineVectorsWritten</code></td><td>Vectors of these polylines.</td></tr>
+<tr><td><code>rampedHatches</code></td><td>Hatches with a ramp of laser power, scan speed or focus.</td></tr>
+<tr><td><code>rampedPolylineVectors</code></td><td>Polyline vectors with a ramp of laser power, scan speed or focus (only <code>CreateTaskFrom3MFToolpath</code>).</td></tr>
+<tr><td><code>rampSubVectors</code></td><td>Sub-vectors created by splitting ramps.</td></tr>
+<tr><td><code>hatchesJoined</code></td><td>Hatches written in one polyline with the hatch before them.</td></tr>
+<tr><td><code>laserBreaksAvoided</code></td><td>Laser off/on switches saved by writing polylines instead of separate vectors.</td></tr>
+<tr><td><code>contoursJoined</code></td><td>Contours appended to the contour before them.</td></tr>
+<tr><td><code>factorsClamped</code></td><td>Modifier factors outside 0 to 1 that were clamped.</td></tr>
+<tr><td><code>idleScannerParts</code></td><td>Parts begun on scanners without work in their layer, summed over the layers. Filled layers are not counted.</td></tr>
+<tr><td><code>profileParametersIgnored</code></td><td>Profile parameters left out because they cannot be written to EOS (only <code>CreateTaskFrom3MFToolpath</code>, strict mode off).</td></tr>
+</table>
+<p>These counters are added only when the toolpath is checked against the layer stack of the job:</p>
+<table>
+<tr><th>Counter</th><th>Meaning</th></tr>
+<tr><td><code>stackLayers</code></td><td>Layers in the layer stack of the job.</td></tr>
+<tr><td><code>layersNotInStack</code></td><td>Toolpath layers without a layer of the stack at their Z.</td></tr>
+<tr><td><code>partLayersNotExposedInJob</code></td><td>Layers of parts that have vectors in the toolpath but are not exposed by the job, summed over the parts.</td></tr>
+<tr><td><code>partLayersWithoutToolpath</code></td><td>Layers of parts that the job exposes but that have no vectors in the toolpath, summed over the parts.</td></tr>
+</table>
+<p>The log of <code>CheckPartToolpathAlignment</code> has only <code>partsChecked</code> and <code>partsMisaligned</code>.</p>
+</section>
+
+<section id="json">
+<h2>JSON format</h2>
+<p><code>EOSConversionLog::ToJSON</code> returns one UTF-8 JSON object. Keys are camelCase, enumerations are written
+with their API names, lengths are in mm and powers in W. Unknown values are <code>null</code>. New keys can be added in
+later versions without changing <code>formatVersion</code>; readers should ignore keys they do not know.</p>
+<table>
+<tr><th>Key</th><th>Content</th></tr>
+<tr><td><code>formatVersion</code></td><td>1.</td></tr>
+<tr><td><code>hasErrors</code></td><td>Whether there is an error message.</td></tr>
+<tr><td><code>libeos</code></td><td><code>version</code> of Lib3MFToolpath4EOS.</td></tr>
+<tr><td><code>sdk</code></td><td><code>directory</code>, <code>productVersion</code> (null if unknown), <code>versionSource</code>
+(<code>productVersionFunction</code>, <code>dllVersionResource</code> or <code>notDetected</code>), <code>adapterVersion</code>
+(the declarations used), <code>openJobVersion</code>, <code>fullSimulation</code> and <code>versionMessages</code>.
+Null if the conversion failed before the SDK was loaded.</td></tr>
+<tr><td><code>settings</code></td><td>The settings of the conversion, as returned by <code>EOSToolpathConversionSettings::ToJSON</code>.</td></tr>
+<tr><td><code>units</code></td><td><code>modelUnitInMM</code>, <code>toolpathUnitInMM</code>, <code>layerZConvention</code>,
+<code>layerZSource</code> (where the layer Z comes from), <code>layerDistance</code> (the smallest layer distance, in &micro;m) and
+<code>eosZOffset</code> (added to the toolpath Z, in &micro;m). Only <code>CreateTaskFrom3MFToolpath</code> and <code>CheckLayerCoverage</code>.</td></tr>
+<tr><td><code>parts</code></td><td>Array of the parts of the model: <code>partId</code>, <code>name</code>, <code>buildItemUUID</code>,
+<code>isSupport</code>, <code>partParameter</code>, <code>exposureSet</code> (null until chosen), <code>toolpathLayers</code>,
+<code>layerThickness</code> (in &micro;m), <code>layerThicknessSource</code> (<code>partLayers</code> or <code>toolpathStep</code>),
+<code>firstLayerZ</code> and <code>lastLayerZ</code> (EOS Z, null for a part without layers).
+Only <code>CreateTaskFrom3MFToolpath</code> and <code>CheckLayerCoverage</code>.</td></tr>
+<tr><td><code>layerStack</code></td><td><code>simulated</code> (true in full SDK simulation), <code>layers</code>, <code>firstLayerZ</code>,
+<code>lastLayerZ</code> and <code>processHeights</code> (<code>preProcessHeight</code>, <code>bottomOffsetHeight</code>,
+<code>payloadHeight</code>, <code>topOffsetHeight</code>, <code>postProcessHeight</code>, <code>accumulatedShrinkageCompensation</code>,
+<code>totalZTravel</code>, <code>maxZTravel</code>). Only if the layer stack was checked.</td></tr>
+<tr><td><code>alignment</code></td><td>Array per part: <code>partId</code>, <code>name</code>, <code>mesh</code> (bounds), <code>toolpath</code>
+(XY bounds, <code>firstLayerZ</code>, <code>lastLayerZ</code>) and <code>maxDeviation</code>. Only <code>CheckPartToolpathAlignment</code>.</td></tr>
+<tr><td><code>profiles</code></td><td>Array of the toolpath profiles used: <code>uuid</code>, <code>name</code>, <code>laserIndex</code>,
+<code>laserPower</code>, <code>scanSpeed</code>, <code>focus</code> (the <code>eos:focus</code> value, null if the profile has none),
+<code>laserFocusOffset</code> (the <code>laserfocus</code> offset in mm), <code>exposureType</code> (null if the profile has none),
+<code>skywriting</code>, <code>exposureSetIndex</code>, <code>exposureStepIndex</code>, <code>pulsedWavePeriodTime</code>,
+<code>pulsedWavePowerOnTime</code>, <code>exposedDepth</code>, <code>preDelay</code>, <code>postDelay</code>, <code>preWaitTime</code>
+(<code>prewaittime</code> in the dwell time unit), <code>dwellTime</code>
+(<code>postwaittime</code> in the dwell time unit), <code>beamShapeProfile</code> (null if none), <code>powerModifier</code>,
+<code>speedModifier</code>, <code>focusModifier</code> and <code>dwellModifier</code> (each null or <code>type</code>, <code>factor</code>,
+<code>minValue</code>, <code>maxValue</code>), <code>constantModifiers</code>, <code>unsupportedModifiers</code> and
+<code>unsupportedParameters</code> (<code>name</code>, with the namespace in front if it has one, and <code>reason</code>).
+Only <code>CreateTaskFrom3MFToolpath</code>.</td></tr>
+<tr><td><code>lasers</code></td><td>Array of the laser indices that are declared or used: <code>laserIndex</code>, <code>scannerIndex</code>
+(the scanner written to the task; null for an undeclared index), <code>declared</code> and <code>used</code>.
+Only <code>CreateTaskFrom3MFToolpath</code>.</td></tr>
+<tr><td><code>scanners</code></td><td>Array of the scanners written to: <code>scannerIndex</code>, <code>exposedLayers</code> (layers with
+blocks on the scanner), <code>idleLayers</code> (layers in which it only got a part begun), <code>blocks</code>, <code>preDelays</code>
+and <code>preDelayMicroseconds</code> (their sum).</td></tr>
+<tr><td><code>summary</code></td><td>Object with the <a href="#counters">counters</a>.</td></tr>
+<tr><td><code>messageCounts</code></td><td><code>info</code>, <code>warning</code> and <code>error</code>.</td></tr>
+<tr><td><code>messages</code></td><td>Array of messages: <code>severity</code> (<code>info</code>, <code>warning</code> or <code>error</code>),
+<code>code</code>, <code>layerIndex</code> and <code>partId</code> (null if not about a layer or part), <code>text</code> and
+<code>count</code> (number of repetitions).</td></tr>
+</table>
+<p>A shortened example:</p>
+<pre><code>{
+  "formatVersion": 1,
+  "hasErrors": false,
+  "libeos": { "version": "1.0.0" },
+  "sdk": { "directory": "C:/Program Files/EOS/EOSPRINT 2 SDK/2_18/bin/x64/release", "productVersion": "2.18.1149.0",
+           "versionSource": "productVersionFunction", "adapterVersion": "2.18", "openJobVersion": "...",
+           "fullSimulation": false, "versionMessages": [] },
+  "settings": { "strictMode": true, "powerDelay": 190, "maxPowerStep": 1, "powerRampMode": "Flatten", ... },
+  "units": { "modelUnitInMM": 1, "toolpathUnitInMM": 0.001, "layerZConvention": "Top", "layerZSource": "toolpathLayerZMax",
+             "layerDistance": 30, "eosZOffset": 0 },
+  "parts": [ { "partId": 1, "name": "Box", "buildItemUUID": "...", "isSupport": false, "partParameter": "",
+               "exposureSet": "Part_30um", "toolpathLayers": 120, "layerThickness": 30, "layerThicknessSource": "partLayers",
+               "firstLayerZ": 0.03, "lastLayerZ": 3.6 } ],
+  "layerStack": { "simulated": false, "layers": 120, "firstLayerZ": 0.03, "lastLayerZ": 3.6, "processHeights": { ... } },
+  "profiles": [ { "uuid": "...", "name": "Hatch 280W", "laserIndex": 0, "laserPower": 280, ... } ],
+  "lasers": [ { "laserIndex": 0, "scannerIndex": 0, "declared": true, "used": true } ],
+  "scanners": [ { "scannerIndex": 0, "exposedLayers": 120, "idleLayers": 0, "blocks": 9120, "preDelays": 0, "preDelayMicroseconds": 0 } ],
+  "summary": { "toolpathLayers": 120, "layersWritten": 120, "hatchesWritten": 50211, "rampedHatches": 14, ... },
+  "messageCounts": { "info": 1, "warning": 3, "error": 0 },
+  "messages": [
+    { "severity": "info", "code": "SDK_VERSION", "layerIndex": null, "partId": null,
+      "text": "EOS SDK 2.18.1149.0 is used with the 2.18 declarations", "count": 1 },
+    { "severity": "warning", "code": "POWER_RAMP_FLATTENED", "layerIndex": 7, "partId": 1,
+      "text": "a ramp of laser power, scan speed or focus was written at its mean values", "count": 5 }
+  ]
+}</code></pre>
+</section>
+
+</main>
+</div>
+</body>
+</html>

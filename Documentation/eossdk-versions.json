@@ -1,0 +1,4035 @@
+{
+ "from": "2.18",
+ "to": "2.26",
+ "versions": {
+  "functions": {
+   "added": [
+    {
+     "name": "Eos_GetProductVersion",
+     "signature": "EOS_ERROR Eos_GetProductVersion(EOS_VERSION * productVersion)"
+    },
+    {
+     "name": "EosFileProperties_FreeSimulationInfo",
+     "signature": "EOS_ERROR EosFileProperties_FreeSimulationInfo(EOS_SIMULATION_INFO const * simuInfo)"
+    },
+    {
+     "name": "EosFileProperties_LoadSimulationInfo",
+     "signature": "EOS_ERROR EosFileProperties_LoadSimulationInfo(EOS_CWSTR pathToEossim, EOS_SIMULATION_INFO const ** simuInfo)"
+    },
+    {
+     "name": "EosMachineSession_GetFreeDiskSpaceMB",
+     "signature": "EOS_ERROR EosMachineSession_GetFreeDiskSpaceMB(EOS_SESSION_HANDLE sessionHandle, double * freeDiskSpaceMB)"
+    },
+    {
+     "name": "EosMachineSession_GetMinimumFreeDiskSpace",
+     "signature": "EOS_ERROR EosMachineSession_GetMinimumFreeDiskSpace(EOS_SESSION_HANDLE sessionHandle, double * minimumFreeDiskSpace_Mb)"
+    },
+    {
+     "name": "EosTaskGen_GetImageData",
+     "signature": "EOS_ERROR EosTaskGen_GetImageData(EOS_IMAGE_SOURCE imageSource, EOS_IMAGE * image)"
+    },
+    {
+     "name": "EosTaskGen_GetSimulationInfo",
+     "signature": "EOS_ERROR EosTaskGen_GetSimulationInfo(EOS_SIMULATION_INFO const ** simuInfo)"
+    },
+    {
+     "name": "EosToolpath_OpenOutputFileWithMetaData",
+     "signature": "EOS_ERROR EosToolpath_OpenOutputFileWithMetaData(EOS_TASK_METADATA const * metaData, EOS_CWSTR filePath, EOS_FILE_HANDLE * fileHandle)"
+    },
+    {
+     "name": "EosToolpath_SetSetBeamShapeCallback",
+     "signature": "EOS_ERROR EosToolpath_SetSetBeamShapeCallback(EOS_SETBEAMSHAPE_CALLBACK callback, EOS_DATA_HANDLE customCallbackDataHandle)"
+    },
+    {
+     "name": "EosToolpath_SetVSegmentEndCallback",
+     "signature": "EOS_ERROR EosToolpath_SetVSegmentEndCallback(EOS_VSEGMENTEND_CALLBACK callback, EOS_DATA_HANDLE customCallbackDataHandle)"
+    },
+    {
+     "name": "EosToolpath_SetVSegmentStartCallback",
+     "signature": "EOS_ERROR EosToolpath_SetVSegmentStartCallback(EOS_VSEGMENTSTART_CALLBACK callback, EOS_DATA_HANDLE customCallbackDataHandle)"
+    },
+    {
+     "name": "EosToolpath_WriteSetBeamShape",
+     "signature": "EOS_ERROR EosToolpath_WriteSetBeamShape(EOS_FILE_HANDLE fileHandle, EOS_BEAMSHAPE beamShapeType, EOS_INT profileId)"
+    },
+    {
+     "name": "EosToolpath_WriteVSegmentEnd",
+     "signature": "EOS_ERROR EosToolpath_WriteVSegmentEnd(EOS_FILE_HANDLE fileHandle, EOS_UINT vSegmentIndex)"
+    },
+    {
+     "name": "EosToolpath_WriteVSegmentStart",
+     "signature": "EOS_ERROR EosToolpath_WriteVSegmentStart(EOS_FILE_HANDLE fileHandle, EOS_UINT vSegmentIndex)"
+    }
+   ],
+   "removed": [
+    {
+     "name": "EosGeometry_BeginScalingLinear",
+     "signature": "EOS_ERROR EosGeometry_BeginScalingLinear(EOS_CWSTR pathToInputStlFile, EOS_CWSTR pathToOutputStlFile, EOS_DOUBLE scalingPercentX, EOS_DOUBLE scalingPercentY, EOS_DOUBLE scalingPercentZBottom, EOS_DOUBLE scalingPercentZTop, EOS_CWSTR pathToEospar, EOS_FILECREATION_HANDLE * fileCreationHandle)"
+    },
+    {
+     "name": "EosGeometry_BeginScalingSmart",
+     "signature": "EOS_ERROR EosGeometry_BeginScalingSmart(EOS_CWSTR pathToInputStlFile, EOS_CWSTR pathToOutputStlFile, EOS_DOUBLE scalingPercentX, EOS_DOUBLE scalingPercentY, EOS_DOUBLE jobHeightInMm, EOS_CWSTR pathToEospar, EOS_FILECREATION_HANDLE * fileCreationHandle)"
+    },
+    {
+     "name": "EosMachineSession_GetFileTransferStatus",
+     "signature": "EOS_TRANSFER_STATUS EosMachineSession_GetFileTransferStatus(EOS_FILETRANSFER_HANDLE)"
+    },
+    {
+     "name": "EosTaskGen_GetPreviewData",
+     "signature": "EOS_ERROR EosTaskGen_GetPreviewData(EOS_EXPOSUREPOINTARRAY const ** previewData)"
+    }
+   ],
+   "changed": [],
+   "renamed_parameters": [
+    {
+     "name": "EosFileProperties_DoesTaskConfigMatchLocalConfig",
+     "old": "EOS_ERROR EosFileProperties_DoesTaskConfigMatchLocalConfig(EOS_CWSTR pathToTaskFile, EOS_CWSTR pathToConfigsDirectory, EOS_BOOL * match)",
+     "new": "EOS_ERROR EosFileProperties_DoesTaskConfigMatchLocalConfig(EOS_CWSTR pathToTaskFile, EOS_CWSTR pathToConfigsDirectory, EOS_BOOL * matches)"
+    }
+   ]
+  },
+  "callbacks": {
+   "added": [
+    {
+     "name": "EOS_SETBEAMSHAPE_CALLBACK",
+     "signature": "void EOS_SETBEAMSHAPE_CALLBACK(EOS_DATA_HANDLE customCallbackDataHandle, EOS_DATA_HANDLE customReadDataHandle, EOS_BEAMSHAPE beamShapeType, EOS_INT profileId)"
+    },
+    {
+     "name": "EOS_VSEGMENTEND_CALLBACK",
+     "signature": "void EOS_VSEGMENTEND_CALLBACK(EOS_DATA_HANDLE customCallbackDataHandle, EOS_DATA_HANDLE customReadDataHandle, EOS_UINT vSegmentIndex)"
+    },
+    {
+     "name": "EOS_VSEGMENTSTART_CALLBACK",
+     "signature": "void EOS_VSEGMENTSTART_CALLBACK(EOS_DATA_HANDLE customCallbackDataHandle, EOS_DATA_HANDLE customReadDataHandle, EOS_UINT vSegmentIndex)"
+    }
+   ],
+   "removed": [],
+   "changed": [
+    {
+     "name": "EOS_BUILD_TIME_PROGRESS_CALLBACK",
+     "old": "void EOS_BUILD_TIME_PROGRESS_CALLBACK(EOS_DATA_HANDLE customDataHandle, EOS_BUILDTIMEINFO info)",
+     "new": "void EOS_BUILD_TIME_PROGRESS_CALLBACK(EOS_DATA_HANDLE customDataHandle, EOS_BUILDTIMEINFO const * info)"
+    },
+    {
+     "name": "EOS_EVENT_CALLBACK",
+     "old": "void EOS_EVENT_CALLBACK(EOS_DATA_HANDLE customDataHandle, EOS_EVENT event)",
+     "new": "void EOS_EVENT_CALLBACK(EOS_DATA_HANDLE customDataHandle, EOS_EVENT const * event)"
+    }
+   ]
+  },
+  "records": {
+   "added": [
+    {
+     "name": "EOS_IMAGE",
+     "layout": {
+      "kind": "struct",
+      "size": 128,
+      "align": 8,
+      "members": [
+       {
+        "name": "data",
+        "type": "EOS_BYTE const *",
+        "array": "",
+        "offset": 0,
+        "size": 8
+       },
+       {
+        "name": "dataSize",
+        "type": "EOS_SIZET",
+        "array": "",
+        "offset": 8,
+        "size": 8
+       },
+       {
+        "name": "rowCount",
+        "type": "EOS_SIZET",
+        "array": "",
+        "offset": 16,
+        "size": 8
+       },
+       {
+        "name": "columnCount",
+        "type": "EOS_SIZET",
+        "array": "",
+        "offset": 24,
+        "size": 8
+       },
+       {
+        "name": "rowSizeWithPadding",
+        "type": "EOS_SIZET",
+        "array": "",
+        "offset": 32,
+        "size": 8
+       },
+       {
+        "name": "pixelSize",
+        "type": "EOS_SIZET",
+        "array": "",
+        "offset": 40,
+        "size": 8
+       },
+       {
+        "name": "colorSpace",
+        "type": "EOS_IMAGE_COLOR_SPACE",
+        "array": "",
+        "offset": 48,
+        "size": 4
+       },
+       {
+        "name": "channelFormat",
+        "type": "EOS_IMAGE_CHANNEL_FORMAT",
+        "array": "",
+        "offset": 52,
+        "size": 4
+       },
+       {
+        "name": "reserved",
+        "type": "EOS_BYTE",
+        "array": "72",
+        "offset": 56,
+        "size": 72
+       }
+      ]
+     }
+    },
+    {
+     "name": "EOS_SIMULATION_INFO",
+     "layout": {
+      "kind": "struct",
+      "size": 104,
+      "align": 8,
+      "members": [
+       {
+        "name": "uuid",
+        "type": "EOS_CWSTR",
+        "array": "",
+        "offset": 0,
+        "size": 8
+       },
+       {
+        "name": "name",
+        "type": "EOS_CWSTR",
+        "array": "",
+        "offset": 8,
+        "size": 8
+       },
+       {
+        "name": "version",
+        "type": "EOS_VERSION",
+        "array": "",
+        "offset": 16,
+        "size": 16
+       },
+       {
+        "name": "outputType",
+        "type": "EOS_SIMULATION_OUTPUT",
+        "array": "",
+        "offset": 32,
+        "size": 4
+       },
+       {
+        "name": "modelType",
+        "type": "EOS_SIMULATION_MODEL_TYPE",
+        "array": "",
+        "offset": 36,
+        "size": 4
+       },
+       {
+        "name": "material",
+        "type": "EOS_CWSTR",
+        "array": "",
+        "offset": 40,
+        "size": 8
+       },
+       {
+        "name": "baseLayerThickness",
+        "type": "EOS_MICROMETER",
+        "array": "",
+        "offset": 48,
+        "size": 4
+       },
+       {
+        "name": "machineModelNames",
+        "type": "EOS_CWSTR",
+        "array": "",
+        "offset": 56,
+        "size": 8
+       },
+       {
+        "name": "machineModelTypes",
+        "type": "EOS_CWSTR",
+        "array": "",
+        "offset": 64,
+        "size": 8
+       },
+       {
+        "name": "description",
+        "type": "EOS_CWSTR",
+        "array": "",
+        "offset": 72,
+        "size": 8
+       },
+       {
+        "name": "reserved",
+        "type": "EOS_BYTE",
+        "array": "20",
+        "offset": 80,
+        "size": 20
+       }
+      ]
+     }
+    }
+   ],
+   "removed": [
+    {
+     "name": "EOS_POINT2D",
+     "layout": {
+      "kind": "struct",
+      "size": 16,
+      "align": 8,
+      "members": [
+       {
+        "name": "x_mm",
+        "type": "EOS_MILLIMETER",
+        "array": "",
+        "offset": 0,
+        "size": 8
+       },
+       {
+        "name": "y_mm",
+        "type": "EOS_MILLIMETER",
+        "array": "",
+        "offset": 8,
+        "size": 8
+       }
+      ]
+     }
+    }
+   ],
+   "changed": [
+    {
+     "name": "EOS_ADJUSTABLE_PROCESS_PARAMETER",
+     "old": {
+      "kind": "struct",
+      "size": 128,
+      "align": 8,
+      "members": [
+       {
+        "name": "id",
+        "type": "EOS_CWSTR",
+        "array": "",
+        "offset": 0,
+        "size": 8
+       },
+       {
+        "name": "displayName",
+        "type": "EOS_CWSTR",
+        "array": "",
+        "offset": 8,
+        "size": 8
+       },
+       {
+        "name": "unit",
+        "type": "EOS_CWSTR",
+        "array": "",
+        "offset": 16,
+        "size": 8
+       },
+       {
+        "name": "isJobSpecificAdjustmentEnabled",
+        "type": "EOS_BOOL",
+        "array": "",
+        "offset": 24,
+        "size": 4
+       },
+       {
+        "name": "isMachineSpecificAdjustmentEnabled",
+        "type": "EOS_BOOL",
+        "array": "",
+        "offset": 28,
+        "size": 4
+       },
+       {
+        "name": "adjustmentOperation",
+        "type": "EOS_ADJUSTMENT_OPERATION",
+        "array": "",
+        "offset": 32,
+        "size": 4
+       },
+       {
+        "name": "hasEffectOn",
+        "type": "EOS_AFFECTED_UNITS",
+        "array": "",
+        "offset": 36,
+        "size": 4
+       },
+       {
+        "name": "hasRangeMin",
+        "type": "EOS_BOOL",
+        "array": "",
+        "offset": 40,
+        "size": 4
+       },
+       {
+        "name": "valueRangeMin",
+        "type": "EOS_DOUBLE",
+        "array": "",
+        "offset": 48,
+        "size": 8
+       },
+       {
+        "name": "hasRangeMax",
+        "type": "EOS_BOOL",
+        "array": "",
+        "offset": 56,
+        "size": 4
+       },
+       {
+        "name": "valueRangeMax",
+        "type": "EOS_DOUBLE",
+        "array": "",
+        "offset": 64,
+        "size": 8
+       },
+       {
+        "name": "valueUnadjusted",
+        "type": "EOS_DOUBLE",
+        "array": "",
+        "offset": 72,
+        "size": 8
+       },
+       {
+        "name": "reserved",
+        "type": "EOS_BYTE",
+        "array": "48",
+        "offset": 80,
+        "size": 48
+       }
+      ]
+     },
+     "new": {
+      "kind": "struct",
+      "size": 128,
+      "align": 8,
+      "members": [
+       {
+        "name": "id",
+        "type": "EOS_CWSTR",
+        "array": "",
+        "offset": 0,
+        "size": 8
+       },
+       {
+        "name": "displayName",
+        "type": "EOS_CWSTR",
+        "array": "",
+        "offset": 8,
+        "size": 8
+       },
+       {
+        "name": "unit",
+        "type": "EOS_CWSTR",
+        "array": "",
+        "offset": 16,
+        "size": 8
+       },
+       {
+        "name": "isJobSpecificAdjustmentEnabled",
+        "type": "EOS_BOOL",
+        "array": "",
+        "offset": 24,
+        "size": 4
+       },
+       {
+        "name": "isMachineSpecificAdjustmentEnabled",
+        "type": "EOS_BOOL",
+        "array": "",
+        "offset": 28,
+        "size": 4
+       },
+       {
+        "name": "adjustmentOperation",
+        "type": "EOS_ADJUSTMENT_OPERATION",
+        "array": "",
+        "offset": 32,
+        "size": 4
+       },
+       {
+        "name": "hasEffectOn",
+        "type": "EOS_AFFECTED_UNITS",
+        "array": "",
+        "offset": 36,
+        "size": 4
+       },
+       {
+        "name": "hasRangeMin",
+        "type": "EOS_BOOL",
+        "array": "",
+        "offset": 40,
+        "size": 4
+       },
+       {
+        "name": "hasRangeMax",
+        "type": "EOS_BOOL",
+        "array": "",
+        "offset": 44,
+        "size": 4
+       },
+       {
+        "name": "valueRangeMin",
+        "type": "EOS_DOUBLE",
+        "array": "",
+        "offset": 48,
+        "size": 8
+       },
+       {
+        "name": "valueRangeMax",
+        "type": "EOS_DOUBLE",
+        "array": "",
+        "offset": 56,
+        "size": 8
+       },
+       {
+        "name": "valueUnadjusted",
+        "type": "EOS_DOUBLE",
+        "array": "",
+        "offset": 64,
+        "size": 8
+       },
+       {
+        "name": "reserved",
+        "type": "EOS_BYTE",
+        "array": "56",
+        "offset": 72,
+        "size": 56
+       }
+      ]
+     },
+     "size_changed": false
+    },
+    {
+     "name": "EOS_EVENT",
+     "old": {
+      "kind": "struct",
+      "size": 64,
+      "align": 8,
+      "members": [
+       {
+        "name": "moduleId",
+        "type": "EOS_MODULE_ID",
+        "array": "",
+        "offset": 0,
+        "size": 4
+       },
+       {
+        "name": "eventId",
+        "type": "EOS_EVENT_ID",
+        "array": "",
+        "offset": 4,
+        "size": 4
+       },
+       {
+        "name": "errorCode",
+        "type": "EOS_ERROR",
+        "array": "",
+        "offset": 8,
+        "size": 4
+       },
+       {
+        "name": "severity",
+        "type": "EOS_SEVERITY",
+        "array": "",
+        "offset": 12,
+        "size": 4
+       },
+       {
+        "name": "displayOptions",
+        "type": "EOS_DISPLAY_OPTIONS",
+        "array": "",
+        "offset": 16,
+        "size": 4
+       },
+       {
+        "name": "name",
+        "type": "EOS_CWSTR",
+        "array": "",
+        "offset": 24,
+        "size": 8
+       },
+       {
+        "name": "infoItemCount",
+        "type": "EOS_UINT",
+        "array": "",
+        "offset": 32,
+        "size": 4
+       },
+       {
+        "name": "infoItems",
+        "type": "EOS_INFO_ITEM *",
+        "array": "",
+        "offset": 40,
+        "size": 8
+       },
+       {
+        "name": "reserved",
+        "type": "EOS_BYTE",
+        "array": "16",
+        "offset": 48,
+        "size": 16
+       }
+      ]
+     },
+     "new": {
+      "kind": "struct",
+      "size": 64,
+      "align": 8,
+      "members": [
+       {
+        "name": "moduleId",
+        "type": "EOS_MODULE_ID",
+        "array": "",
+        "offset": 0,
+        "size": 4
+       },
+       {
+        "name": "eventId",
+        "type": "EOS_EVENT_ID",
+        "array": "",
+        "offset": 4,
+        "size": 4
+       },
+       {
+        "name": "errorCode",
+        "type": "EOS_ERROR",
+        "array": "",
+        "offset": 8,
+        "size": 4
+       },
+       {
+        "name": "severity",
+        "type": "EOS_SEVERITY",
+        "array": "",
+        "offset": 12,
+        "size": 4
+       },
+       {
+        "name": "name",
+        "type": "EOS_CWSTR",
+        "array": "",
+        "offset": 16,
+        "size": 8
+       },
+       {
+        "name": "displayOptions",
+        "type": "EOS_DISPLAY_OPTIONS",
+        "array": "",
+        "offset": 24,
+        "size": 4
+       },
+       {
+        "name": "infoItemCount",
+        "type": "EOS_UINT",
+        "array": "",
+        "offset": 28,
+        "size": 4
+       },
+       {
+        "name": "infoItems",
+        "type": "EOS_INFO_ITEM *",
+        "array": "",
+        "offset": 32,
+        "size": 8
+       },
+       {
+        "name": "reserved",
+        "type": "EOS_BYTE",
+        "array": "24",
+        "offset": 40,
+        "size": 24
+       }
+      ]
+     },
+     "size_changed": false
+    },
+    {
+     "name": "EOS_EXPOSURESET_AUTO_ASSIGNMENT_RULE",
+     "old": {
+      "kind": "struct",
+      "size": 16,
+      "align": 8,
+      "members": [
+       {
+        "name": "fileNameSuffix",
+        "type": "EOS_CWSTR",
+        "array": "",
+        "offset": 0,
+        "size": 8
+       },
+       {
+        "name": "exposureSetName",
+        "type": "EOS_CWSTR",
+        "array": "",
+        "offset": 8,
+        "size": 8
+       }
+      ]
+     },
+     "new": {
+      "kind": "struct",
+      "size": 48,
+      "align": 8,
+      "members": [
+       {
+        "name": "fileNameSuffix",
+        "type": "EOS_CWSTR",
+        "array": "",
+        "offset": 0,
+        "size": 8
+       },
+       {
+        "name": "exposureSetName",
+        "type": "EOS_CWSTR",
+        "array": "",
+        "offset": 8,
+        "size": 8
+       },
+       {
+        "name": "reserved",
+        "type": "EOS_BYTE",
+        "array": "32",
+        "offset": 16,
+        "size": 32
+       }
+      ]
+     },
+     "size_changed": true
+    },
+    {
+     "name": "EOS_EXPOSURETIME_DETAIL",
+     "old": {
+      "kind": "struct",
+      "size": 168,
+      "align": 8,
+      "members": [
+       {
+        "name": "delayTimeSeconds",
+        "type": "EOS_DOUBLE",
+        "array": "",
+        "offset": 0,
+        "size": 8
+       },
+       {
+        "name": "exposureTimeSecondsPerType",
+        "type": "EOS_DOUBLE",
+        "array": "16",
+        "offset": 8,
+        "size": 128
+       },
+       {
+        "name": "reserved",
+        "type": "EOS_BYTE",
+        "array": "32",
+        "offset": 136,
+        "size": 32
+       }
+      ]
+     },
+     "new": {
+      "kind": "struct",
+      "size": 256,
+      "align": 8,
+      "members": [
+       {
+        "name": "delayTimeSeconds",
+        "type": "EOS_DOUBLE",
+        "array": "",
+        "offset": 0,
+        "size": 8
+       },
+       {
+        "name": "exposureTimeSecondsPerType",
+        "type": "EOS_DOUBLE",
+        "array": "24",
+        "offset": 8,
+        "size": 192
+       },
+       {
+        "name": "reserved",
+        "type": "EOS_BYTE",
+        "array": "56",
+        "offset": 200,
+        "size": 56
+       }
+      ]
+     },
+     "size_changed": true
+    },
+    {
+     "name": "EOS_EXPOSURE_DATA",
+     "old": {
+      "kind": "struct",
+      "size": 64,
+      "align": 8,
+      "members": [
+       {
+        "name": "partId",
+        "type": "EOS_INT",
+        "array": "",
+        "offset": 0,
+        "size": 4
+       },
+       {
+        "name": "laserPower_W",
+        "type": "EOS_DOUBLE",
+        "array": "",
+        "offset": 8,
+        "size": 8
+       },
+       {
+        "name": "exposureType",
+        "type": "EOS_EXPOSURE_TYPE",
+        "array": "",
+        "offset": 16,
+        "size": 4
+       },
+       {
+        "name": "laserScannerIndex",
+        "type": "EOS_BYTE",
+        "array": "",
+        "offset": 20,
+        "size": 1
+       },
+       {
+        "name": "scannerSpeed_mm_per_s",
+        "type": "EOS_DOUBLE",
+        "array": "",
+        "offset": 24,
+        "size": 8
+       },
+       {
+        "name": "pulsedWavePeriodTime_us",
+        "type": "EOS_MICROSECS",
+        "array": "",
+        "offset": 32,
+        "size": 8
+       },
+       {
+        "name": "pulsedWavePowerOnTime_us",
+        "type": "EOS_MICROSECS",
+        "array": "",
+        "offset": 40,
+        "size": 8
+       },
+       {
+        "name": "pulsedWavePowerOnDelay_us",
+        "type": "EOS_MICROSECS",
+        "array": "",
+        "offset": 48,
+        "size": 8
+       },
+       {
+        "name": "exposureSetIndex",
+        "type": "EOS_UINT",
+        "array": "",
+        "offset": 56,
+        "size": 4
+       },
+       {
+        "name": "exposureStepIndex",
+        "type": "EOS_UINT",
+        "array": "",
+        "offset": 60,
+        "size": 4
+       }
+      ]
+     },
+     "new": {
+      "kind": "struct",
+      "size": 96,
+      "align": 8,
+      "members": [
+       {
+        "name": "partId",
+        "type": "EOS_INT",
+        "array": "",
+        "offset": 0,
+        "size": 4
+       },
+       {
+        "name": "exposureType",
+        "type": "EOS_EXPOSURE_TYPE",
+        "array": "",
+        "offset": 4,
+        "size": 4
+       },
+       {
+        "name": "laserScannerIndex",
+        "type": "EOS_BYTE",
+        "array": "",
+        "offset": 8,
+        "size": 1
+       },
+       {
+        "name": "laserPower_W",
+        "type": "EOS_DOUBLE",
+        "array": "",
+        "offset": 16,
+        "size": 8
+       },
+       {
+        "name": "scannerSpeed_mm_per_s",
+        "type": "EOS_DOUBLE",
+        "array": "",
+        "offset": 24,
+        "size": 8
+       },
+       {
+        "name": "pulsedWavePeriodTime_us",
+        "type": "EOS_MICROSECS",
+        "array": "",
+        "offset": 32,
+        "size": 8
+       },
+       {
+        "name": "pulsedWavePowerOnTime_us",
+        "type": "EOS_MICROSECS",
+        "array": "",
+        "offset": 40,
+        "size": 8
+       },
+       {
+        "name": "pulsedWavePowerOnDelay_us",
+        "type": "EOS_MICROSECS",
+        "array": "",
+        "offset": 48,
+        "size": 8
+       },
+       {
+        "name": "exposureSetIndex",
+        "type": "EOS_UINT",
+        "array": "",
+        "offset": 56,
+        "size": 4
+       },
+       {
+        "name": "exposureStepIndex",
+        "type": "EOS_UINT",
+        "array": "",
+        "offset": 60,
+        "size": 4
+       },
+       {
+        "name": "beamProfileId",
+        "type": "EOS_INT",
+        "array": "",
+        "offset": 64,
+        "size": 4
+       },
+       {
+        "name": "reserved",
+        "type": "EOS_BYTE",
+        "array": "28",
+        "offset": 68,
+        "size": 28
+       }
+      ]
+     },
+     "size_changed": true
+    },
+    {
+     "name": "EOS_EXPOSURE_VECTOR",
+     "old": {
+      "kind": "struct",
+      "size": 48,
+      "align": 8,
+      "members": [
+       {
+        "name": "start",
+        "type": "EOS_POINT2D",
+        "array": "",
+        "offset": 0,
+        "size": 16
+       },
+       {
+        "name": "end",
+        "type": "EOS_POINT2D",
+        "array": "",
+        "offset": 16,
+        "size": 16
+       },
+       {
+        "name": "exposureDataIndex",
+        "type": "EOS_SIZET",
+        "array": "",
+        "offset": 32,
+        "size": 8
+       },
+       {
+        "name": "timestamp_us",
+        "type": "EOS_MICROSECS",
+        "array": "",
+        "offset": 40,
+        "size": 8
+       }
+      ]
+     },
+     "new": {
+      "kind": "struct",
+      "size": 48,
+      "align": 8,
+      "members": [
+       {
+        "name": "start",
+        "type": "EOS_POINT2",
+        "array": "",
+        "offset": 0,
+        "size": 16
+       },
+       {
+        "name": "end",
+        "type": "EOS_POINT2",
+        "array": "",
+        "offset": 16,
+        "size": 16
+       },
+       {
+        "name": "exposureDataIndex",
+        "type": "EOS_SIZET",
+        "array": "",
+        "offset": 32,
+        "size": 8
+       },
+       {
+        "name": "timestamp_us",
+        "type": "EOS_MICROSECS",
+        "array": "",
+        "offset": 40,
+        "size": 8
+       }
+      ]
+     },
+     "size_changed": false
+    },
+    {
+     "name": "EOS_MACHINE_INFO",
+     "old": {
+      "kind": "struct",
+      "size": 144,
+      "align": 8,
+      "members": [
+       {
+        "name": "volumeType",
+        "type": "EOS_VOLUME_TYPE",
+        "array": "",
+        "offset": 0,
+        "size": 4
+       },
+       {
+        "name": "dimX",
+        "type": "EOS_MILLIMETER",
+        "array": "",
+        "offset": 8,
+        "size": 8
+       },
+       {
+        "name": "dimY",
+        "type": "EOS_MILLIMETER",
+        "array": "",
+        "offset": 16,
+        "size": 8
+       },
+       {
+        "name": "dimZ",
+        "type": "EOS_MILLIMETER",
+        "array": "",
+        "offset": 24,
+        "size": 8
+       },
+       {
+        "name": "dimR",
+        "type": "EOS_MILLIMETER",
+        "array": "",
+        "offset": 32,
+        "size": 8
+       },
+       {
+        "name": "modelType",
+        "type": "EOS_MODEL_TYPE",
+        "array": "",
+        "offset": 40,
+        "size": 4
+       },
+       {
+        "name": "machineSoftwareVersion",
+        "type": "EOS_VERSION",
+        "array": "",
+        "offset": 44,
+        "size": 16
+       },
+       {
+        "name": "machineInterfaceVersion",
+        "type": "EOS_VERSION",
+        "array": "",
+        "offset": 60,
+        "size": 16
+       },
+       {
+        "name": "serialNumber",
+        "type": "EOS_CWSTR",
+        "array": "",
+        "offset": 80,
+        "size": 8
+       },
+       {
+        "name": "numberOfLaserScanners",
+        "type": "EOS_INT",
+        "array": "",
+        "offset": 88,
+        "size": 4
+       },
+       {
+        "name": "printDomain",
+        "type": "EOS_CWSTR",
+        "array": "",
+        "offset": 96,
+        "size": 8
+       },
+       {
+        "name": "laserScannerInfo",
+        "type": "EOS_LASER_SCANNER_INFO const *",
+        "array": "",
+        "offset": 104,
+        "size": 8
+       },
+       {
+        "name": "eostateExposureOtVersion",
+        "type": "EOS_VERSION",
+        "array": "",
+        "offset": 112,
+        "size": 16
+       },
+       {
+        "name": "smartFusionLicenseInfos",
+        "type": "EOS_MACHINE_LICENSE_INFOS",
+        "array": "",
+        "offset": 128,
+        "size": 4
+       },
+       {
+        "name": "smartFusionCompatibility",
+        "type": "EOS_SMART_FUSION_COMPATIBILITY",
+        "array": "",
+        "offset": 132,
+        "size": 4
+       },
+       {
+        "name": "reserved",
+        "type": "EOS_BYTE",
+        "array": "8",
+        "offset": 136,
+        "size": 8
+       }
+      ]
+     },
+     "new": {
+      "kind": "struct",
+      "size": 192,
+      "align": 8,
+      "members": [
+       {
+        "name": "volumeType",
+        "type": "EOS_VOLUME_TYPE",
+        "array": "",
+        "offset": 0,
+        "size": 4
+       },
+       {
+        "name": "dimX",
+        "type": "EOS_MILLIMETER",
+        "array": "",
+        "offset": 8,
+        "size": 8
+       },
+       {
+        "name": "dimY",
+        "type": "EOS_MILLIMETER",
+        "array": "",
+        "offset": 16,
+        "size": 8
+       },
+       {
+        "name": "dimZ",
+        "type": "EOS_MILLIMETER",
+        "array": "",
+        "offset": 24,
+        "size": 8
+       },
+       {
+        "name": "dimR",
+        "type": "EOS_MILLIMETER",
+        "array": "",
+        "offset": 32,
+        "size": 8
+       },
+       {
+        "name": "modelType",
+        "type": "EOS_MODEL_TYPE",
+        "array": "",
+        "offset": 40,
+        "size": 4
+       },
+       {
+        "name": "numberOfLaserScanners",
+        "type": "EOS_INT",
+        "array": "",
+        "offset": 44,
+        "size": 4
+       },
+       {
+        "name": "machineSoftwareVersion",
+        "type": "EOS_VERSION",
+        "array": "",
+        "offset": 48,
+        "size": 16
+       },
+       {
+        "name": "machineInterfaceVersion",
+        "type": "EOS_VERSION",
+        "array": "",
+        "offset": 64,
+        "size": 16
+       },
+       {
+        "name": "serialNumber",
+        "type": "EOS_CWSTR",
+        "array": "",
+        "offset": 80,
+        "size": 8
+       },
+       {
+        "name": "printDomain",
+        "type": "EOS_CWSTR",
+        "array": "",
+        "offset": 88,
+        "size": 8
+       },
+       {
+        "name": "laserScannerInfo",
+        "type": "EOS_LASER_SCANNER_INFO const *",
+        "array": "",
+        "offset": 96,
+        "size": 8
+       },
+       {
+        "name": "eostateExposureOtVersion",
+        "type": "EOS_VERSION",
+        "array": "",
+        "offset": 104,
+        "size": 16
+       },
+       {
+        "name": "eostateMeltpoolVersion",
+        "type": "EOS_VERSION",
+        "array": "",
+        "offset": 120,
+        "size": 16
+       },
+       {
+        "name": "smartFusionLicenseInfos",
+        "type": "EOS_MACHINE_LICENSE_INFOS",
+        "array": "",
+        "offset": 136,
+        "size": 4
+       },
+       {
+        "name": "smartFusionCompatibility",
+        "type": "EOS_SMART_FUSION_COMPATIBILITY",
+        "array": "",
+        "offset": 140,
+        "size": 4
+       },
+       {
+        "name": "modelName",
+        "type": "EOS_CWSTR",
+        "array": "",
+        "offset": 144,
+        "size": 8
+       },
+       {
+        "name": "isCustomizedMachine",
+        "type": "EOS_BOOL",
+        "array": "",
+        "offset": 152,
+        "size": 4
+       },
+       {
+        "name": "reserved",
+        "type": "EOS_BYTE",
+        "array": "36",
+        "offset": 156,
+        "size": 36
+       }
+      ]
+     },
+     "size_changed": true
+    },
+    {
+     "name": "EOS_MATERIALSET_INFO",
+     "old": {
+      "kind": "struct",
+      "size": 256,
+      "align": 8,
+      "members": [
+       {
+        "name": "name",
+        "type": "EOS_CWSTR",
+        "array": "",
+        "offset": 0,
+        "size": 8
+       },
+       {
+        "name": "version",
+        "type": "EOS_VERSION",
+        "array": "",
+        "offset": 8,
+        "size": 16
+       },
+       {
+        "name": "uuid",
+        "type": "EOS_CWSTR",
+        "array": "",
+        "offset": 24,
+        "size": 8
+       },
+       {
+        "name": "parentUuid",
+        "type": "EOS_CWSTR",
+        "array": "",
+        "offset": 32,
+        "size": 8
+       },
+       {
+        "name": "modelType",
+        "type": "EOS_MODEL_TYPE",
+        "array": "",
+        "offset": 40,
+        "size": 4
+       },
+       {
+        "name": "material",
+        "type": "EOS_CWSTR",
+        "array": "",
+        "offset": 48,
+        "size": 8
+       },
+       {
+        "name": "baseLayerThickness",
+        "type": "EOS_MICROMETER",
+        "array": "",
+        "offset": 56,
+        "size": 4
+       },
+       {
+        "name": "inertGas",
+        "type": "EOS_INERT_GAS",
+        "array": "",
+        "offset": 60,
+        "size": 4
+       },
+       {
+        "name": "isAuthoredByEos",
+        "type": "EOS_BOOL",
+        "array": "",
+        "offset": 64,
+        "size": 4
+       },
+       {
+        "name": "isFinal",
+        "type": "EOS_BOOL",
+        "array": "",
+        "offset": 68,
+        "size": 4
+       },
+       {
+        "name": "history",
+        "type": "EOS_MATERIALSET_REVISION const *",
+        "array": "",
+        "offset": 72,
+        "size": 8
+       },
+       {
+        "name": "historySize",
+        "type": "EOS_SIZET",
+        "array": "",
+        "offset": 80,
+        "size": 8
+       },
+       {
+        "name": "exposureSets",
+        "type": "EOS_EXPOSURESET_INFO const *",
+        "array": "",
+        "offset": 88,
+        "size": 8
+       },
+       {
+        "name": "exposureSetsSize",
+        "type": "EOS_SIZET",
+        "array": "",
+        "offset": 96,
+        "size": 8
+       },
+       {
+        "name": "adjustableParameters",
+        "type": "EOS_ADJUSTABLE_PROCESS_PARAMETER const *",
+        "array": "",
+        "offset": 104,
+        "size": 8
+       },
+       {
+        "name": "adjustableParametersSize",
+        "type": "EOS_SIZET",
+        "array": "",
+        "offset": 112,
+        "size": 8
+       },
+       {
+        "name": "autoAssignmentRules",
+        "type": "EOS_EXPOSURESET_AUTO_ASSIGNMENT_RULE const *",
+        "array": "",
+        "offset": 120,
+        "size": 8
+       },
+       {
+        "name": "autoAssignmentRulesSize",
+        "type": "EOS_SIZET",
+        "array": "",
+        "offset": 128,
+        "size": 8
+       },
+       {
+        "name": "reserved",
+        "type": "EOS_BYTE",
+        "array": "120",
+        "offset": 136,
+        "size": 120
+       }
+      ]
+     },
+     "new": {
+      "kind": "struct",
+      "size": 256,
+      "align": 8,
+      "members": [
+       {
+        "name": "name",
+        "type": "EOS_CWSTR",
+        "array": "",
+        "offset": 0,
+        "size": 8
+       },
+       {
+        "name": "version",
+        "type": "EOS_VERSION",
+        "array": "",
+        "offset": 8,
+        "size": 16
+       },
+       {
+        "name": "uuid",
+        "type": "EOS_CWSTR",
+        "array": "",
+        "offset": 24,
+        "size": 8
+       },
+       {
+        "name": "parentUuid",
+        "type": "EOS_CWSTR",
+        "array": "",
+        "offset": 32,
+        "size": 8
+       },
+       {
+        "name": "modelType",
+        "type": "EOS_MODEL_TYPE",
+        "array": "",
+        "offset": 40,
+        "size": 4
+       },
+       {
+        "name": "material",
+        "type": "EOS_CWSTR",
+        "array": "",
+        "offset": 48,
+        "size": 8
+       },
+       {
+        "name": "baseLayerThickness",
+        "type": "EOS_MICROMETER",
+        "array": "",
+        "offset": 56,
+        "size": 4
+       },
+       {
+        "name": "inertGas",
+        "type": "EOS_INERT_GAS",
+        "array": "",
+        "offset": 60,
+        "size": 4
+       },
+       {
+        "name": "isAuthoredByEos",
+        "type": "EOS_BOOL",
+        "array": "",
+        "offset": 64,
+        "size": 4
+       },
+       {
+        "name": "isFinal",
+        "type": "EOS_BOOL",
+        "array": "",
+        "offset": 68,
+        "size": 4
+       },
+       {
+        "name": "history",
+        "type": "EOS_MATERIALSET_REVISION const *",
+        "array": "",
+        "offset": 72,
+        "size": 8
+       },
+       {
+        "name": "historySize",
+        "type": "EOS_SIZET",
+        "array": "",
+        "offset": 80,
+        "size": 8
+       },
+       {
+        "name": "exposureSets",
+        "type": "EOS_EXPOSURESET_INFO const *",
+        "array": "",
+        "offset": 88,
+        "size": 8
+       },
+       {
+        "name": "exposureSetsSize",
+        "type": "EOS_SIZET",
+        "array": "",
+        "offset": 96,
+        "size": 8
+       },
+       {
+        "name": "adjustableParameters",
+        "type": "EOS_ADJUSTABLE_PROCESS_PARAMETER const *",
+        "array": "",
+        "offset": 104,
+        "size": 8
+       },
+       {
+        "name": "adjustableParametersSize",
+        "type": "EOS_SIZET",
+        "array": "",
+        "offset": 112,
+        "size": 8
+       },
+       {
+        "name": "autoAssignmentRules",
+        "type": "EOS_EXPOSURESET_AUTO_ASSIGNMENT_RULE const *",
+        "array": "",
+        "offset": 120,
+        "size": 8
+       },
+       {
+        "name": "autoAssignmentRulesSize",
+        "type": "EOS_SIZET",
+        "array": "",
+        "offset": 128,
+        "size": 8
+       },
+       {
+        "name": "modelName",
+        "type": "EOS_CWSTR",
+        "array": "",
+        "offset": 136,
+        "size": 8
+       },
+       {
+        "name": "targetsCustomizedMachine",
+        "type": "EOS_BOOL",
+        "array": "",
+        "offset": 144,
+        "size": 4
+       },
+       {
+        "name": "reserved",
+        "type": "EOS_BYTE",
+        "array": "108",
+        "offset": 148,
+        "size": 108
+       }
+      ]
+     },
+     "size_changed": false
+    },
+    {
+     "name": "EOS_PROCESS_PARAMETER",
+     "old": {
+      "kind": "struct",
+      "size": 128,
+      "align": 8,
+      "members": [
+       {
+        "name": "path",
+        "type": "EOS_CWSTR",
+        "array": "",
+        "offset": 0,
+        "size": 8
+       },
+       {
+        "name": "displayName",
+        "type": "EOS_CWSTR",
+        "array": "",
+        "offset": 8,
+        "size": 8
+       },
+       {
+        "name": "unit",
+        "type": "EOS_CWSTR",
+        "array": "",
+        "offset": 16,
+        "size": 8
+       },
+       {
+        "name": "type",
+        "type": "EOS_VARIANT_TYPE",
+        "array": "",
+        "offset": 24,
+        "size": 4
+       },
+       {
+        "name": "accessMode",
+        "type": "EOS_PROCESS_PARAMETER_ACCESS_MODE",
+        "array": "",
+        "offset": 28,
+        "size": 4
+       },
+       {
+        "name": "value",
+        "type": "EOS_VARIANT",
+        "array": "",
+        "offset": 32,
+        "size": 8
+       },
+       {
+        "name": "hasRangeMin",
+        "type": "EOS_BOOL",
+        "array": "",
+        "offset": 40,
+        "size": 4
+       },
+       {
+        "name": "valueRangeMin",
+        "type": "EOS_VARIANT",
+        "array": "",
+        "offset": 48,
+        "size": 8
+       },
+       {
+        "name": "hasRangeMax",
+        "type": "EOS_BOOL",
+        "array": "",
+        "offset": 56,
+        "size": 4
+       },
+       {
+        "name": "valueRangeMax",
+        "type": "EOS_VARIANT",
+        "array": "",
+        "offset": 64,
+        "size": 8
+       },
+       {
+        "name": "hasDefault",
+        "type": "EOS_BOOL",
+        "array": "",
+        "offset": 72,
+        "size": 4
+       },
+       {
+        "name": "valueDefault",
+        "type": "EOS_VARIANT",
+        "array": "",
+        "offset": 80,
+        "size": 8
+       },
+       {
+        "name": "reserved",
+        "type": "EOS_BYTE",
+        "array": "40",
+        "offset": 88,
+        "size": 40
+       }
+      ]
+     },
+     "new": {
+      "kind": "struct",
+      "size": 128,
+      "align": 8,
+      "members": [
+       {
+        "name": "path",
+        "type": "EOS_CWSTR",
+        "array": "",
+        "offset": 0,
+        "size": 8
+       },
+       {
+        "name": "displayName",
+        "type": "EOS_CWSTR",
+        "array": "",
+        "offset": 8,
+        "size": 8
+       },
+       {
+        "name": "unit",
+        "type": "EOS_CWSTR",
+        "array": "",
+        "offset": 16,
+        "size": 8
+       },
+       {
+        "name": "type",
+        "type": "EOS_VARIANT_TYPE",
+        "array": "",
+        "offset": 24,
+        "size": 4
+       },
+       {
+        "name": "accessMode",
+        "type": "EOS_PROCESS_PARAMETER_ACCESS_MODE",
+        "array": "",
+        "offset": 28,
+        "size": 4
+       },
+       {
+        "name": "value",
+        "type": "EOS_VARIANT",
+        "array": "",
+        "offset": 32,
+        "size": 8
+       },
+       {
+        "name": "hasRangeMin",
+        "type": "EOS_BOOL",
+        "array": "",
+        "offset": 40,
+        "size": 4
+       },
+       {
+        "name": "hasRangeMax",
+        "type": "EOS_BOOL",
+        "array": "",
+        "offset": 44,
+        "size": 4
+       },
+       {
+        "name": "hasDefault",
+        "type": "EOS_BOOL",
+        "array": "",
+        "offset": 48,
+        "size": 4
+       },
+       {
+        "name": "valueRangeMin",
+        "type": "EOS_VARIANT",
+        "array": "",
+        "offset": 56,
+        "size": 8
+       },
+       {
+        "name": "valueRangeMax",
+        "type": "EOS_VARIANT",
+        "array": "",
+        "offset": 64,
+        "size": 8
+       },
+       {
+        "name": "valueDefault",
+        "type": "EOS_VARIANT",
+        "array": "",
+        "offset": 72,
+        "size": 8
+       },
+       {
+        "name": "reserved",
+        "type": "EOS_BYTE",
+        "array": "48",
+        "offset": 80,
+        "size": 48
+       }
+      ]
+     },
+     "size_changed": false
+    },
+    {
+     "name": "EOS_TASK_METADATA",
+     "old": {
+      "kind": "struct",
+      "size": 128,
+      "align": 8,
+      "members": [
+       {
+        "name": "name",
+        "type": "EOS_CWSTR",
+        "array": "",
+        "offset": 0,
+        "size": 8
+       },
+       {
+        "name": "comment",
+        "type": "EOS_CWSTR",
+        "array": "",
+        "offset": 8,
+        "size": 8
+       },
+       {
+        "name": "numberOfAllowedBuilds",
+        "type": "EOS_UINT",
+        "array": "",
+        "offset": 16,
+        "size": 4
+       },
+       {
+        "name": "generatorName",
+        "type": "EOS_CWSTR",
+        "array": "",
+        "offset": 24,
+        "size": 8
+       },
+       {
+        "name": "generatorVersion",
+        "type": "EOS_CWSTR",
+        "array": "",
+        "offset": 32,
+        "size": 8
+       },
+       {
+        "name": "taskMode",
+        "type": "EOS_TASKMODE",
+        "array": "",
+        "offset": 40,
+        "size": 4
+       },
+       {
+        "name": "partBaseDirectory",
+        "type": "EOS_CWSTR",
+        "array": "",
+        "offset": 48,
+        "size": 8
+       },
+       {
+        "name": "taskFormat",
+        "type": "EOS_TASKFORMAT",
+        "array": "",
+        "offset": 56,
+        "size": 4
+       },
+       {
+        "name": "compression",
+        "type": "EOS_COMPRESSION_LEVEL",
+        "array": "",
+        "offset": 60,
+        "size": 4
+       },
+       {
+        "name": "reserved",
+        "type": "EOS_BYTE",
+        "array": "64",
+        "offset": 64,
+        "size": 64
+       }
+      ]
+     },
+     "new": {
+      "kind": "struct",
+      "size": 128,
+      "align": 8,
+      "members": [
+       {
+        "name": "name",
+        "type": "EOS_CWSTR",
+        "array": "",
+        "offset": 0,
+        "size": 8
+       },
+       {
+        "name": "comment",
+        "type": "EOS_CWSTR",
+        "array": "",
+        "offset": 8,
+        "size": 8
+       },
+       {
+        "name": "numberOfAllowedBuilds",
+        "type": "EOS_UINT",
+        "array": "",
+        "offset": 16,
+        "size": 4
+       },
+       {
+        "name": "taskMode",
+        "type": "EOS_TASKMODE",
+        "array": "",
+        "offset": 20,
+        "size": 4
+       },
+       {
+        "name": "generatorName",
+        "type": "EOS_CWSTR",
+        "array": "",
+        "offset": 24,
+        "size": 8
+       },
+       {
+        "name": "generatorVersion",
+        "type": "EOS_CWSTR",
+        "array": "",
+        "offset": 32,
+        "size": 8
+       },
+       {
+        "name": "partBaseDirectory",
+        "type": "EOS_CWSTR",
+        "array": "",
+        "offset": 40,
+        "size": 8
+       },
+       {
+        "name": "taskFormat",
+        "type": "EOS_TASKFORMAT",
+        "array": "",
+        "offset": 48,
+        "size": 4
+       },
+       {
+        "name": "compression",
+        "type": "EOS_COMPRESSION_LEVEL",
+        "array": "",
+        "offset": 52,
+        "size": 4
+       },
+       {
+        "name": "reserved",
+        "type": "EOS_BYTE",
+        "array": "72",
+        "offset": 56,
+        "size": 72
+       }
+      ]
+     },
+     "size_changed": false
+    }
+   ]
+  },
+  "enums": {
+   "added": [
+    {
+     "name": "EOS_BEAMSHAPE",
+     "entries": [
+      [
+       "EOS_BEAMSHAPE_STANDARD",
+       0
+      ]
+     ]
+    },
+    {
+     "name": "EOS_IMAGE_CHANNEL_FORMAT",
+     "entries": [
+      [
+       "EOS_ICF_UNSIGNED_8",
+       0
+      ],
+      [
+       "EOS_ICF_SIGNED_8",
+       1
+      ],
+      [
+       "EOS_ICF_UNSIGNED_16",
+       2
+      ],
+      [
+       "EOS_ICF_SIGNED_16",
+       3
+      ],
+      [
+       "EOS_ICF_UNSIGNED_32",
+       4
+      ],
+      [
+       "EOS_ICF_SIGNED_32",
+       5
+      ],
+      [
+       "EOS_ICF_FLOAT_16",
+       6
+      ],
+      [
+       "EOS_ICF_FLOAT_32",
+       7
+      ],
+      [
+       "EOS_ICF_FLOAT_64",
+       8
+      ]
+     ]
+    },
+    {
+     "name": "EOS_IMAGE_COLOR_SPACE",
+     "entries": [
+      [
+       "EOS_ICS_GREYSCALE",
+       0
+      ],
+      [
+       "EOS_ICS_BGR",
+       1
+      ],
+      [
+       "EOS_ICS_RGBA",
+       2
+      ]
+     ]
+    },
+    {
+     "name": "EOS_IMAGE_SOURCE",
+     "entries": [
+      [
+       "EOS_IS_OT_PREDICTION",
+       0
+      ]
+     ]
+    },
+    {
+     "name": "EOS_SIMULATION_MODEL_TYPE",
+     "entries": [
+      [
+       "EOS_ONNX_MODEL",
+       1
+      ]
+     ]
+    },
+    {
+     "name": "EOS_SIMULATION_OUTPUT",
+     "entries": [
+      [
+       "EOS_SO_INT_OT",
+       1
+      ],
+      [
+       "EOS_SO_MAX_OT",
+       2
+      ],
+      [
+       "EOS_SO_LCF",
+       3
+      ]
+     ]
+    }
+   ],
+   "removed": [],
+   "changed": [
+    {
+     "name": "EOS_ERROR",
+     "added": [
+      [
+       "EOS_ERR_INSUFFICIENT_DISK_SPACE",
+       116
+      ],
+      [
+       "EOS_ERR_DATA_FORMAT_UNSUPPORTED",
+       117
+      ],
+      [
+       "EOS_ERR_EOSSIM_INVALID",
+       118
+      ],
+      [
+       "EOS_ERR_EOSSIM_CORRUPT",
+       119
+      ]
+     ],
+     "removed": [],
+     "renumbered": []
+    },
+    {
+     "name": "EOS_EV_GEOMETRY_EVENTS",
+     "added": [
+      [
+       "EOS_EV_GEOMETRY_PATH_ENCODING_UNSUPPORTED",
+       10
+      ]
+     ],
+     "removed": [],
+     "renumbered": []
+    },
+    {
+     "name": "EOS_EV_MACHINESESSION_EVENTS",
+     "added": [
+      [
+       "EOS_EV_MACHINESESSION_PATH_ENCODING_UNSUPPORTED",
+       10
+      ],
+      [
+       "EOS_EV_MACHINESESSION_INSUFFICIENT_DISK_SPACE",
+       11
+      ]
+     ],
+     "removed": [],
+     "renumbered": []
+    },
+    {
+     "name": "EOS_EV_PARTMAN_EVENTS",
+     "added": [
+      [
+       "EOS_EV_PARTMAN_EMBEDDED_LCF_AMBIGUOUS",
+       10090
+      ],
+      [
+       "EOS_EV_PARTMAN_EOSSIM_LOAD_FAILED",
+       10091
+      ],
+      [
+       "EOS_EV_PARTMAN_MIXED_ADVANCED_SMART_SCALING_MODELS",
+       10092
+      ]
+     ],
+     "removed": [],
+     "renumbered": []
+    },
+    {
+     "name": "EOS_EV_TASKGEN_EVENTS",
+     "added": [
+      [
+       "EOS_EV_TASKGEN_EMBEDDED_LCF_AMBIGUOUS",
+       212
+      ],
+      [
+       "EOS_EV_TASKGEN_TASK_CORRUPT",
+       213
+      ],
+      [
+       "EOS_EV_TASKGEN_TASK_INVALID",
+       214
+      ],
+      [
+       "EOS_EV_TASKGEN_TOOLPATH_DATA_FORMAT_UNSUPPORTED",
+       215
+      ]
+     ],
+     "removed": [],
+     "renumbered": []
+    },
+    {
+     "name": "EOS_EXPOSURE_TYPE",
+     "added": [
+      [
+       "EOS_EXPOSURE_TYPE_HIDDEN",
+       16
+      ]
+     ],
+     "removed": [],
+     "renumbered": []
+    },
+    {
+     "name": "EOS_MODEL_TYPE",
+     "added": [
+      [
+       "EOS_MT_M808",
+       21
+      ],
+      [
+       "EOS_MT_M450",
+       25
+      ],
+      [
+       "EOS_MT_M451",
+       27
+      ],
+      [
+       "EOS_MT_M405",
+       28
+      ]
+     ],
+     "removed": [
+      [
+       "EOS_MT_P396",
+       7
+      ],
+      [
+       "EOS_MT_P711",
+       9
+      ]
+     ],
+     "renumbered": []
+    },
+    {
+     "name": "EOS_SMART_FUSION_COMPATIBILITY",
+     "added": [
+      [
+       "EOS_SFC_EXPOSURE_OT_1_24",
+       4
+      ]
+     ],
+     "removed": [],
+     "renumbered": []
+    }
+   ]
+  },
+  "scalars": {
+   "added": [],
+   "removed": [],
+   "changed": []
+  },
+  "constants": {
+   "added": [
+    {
+     "name": "EOS_DEFAULT_LASER_SCANNER_INFO_M405",
+     "value": "EOS_LASER_SCANNER_INFO (aggregate)"
+    },
+    {
+     "name": "EOS_DEFAULT_LASER_SCANNER_INFO_M450",
+     "value": "EOS_LASER_SCANNER_INFO (aggregate)"
+    },
+    {
+     "name": "EOS_DEFAULT_LASER_SCANNER_INFO_M451",
+     "value": "EOS_LASER_SCANNER_INFO (aggregate)"
+    },
+    {
+     "name": "EOS_DEFAULT_MACHINE_M405",
+     "value": "EOS_MACHINE_INFO (aggregate)"
+    },
+    {
+     "name": "EOS_DEFAULT_MACHINE_M450",
+     "value": "EOS_MACHINE_INFO (aggregate)"
+    },
+    {
+     "name": "EOS_DEFAULT_MACHINE_M451",
+     "value": "EOS_MACHINE_INFO (aggregate)"
+    },
+    {
+     "name": "EOS_LSC_BEAMSHAPING",
+     "value": "EOS_LS_CAPABILITIES = 0x4"
+    }
+   ],
+   "removed": [
+    {
+     "name": "ALL_LASERS",
+     "value": "EOS_BYTE = 0xFF"
+    },
+    {
+     "name": "ALL_PARTS",
+     "value": "EOS_PARTID = 0"
+    },
+    {
+     "name": "FOCUS_DEFOCUS",
+     "value": "EOS_LS_CAPABILITIES = 0x1"
+    },
+    {
+     "name": "VARIABLE_FOCUS",
+     "value": "EOS_LS_CAPABILITIES = 0x2"
+    }
+   ],
+   "changed": [
+    {
+     "name": "EOS_DEFAULT_MACHINE_M290",
+     "old": "EOS_MACHINE_INFO (aggregate)",
+     "new": "EOS_MACHINE_INFO (aggregate)"
+    },
+    {
+     "name": "EOS_DEFAULT_MACHINE_M293",
+     "old": "EOS_MACHINE_INFO (aggregate)",
+     "new": "EOS_MACHINE_INFO (aggregate)"
+    },
+    {
+     "name": "EOS_DEFAULT_MACHINE_M294",
+     "old": "EOS_MACHINE_INFO (aggregate)",
+     "new": "EOS_MACHINE_INFO (aggregate)"
+    },
+    {
+     "name": "EOS_DEFAULT_MACHINE_M304",
+     "old": "EOS_MACHINE_INFO (aggregate)",
+     "new": "EOS_MACHINE_INFO (aggregate)"
+    },
+    {
+     "name": "EOS_DEFAULT_MACHINE_M314",
+     "old": "EOS_MACHINE_INFO (aggregate)",
+     "new": "EOS_MACHINE_INFO (aggregate)"
+    },
+    {
+     "name": "EOS_DEFAULT_MACHINE_M400",
+     "old": "EOS_MACHINE_INFO (aggregate)",
+     "new": "EOS_MACHINE_INFO (aggregate)"
+    },
+    {
+     "name": "EOS_DEFAULT_MACHINE_M404",
+     "old": "EOS_MACHINE_INFO (aggregate)",
+     "new": "EOS_MACHINE_INFO (aggregate)"
+    },
+    {
+     "name": "EOS_DEFAULT_MACHINE_P397",
+     "old": "EOS_MACHINE_INFO (aggregate)",
+     "new": "EOS_MACHINE_INFO (aggregate)"
+    },
+    {
+     "name": "EOS_DEFAULT_MACHINE_P500",
+     "old": "EOS_MACHINE_INFO (aggregate)",
+     "new": "EOS_MACHINE_INFO (aggregate)"
+    },
+    {
+     "name": "EOS_DEFAULT_MACHINE_P501",
+     "old": "EOS_MACHINE_INFO (aggregate)",
+     "new": "EOS_MACHINE_INFO (aggregate)"
+    },
+    {
+     "name": "EOS_DEFAULT_MACHINE_P520",
+     "old": "EOS_MACHINE_INFO (aggregate)",
+     "new": "EOS_MACHINE_INFO (aggregate)"
+    },
+    {
+     "name": "EOS_DEFAULT_MACHINE_P521",
+     "old": "EOS_MACHINE_INFO (aggregate)",
+     "new": "EOS_MACHINE_INFO (aggregate)"
+    },
+    {
+     "name": "EOS_MAX_SMART_FUSION_COMPATIBILITY",
+     "old": "EOS_SMART_FUSION_COMPATIBILITY = EOS_SFC_EXPOSURE_OT_1_15",
+     "new": "EOS_SMART_FUSION_COMPATIBILITY = EOS_SFC_EXPOSURE_OT_1_24"
+    }
+   ]
+  }
+ },
+ "libeos": {
+  "functions": {
+   "changed": [
+    {
+     "name": "EosToolpath_WriteBeginPart",
+     "old": "EOS_ERROR EosToolpath_WriteBeginPart(EOS_FILE_HANDLE fileHandle, EOS_INT partId)",
+     "new": "EOS_ERROR EosToolpath_WriteBeginPart(EOS_FILE_HANDLE fileHandle, EOS_INT partId)"
+    }
+   ],
+   "renamed_parameters": [],
+   "missing_in_libeos": [
+    "Eos_InitializeApiWithOptions",
+    "EosFileProperties_DoesTaskConfigMatchLocalConfig",
+    "EosFileProperties_FreeFilepathList",
+    "EosFileProperties_FreeTaskInfo",
+    "EosFileProperties_LoadFilepathListForCachePruning",
+    "EosFileProperties_LoadTaskInfo",
+    "EosGeometry_AbortFileCreation",
+    "EosGeometry_BeginScalingLinear",
+    "EosGeometry_BeginScalingLinearWithOptions",
+    "EosGeometry_BeginScalingSmart",
+    "EosGeometry_BeginScalingSmartWithOptions",
+    "EosGeometry_BeginSlicing",
+    "EosGeometry_GetFileCreationResult",
+    "EosGeometry_GetFileCreationStatus",
+    "EosGeometry_ReleaseFileCreationHandle",
+    "EosGeometry_WaitForFileCreation",
+    "EosMachineSession_GetFileTransferStatus",
+    "EosMachineSession_SetFileTransferStatusCallback",
+    "EosParameters_CloneExposureSet",
+    "EosParameters_CloseMaterialSet",
+    "EosParameters_CommitChanges",
+    "EosParameters_DeleteExposureSet",
+    "EosParameters_DeleteExposureStep",
+    "EosParameters_FreeExposureTypeTemplates",
+    "EosParameters_FreeProcessParameterList",
+    "EosParameters_InsertExposureStep",
+    "EosParameters_LoadExposureTypeTemplates",
+    "EosParameters_MoveExposureStep",
+    "EosParameters_OpenMaterialSet",
+    "EosParameters_ReadProcessParameters",
+    "EosParameters_SaveMaterialSet",
+    "EosParameters_WriteProcessParameter",
+    "EosTaskGen_AbortPreviewCreation",
+    "EosTaskGen_BeginPreviewCreation",
+    "EosTaskGen_DetermineAssignableLasers",
+    "EosTaskGen_FindFirstAndLastLayerOfPart",
+    "EosTaskGen_FindFirstAndLastLayerOfSegment",
+    "EosTaskGen_FindFirstExposedLayerByAbsoluteHeight",
+    "EosTaskGen_FindFirstExposedLayerByIndex",
+    "EosTaskGen_FindLayerByAbsoluteHeight",
+    "EosTaskGen_FindLayerByIndex",
+    "EosTaskGen_FindValidProcessHeight",
+    "EosTaskGen_FreeCompleteProcessParameterAdjustmentList",
+    "EosTaskGen_FreeProcessParameterAdjustment",
+    "EosTaskGen_GetCompleteProcessParameterAdjustmentList",
+    "EosTaskGen_GetEffectiveProcessParameterValue",
+    "EosTaskGen_GetExposureTimeDetail",
+    "EosTaskGen_GetLayers",
+    "EosTaskGen_GetNumberOfTaskCreationThreads",
+    "EosTaskGen_GetPreviewCreationResult",
+    "EosTaskGen_GetPreviewCreationState",
+    "EosTaskGen_GetPreviewData",
+    "EosTaskGen_GetPreviewData2",
+    "EosTaskGen_GetProcessHash",
+    "EosTaskGen_GetProcessHeights",
+    "EosTaskGen_GetProcessParameterAdjustment",
+    "EosTaskGen_GetSplitLinesForLayer",
+    "EosTaskGen_GetTaskCreationResult",
+    "EosTaskGen_LoadOpenJob",
+    "EosTaskGen_LoadOpenJobFromString",
+    "EosTaskGen_SetDatafileCompletedCallback",
+    "EosTaskGen_UpdateJobFromFile",
+    "EosTaskGen_UpdateJobFromString",
+    "EosTaskGen_WaitForPreviewCreation"
+   ],
+   "unknown_to_headers": []
+  },
+  "callbacks": {
+   "changed": [
+    {
+     "name": "EOS_BEGINPART_CALLBACK",
+     "old": "void EOS_BEGINPART_CALLBACK(EOS_DATA_HANDLE customCallbackDataHandle, EOS_DATA_HANDLE customReadDataHandle, EOS_INT partId)",
+     "new": "void EOS_BEGINPART_CALLBACK(EOS_DATA_HANDLE customCallbackDataHandle, EOS_DATA_HANDLE customReadDataHandle, EOS_INT partId)"
+    },
+    {
+     "name": "EOS_SETSKYWRITING_CALLBACK",
+     "old": "void EOS_SETSKYWRITING_CALLBACK(EOS_DATA_HANDLE customCallbackDataHandle, EOS_DATA_HANDLE customReadDataHandle, EOS_INT skywritingEnabled)",
+     "new": "void EOS_SETSKYWRITING_CALLBACK(EOS_DATA_HANDLE customCallbackDataHandle, EOS_DATA_HANDLE customReadDataHandle, EOS_INT skywritingEnabled)"
+    }
+   ],
+   "unknown_to_headers": [],
+   "missing_in_libeos": [
+    "EOS_DATAFILE_COMPLETED_CALLBACK",
+    "EOS_FILETRANSFER_STATUS_CALLBACK"
+   ]
+  },
+  "records": {
+   "changed": [
+    {
+     "name": "EOS_ADJUSTABLE_PROCESS_PARAMETER",
+     "old": {
+      "kind": "struct",
+      "size": 128,
+      "align": 8,
+      "members": [
+       {
+        "name": "id",
+        "type": "EOS_CWSTR",
+        "array": "",
+        "offset": 0,
+        "size": 8
+       },
+       {
+        "name": "displayName",
+        "type": "EOS_CWSTR",
+        "array": "",
+        "offset": 8,
+        "size": 8
+       },
+       {
+        "name": "unit",
+        "type": "EOS_CWSTR",
+        "array": "",
+        "offset": 16,
+        "size": 8
+       },
+       {
+        "name": "isJobSpecificAdjustmentEnabled",
+        "type": "EOS_BOOL",
+        "array": "",
+        "offset": 24,
+        "size": 4
+       },
+       {
+        "name": "isMachineSpecificAdjustmentEnabled",
+        "type": "EOS_BOOL",
+        "array": "",
+        "offset": 28,
+        "size": 4
+       },
+       {
+        "name": "adjustmentOperation",
+        "type": "EOS_ADJUSTMENT_OPERATION",
+        "array": "",
+        "offset": 32,
+        "size": 4
+       },
+       {
+        "name": "hasEffectOn",
+        "type": "EOS_AFFECTED_UNITS",
+        "array": "",
+        "offset": 36,
+        "size": 4
+       },
+       {
+        "name": "hasRangeMin",
+        "type": "EOS_BOOL",
+        "array": "",
+        "offset": 40,
+        "size": 4
+       },
+       {
+        "name": "valueRangeMin",
+        "type": "EOS_DOUBLE",
+        "array": "",
+        "offset": 48,
+        "size": 8
+       },
+       {
+        "name": "hasRangeMax",
+        "type": "EOS_BOOL",
+        "array": "",
+        "offset": 56,
+        "size": 4
+       },
+       {
+        "name": "valueRangeMax",
+        "type": "EOS_DOUBLE",
+        "array": "",
+        "offset": 64,
+        "size": 8
+       },
+       {
+        "name": "valueUnadjusted",
+        "type": "EOS_DOUBLE",
+        "array": "",
+        "offset": 72,
+        "size": 8
+       },
+       {
+        "name": "reserved",
+        "type": "EOS_BYTE",
+        "array": "48",
+        "offset": 80,
+        "size": 48
+       }
+      ]
+     },
+     "new": {
+      "kind": "struct",
+      "size": 0,
+      "align": 1,
+      "members": []
+     },
+     "size_changed": true
+    },
+    {
+     "name": "EOS_EVENT",
+     "old": {
+      "kind": "struct",
+      "size": 64,
+      "align": 8,
+      "members": [
+       {
+        "name": "moduleId",
+        "type": "EOS_MODULE_ID",
+        "array": "",
+        "offset": 0,
+        "size": 4
+       },
+       {
+        "name": "eventId",
+        "type": "EOS_EVENT_ID",
+        "array": "",
+        "offset": 4,
+        "size": 4
+       },
+       {
+        "name": "errorCode",
+        "type": "EOS_ERROR",
+        "array": "",
+        "offset": 8,
+        "size": 4
+       },
+       {
+        "name": "severity",
+        "type": "EOS_SEVERITY",
+        "array": "",
+        "offset": 12,
+        "size": 4
+       },
+       {
+        "name": "displayOptions",
+        "type": "EOS_DISPLAY_OPTIONS",
+        "array": "",
+        "offset": 16,
+        "size": 4
+       },
+       {
+        "name": "name",
+        "type": "EOS_CWSTR",
+        "array": "",
+        "offset": 24,
+        "size": 8
+       },
+       {
+        "name": "infoItemCount",
+        "type": "EOS_UINT",
+        "array": "",
+        "offset": 32,
+        "size": 4
+       },
+       {
+        "name": "infoItems",
+        "type": "EOS_INFO_ITEM *",
+        "array": "",
+        "offset": 40,
+        "size": 8
+       },
+       {
+        "name": "reserved",
+        "type": "EOS_BYTE",
+        "array": "16",
+        "offset": 48,
+        "size": 16
+       }
+      ]
+     },
+     "new": {
+      "kind": "struct",
+      "size": 64,
+      "align": 8,
+      "members": [
+       {
+        "name": "moduleId",
+        "type": "EOS_MODULE_ID",
+        "array": "",
+        "offset": 0,
+        "size": 4
+       },
+       {
+        "name": "eventId",
+        "type": "EOS_EVENT_ID",
+        "array": "",
+        "offset": 4,
+        "size": 4
+       },
+       {
+        "name": "errorCode",
+        "type": "EOS_ERROR",
+        "array": "",
+        "offset": 8,
+        "size": 4
+       },
+       {
+        "name": "severity",
+        "type": "EOS_SEVERITY",
+        "array": "",
+        "offset": 12,
+        "size": 4
+       },
+       {
+        "name": "displayOptions",
+        "type": "EOS_DISPLAY_OPTIONS",
+        "array": "",
+        "offset": 16,
+        "size": 4
+       },
+       {
+        "name": "name",
+        "type": "EOS_CWSTR",
+        "array": "",
+        "offset": 24,
+        "size": 8
+       },
+       {
+        "name": "infoItemCount",
+        "type": "EOS_UINT",
+        "array": "",
+        "offset": 32,
+        "size": 4
+       },
+       {
+        "name": "infoItems",
+        "type": "EOS_INFO_ITEM *",
+        "array": "",
+        "offset": 40,
+        "size": 8
+       },
+       {
+        "name": "reserved",
+        "type": "EOS_BYTE",
+        "array": "13",
+        "offset": 48,
+        "size": 13
+       }
+      ]
+     },
+     "size_changed": false
+    },
+    {
+     "name": "EOS_EXPOSURESET_AUTO_ASSIGNMENT_RULE",
+     "old": {
+      "kind": "struct",
+      "size": 16,
+      "align": 8,
+      "members": [
+       {
+        "name": "fileNameSuffix",
+        "type": "EOS_CWSTR",
+        "array": "",
+        "offset": 0,
+        "size": 8
+       },
+       {
+        "name": "exposureSetName",
+        "type": "EOS_CWSTR",
+        "array": "",
+        "offset": 8,
+        "size": 8
+       }
+      ]
+     },
+     "new": {
+      "kind": "struct",
+      "size": 0,
+      "align": 1,
+      "members": []
+     },
+     "size_changed": true
+    },
+    {
+     "name": "EOS_EXPOSURESET_INFO",
+     "old": {
+      "kind": "struct",
+      "size": 128,
+      "align": 8,
+      "members": [
+       {
+        "name": "name",
+        "type": "EOS_CWSTR",
+        "array": "",
+        "offset": 0,
+        "size": 8
+       },
+       {
+        "name": "layerThickness",
+        "type": "EOS_MICROMETER",
+        "array": "",
+        "offset": 8,
+        "size": 4
+       },
+       {
+        "name": "isEditable",
+        "type": "EOS_BOOL",
+        "array": "",
+        "offset": 12,
+        "size": 4
+       },
+       {
+        "name": "licenses",
+        "type": "EOS_LICENSE_INFO const *",
+        "array": "",
+        "offset": 16,
+        "size": 8
+       },
+       {
+        "name": "licensesSize",
+        "type": "EOS_SIZET",
+        "array": "",
+        "offset": 24,
+        "size": 8
+       },
+       {
+        "name": "isSupport",
+        "type": "EOS_BOOL",
+        "array": "",
+        "offset": 32,
+        "size": 4
+       },
+       {
+        "name": "exposureSteps",
+        "type": "EOS_EXPOSURESTEP_INFO const *",
+        "array": "",
+        "offset": 40,
+        "size": 8
+       },
+       {
+        "name": "exposureStepsSize",
+        "type": "EOS_SIZET",
+        "array": "",
+        "offset": 48,
+        "size": 8
+       },
+       {
+        "name": "usesSmartFusion",
+        "type": "EOS_BOOL",
+        "array": "",
+        "offset": 56,
+        "size": 4
+       },
+       {
+        "name": "reserved",
+        "type": "EOS_BYTE",
+        "array": "68",
+        "offset": 60,
+        "size": 68
+       }
+      ]
+     },
+     "new": {
+      "kind": "struct",
+      "size": 128,
+      "align": 8,
+      "members": [
+       {
+        "name": "name",
+        "type": "EOS_CWSTR",
+        "array": "",
+        "offset": 0,
+        "size": 8
+       },
+       {
+        "name": "layerThickness",
+        "type": "EOS_MICROMETER",
+        "array": "",
+        "offset": 8,
+        "size": 4
+       },
+       {
+        "name": "isEditable",
+        "type": "EOS_BOOL",
+        "array": "",
+        "offset": 12,
+        "size": 4
+       },
+       {
+        "name": "licenses",
+        "type": "EOS_LICENSE_INFO const *",
+        "array": "",
+        "offset": 16,
+        "size": 8
+       },
+       {
+        "name": "licensesSize",
+        "type": "EOS_SIZET",
+        "array": "",
+        "offset": 24,
+        "size": 8
+       },
+       {
+        "name": "reserved",
+        "type": "EOS_BYTE",
+        "array": "96",
+        "offset": 32,
+        "size": 96
+       }
+      ]
+     },
+     "size_changed": false
+    },
+    {
+     "name": "EOS_INFO_ITEM",
+     "old": {
+      "kind": "struct",
+      "size": 32,
+      "align": 8,
+      "members": [
+       {
+        "name": "key",
+        "type": "EOS_CWSTR",
+        "array": "",
+        "offset": 0,
+        "size": 8
+       },
+       {
+        "name": "type",
+        "type": "EOS_VARIANT_TYPE",
+        "array": "",
+        "offset": 8,
+        "size": 4
+       },
+       {
+        "name": "value",
+        "type": "EOS_VARIANT",
+        "array": "",
+        "offset": 16,
+        "size": 8
+       },
+       {
+        "name": "reserved",
+        "type": "EOS_BYTE",
+        "array": "8",
+        "offset": 24,
+        "size": 8
+       }
+      ]
+     },
+     "new": {
+      "kind": "struct",
+      "size": 32,
+      "align": 8,
+      "members": [
+       {
+        "name": "key",
+        "type": "EOS_CWSTR",
+        "array": "",
+        "offset": 0,
+        "size": 8
+       },
+       {
+        "name": "type",
+        "type": "EOS_VARIANT_TYPE",
+        "array": "",
+        "offset": 8,
+        "size": 4
+       },
+       {
+        "name": "value",
+        "type": "EOS_VARIANT",
+        "array": "",
+        "offset": 16,
+        "size": 8
+       },
+       {
+        "name": "reserved",
+        "type": "EOS_BYTE",
+        "array": "4",
+        "offset": 24,
+        "size": 4
+       }
+      ]
+     },
+     "size_changed": false
+    },
+    {
+     "name": "EOS_LASER_SCANNER_INFO",
+     "old": {
+      "kind": "struct",
+      "size": 128,
+      "align": 8,
+      "members": [
+       {
+        "name": "laserPowerNominal_W",
+        "type": "EOS_DOUBLE",
+        "array": "",
+        "offset": 0,
+        "size": 8
+       },
+       {
+        "name": "laserPowerMax_W",
+        "type": "EOS_DOUBLE",
+        "array": "",
+        "offset": 8,
+        "size": 8
+       },
+       {
+        "name": "maxScanSpeed_mm_per_s",
+        "type": "EOS_DOUBLE",
+        "array": "",
+        "offset": 16,
+        "size": 8
+       },
+       {
+        "name": "minPoint2D",
+        "type": "EOS_POINT2",
+        "array": "",
+        "offset": 24,
+        "size": 16
+       },
+       {
+        "name": "maxPoint2D",
+        "type": "EOS_POINT2",
+        "array": "",
+        "offset": 40,
+        "size": 16
+       },
+       {
+        "name": "capabilities",
+        "type": "EOS_LS_CAPABILITIES",
+        "array": "",
+        "offset": 56,
+        "size": 8
+       },
+       {
+        "name": "reserved",
+        "type": "EOS_BYTE",
+        "array": "64",
+        "offset": 64,
+        "size": 64
+       }
+      ]
+     },
+     "new": {
+      "kind": "struct",
+      "size": 0,
+      "align": 1,
+      "members": []
+     },
+     "size_changed": true
+    },
+    {
+     "name": "EOS_MACHINE_INFO",
+     "old": {
+      "kind": "struct",
+      "size": 144,
+      "align": 8,
+      "members": [
+       {
+        "name": "volumeType",
+        "type": "EOS_VOLUME_TYPE",
+        "array": "",
+        "offset": 0,
+        "size": 4
+       },
+       {
+        "name": "dimX",
+        "type": "EOS_MILLIMETER",
+        "array": "",
+        "offset": 8,
+        "size": 8
+       },
+       {
+        "name": "dimY",
+        "type": "EOS_MILLIMETER",
+        "array": "",
+        "offset": 16,
+        "size": 8
+       },
+       {
+        "name": "dimZ",
+        "type": "EOS_MILLIMETER",
+        "array": "",
+        "offset": 24,
+        "size": 8
+       },
+       {
+        "name": "dimR",
+        "type": "EOS_MILLIMETER",
+        "array": "",
+        "offset": 32,
+        "size": 8
+       },
+       {
+        "name": "modelType",
+        "type": "EOS_MODEL_TYPE",
+        "array": "",
+        "offset": 40,
+        "size": 4
+       },
+       {
+        "name": "machineSoftwareVersion",
+        "type": "EOS_VERSION",
+        "array": "",
+        "offset": 44,
+        "size": 16
+       },
+       {
+        "name": "machineInterfaceVersion",
+        "type": "EOS_VERSION",
+        "array": "",
+        "offset": 60,
+        "size": 16
+       },
+       {
+        "name": "serialNumber",
+        "type": "EOS_CWSTR",
+        "array": "",
+        "offset": 80,
+        "size": 8
+       },
+       {
+        "name": "numberOfLaserScanners",
+        "type": "EOS_INT",
+        "array": "",
+        "offset": 88,
+        "size": 4
+       },
+       {
+        "name": "printDomain",
+        "type": "EOS_CWSTR",
+        "array": "",
+        "offset": 96,
+        "size": 8
+       },
+       {
+        "name": "laserScannerInfo",
+        "type": "EOS_LASER_SCANNER_INFO const *",
+        "array": "",
+        "offset": 104,
+        "size": 8
+       },
+       {
+        "name": "eostateExposureOtVersion",
+        "type": "EOS_VERSION",
+        "array": "",
+        "offset": 112,
+        "size": 16
+       },
+       {
+        "name": "smartFusionLicenseInfos",
+        "type": "EOS_MACHINE_LICENSE_INFOS",
+        "array": "",
+        "offset": 128,
+        "size": 4
+       },
+       {
+        "name": "smartFusionCompatibility",
+        "type": "EOS_SMART_FUSION_COMPATIBILITY",
+        "array": "",
+        "offset": 132,
+        "size": 4
+       },
+       {
+        "name": "reserved",
+        "type": "EOS_BYTE",
+        "array": "8",
+        "offset": 136,
+        "size": 8
+       }
+      ]
+     },
+     "new": {
+      "kind": "struct",
+      "size": 144,
+      "align": 8,
+      "members": [
+       {
+        "name": "volumeType",
+        "type": "EOS_VOLUME_TYPE",
+        "array": "",
+        "offset": 0,
+        "size": 4
+       },
+       {
+        "name": "dimX",
+        "type": "EOS_MILLIMETER",
+        "array": "",
+        "offset": 8,
+        "size": 8
+       },
+       {
+        "name": "dimY",
+        "type": "EOS_MILLIMETER",
+        "array": "",
+        "offset": 16,
+        "size": 8
+       },
+       {
+        "name": "dimZ",
+        "type": "EOS_MILLIMETER",
+        "array": "",
+        "offset": 24,
+        "size": 8
+       },
+       {
+        "name": "dimR",
+        "type": "EOS_MILLIMETER",
+        "array": "",
+        "offset": 32,
+        "size": 8
+       },
+       {
+        "name": "modelType",
+        "type": "EOS_MODEL_TYPE",
+        "array": "",
+        "offset": 40,
+        "size": 4
+       },
+       {
+        "name": "machineSoftwareVersion",
+        "type": "EOS_VERSION",
+        "array": "",
+        "offset": 44,
+        "size": 16
+       },
+       {
+        "name": "machineInterfaceVersion",
+        "type": "EOS_VERSION",
+        "array": "",
+        "offset": 60,
+        "size": 16
+       },
+       {
+        "name": "serialNumber",
+        "type": "EOS_CWSTR",
+        "array": "",
+        "offset": 80,
+        "size": 8
+       },
+       {
+        "name": "numberOfLaserScanners",
+        "type": "EOS_INT",
+        "array": "",
+        "offset": 88,
+        "size": 4
+       },
+       {
+        "name": "printDomain",
+        "type": "EOS_CWSTR",
+        "array": "",
+        "offset": 96,
+        "size": 8
+       },
+       {
+        "name": "laserScannerInfo",
+        "type": "EOS_LASER_SCANNER_INFO const *",
+        "array": "",
+        "offset": 104,
+        "size": 8
+       },
+       {
+        "name": "reserved",
+        "type": "EOS_BYTE",
+        "array": "32",
+        "offset": 112,
+        "size": 32
+       }
+      ]
+     },
+     "size_changed": false
+    },
+    {
+     "name": "EOS_MATERIALSET_INFO",
+     "old": {
+      "kind": "struct",
+      "size": 256,
+      "align": 8,
+      "members": [
+       {
+        "name": "name",
+        "type": "EOS_CWSTR",
+        "array": "",
+        "offset": 0,
+        "size": 8
+       },
+       {
+        "name": "version",
+        "type": "EOS_VERSION",
+        "array": "",
+        "offset": 8,
+        "size": 16
+       },
+       {
+        "name": "uuid",
+        "type": "EOS_CWSTR",
+        "array": "",
+        "offset": 24,
+        "size": 8
+       },
+       {
+        "name": "parentUuid",
+        "type": "EOS_CWSTR",
+        "array": "",
+        "offset": 32,
+        "size": 8
+       },
+       {
+        "name": "modelType",
+        "type": "EOS_MODEL_TYPE",
+        "array": "",
+        "offset": 40,
+        "size": 4
+       },
+       {
+        "name": "material",
+        "type": "EOS_CWSTR",
+        "array": "",
+        "offset": 48,
+        "size": 8
+       },
+       {
+        "name": "baseLayerThickness",
+        "type": "EOS_MICROMETER",
+        "array": "",
+        "offset": 56,
+        "size": 4
+       },
+       {
+        "name": "inertGas",
+        "type": "EOS_INERT_GAS",
+        "array": "",
+        "offset": 60,
+        "size": 4
+       },
+       {
+        "name": "isAuthoredByEos",
+        "type": "EOS_BOOL",
+        "array": "",
+        "offset": 64,
+        "size": 4
+       },
+       {
+        "name": "isFinal",
+        "type": "EOS_BOOL",
+        "array": "",
+        "offset": 68,
+        "size": 4
+       },
+       {
+        "name": "history",
+        "type": "EOS_MATERIALSET_REVISION const *",
+        "array": "",
+        "offset": 72,
+        "size": 8
+       },
+       {
+        "name": "historySize",
+        "type": "EOS_SIZET",
+        "array": "",
+        "offset": 80,
+        "size": 8
+       },
+       {
+        "name": "exposureSets",
+        "type": "EOS_EXPOSURESET_INFO const *",
+        "array": "",
+        "offset": 88,
+        "size": 8
+       },
+       {
+        "name": "exposureSetsSize",
+        "type": "EOS_SIZET",
+        "array": "",
+        "offset": 96,
+        "size": 8
+       },
+       {
+        "name": "adjustableParameters",
+        "type": "EOS_ADJUSTABLE_PROCESS_PARAMETER const *",
+        "array": "",
+        "offset": 104,
+        "size": 8
+       },
+       {
+        "name": "adjustableParametersSize",
+        "type": "EOS_SIZET",
+        "array": "",
+        "offset": 112,
+        "size": 8
+       },
+       {
+        "name": "autoAssignmentRules",
+        "type": "EOS_EXPOSURESET_AUTO_ASSIGNMENT_RULE const *",
+        "array": "",
+        "offset": 120,
+        "size": 8
+       },
+       {
+        "name": "autoAssignmentRulesSize",
+        "type": "EOS_SIZET",
+        "array": "",
+        "offset": 128,
+        "size": 8
+       },
+       {
+        "name": "reserved",
+        "type": "EOS_BYTE",
+        "array": "120",
+        "offset": 136,
+        "size": 120
+       }
+      ]
+     },
+     "new": {
+      "kind": "struct",
+      "size": 256,
+      "align": 8,
+      "members": [
+       {
+        "name": "name",
+        "type": "EOS_CWSTR",
+        "array": "",
+        "offset": 0,
+        "size": 8
+       },
+       {
+        "name": "version",
+        "type": "EOS_VERSION",
+        "array": "",
+        "offset": 8,
+        "size": 16
+       },
+       {
+        "name": "uuid",
+        "type": "EOS_CWSTR",
+        "array": "",
+        "offset": 24,
+        "size": 8
+       },
+       {
+        "name": "parentUuid",
+        "type": "EOS_CWSTR",
+        "array": "",
+        "offset": 32,
+        "size": 8
+       },
+       {
+        "name": "modelType",
+        "type": "EOS_MODEL_TYPE",
+        "array": "",
+        "offset": 40,
+        "size": 4
+       },
+       {
+        "name": "material",
+        "type": "EOS_CWSTR",
+        "array": "",
+        "offset": 48,
+        "size": 8
+       },
+       {
+        "name": "baseLayerThickness",
+        "type": "EOS_MICROMETER",
+        "array": "",
+        "offset": 56,
+        "size": 4
+       },
+       {
+        "name": "inertGas",
+        "type": "EOS_INERT_GAS",
+        "array": "",
+        "offset": 60,
+        "size": 4
+       },
+       {
+        "name": "isAuthoredByEos",
+        "type": "EOS_BOOL",
+        "array": "",
+        "offset": 64,
+        "size": 4
+       },
+       {
+        "name": "isFinal",
+        "type": "EOS_BOOL",
+        "array": "",
+        "offset": 68,
+        "size": 4
+       },
+       {
+        "name": "history",
+        "type": "EOS_MATERIALSET_REVISION const *",
+        "array": "",
+        "offset": 72,
+        "size": 8
+       },
+       {
+        "name": "historySize",
+        "type": "EOS_SIZET",
+        "array": "",
+        "offset": 80,
+        "size": 8
+       },
+       {
+        "name": "exposureSets",
+        "type": "EOS_EXPOSURESET_INFO const *",
+        "array": "",
+        "offset": 88,
+        "size": 8
+       },
+       {
+        "name": "exposureSetsSize",
+        "type": "EOS_SIZET",
+        "array": "",
+        "offset": 96,
+        "size": 8
+       },
+       {
+        "name": "adjustableParameters",
+        "type": "EOS_ADJUSTABLE_PROCESS_PARAMETER const *",
+        "array": "",
+        "offset": 104,
+        "size": 8
+       },
+       {
+        "name": "adjustableParametersSize",
+        "type": "EOS_SIZET",
+        "array": "",
+        "offset": 112,
+        "size": 8
+       },
+       {
+        "name": "autoAssignmentRules",
+        "type": "EOS_EXPOSURESET_AUTO_ASSIGNMENT_RULE const *",
+        "array": "",
+        "offset": 120,
+        "size": 8
+       },
+       {
+        "name": "autoAssignmentRulesSize",
+        "type": "EOS_SIZET",
+        "array": "",
+        "offset": 128,
+        "size": 8
+       },
+       {
+        "name": "reserved",
+        "type": "EOS_BYTE",
+        "array": "114",
+        "offset": 136,
+        "size": 114
+       }
+      ]
+     },
+     "size_changed": false
+    },
+    {
+     "name": "EOS_MATERIALSET_REVISION",
+     "old": {
+      "kind": "struct",
+      "size": 128,
+      "align": 8,
+      "members": [
+       {
+        "name": "uuid",
+        "type": "EOS_CWSTR",
+        "array": "",
+        "offset": 0,
+        "size": 8
+       },
+       {
+        "name": "parentUuid",
+        "type": "EOS_CWSTR",
+        "array": "",
+        "offset": 8,
+        "size": 8
+       },
+       {
+        "name": "timestampUtc",
+        "type": "EOS_TIMESTAMP",
+        "array": "",
+        "offset": 16,
+        "size": 8
+       },
+       {
+        "name": "reserved",
+        "type": "EOS_BYTE",
+        "array": "104",
+        "offset": 24,
+        "size": 104
+       }
+      ]
+     },
+     "new": {
+      "kind": "struct",
+      "size": 128,
+      "align": 8,
+      "members": [
+       {
+        "name": "uuid",
+        "type": "EOS_CWSTR",
+        "array": "",
+        "offset": 0,
+        "size": 8
+       },
+       {
+        "name": "parentUuid",
+        "type": "EOS_CWSTR",
+        "array": "",
+        "offset": 8,
+        "size": 8
+       },
+       {
+        "name": "timestampUtc",
+        "type": "EOS_TIMESTAMP",
+        "array": "",
+        "offset": 16,
+        "size": 8
+       },
+       {
+        "name": "reserved",
+        "type": "EOS_BYTE",
+        "array": "99",
+        "offset": 24,
+        "size": 99
+       }
+      ]
+     },
+     "size_changed": false
+    },
+    {
+     "name": "EOS_TASK_METADATA",
+     "old": {
+      "kind": "struct",
+      "size": 128,
+      "align": 8,
+      "members": [
+       {
+        "name": "name",
+        "type": "EOS_CWSTR",
+        "array": "",
+        "offset": 0,
+        "size": 8
+       },
+       {
+        "name": "comment",
+        "type": "EOS_CWSTR",
+        "array": "",
+        "offset": 8,
+        "size": 8
+       },
+       {
+        "name": "numberOfAllowedBuilds",
+        "type": "EOS_UINT",
+        "array": "",
+        "offset": 16,
+        "size": 4
+       },
+       {
+        "name": "generatorName",
+        "type": "EOS_CWSTR",
+        "array": "",
+        "offset": 24,
+        "size": 8
+       },
+       {
+        "name": "generatorVersion",
+        "type": "EOS_CWSTR",
+        "array": "",
+        "offset": 32,
+        "size": 8
+       },
+       {
+        "name": "taskMode",
+        "type": "EOS_TASKMODE",
+        "array": "",
+        "offset": 40,
+        "size": 4
+       },
+       {
+        "name": "partBaseDirectory",
+        "type": "EOS_CWSTR",
+        "array": "",
+        "offset": 48,
+        "size": 8
+       },
+       {
+        "name": "taskFormat",
+        "type": "EOS_TASKFORMAT",
+        "array": "",
+        "offset": 56,
+        "size": 4
+       },
+       {
+        "name": "compression",
+        "type": "EOS_COMPRESSION_LEVEL",
+        "array": "",
+        "offset": 60,
+        "size": 4
+       },
+       {
+        "name": "reserved",
+        "type": "EOS_BYTE",
+        "array": "64",
+        "offset": 64,
+        "size": 64
+       }
+      ]
+     },
+     "new": {
+      "kind": "struct",
+      "size": 128,
+      "align": 8,
+      "members": [
+       {
+        "name": "name",
+        "type": "EOS_CWSTR",
+        "array": "",
+        "offset": 0,
+        "size": 8
+       },
+       {
+        "name": "comment",
+        "type": "EOS_CWSTR",
+        "array": "",
+        "offset": 8,
+        "size": 8
+       },
+       {
+        "name": "numberOfAllowedBuilds",
+        "type": "EOS_UINT",
+        "array": "",
+        "offset": 16,
+        "size": 4
+       },
+       {
+        "name": "generatorName",
+        "type": "EOS_CWSTR",
+        "array": "",
+        "offset": 24,
+        "size": 8
+       },
+       {
+        "name": "generatorVersion",
+        "type": "EOS_CWSTR",
+        "array": "",
+        "offset": 32,
+        "size": 8
+       },
+       {
+        "name": "taskMode",
+        "type": "EOS_TASKMODE",
+        "array": "",
+        "offset": 40,
+        "size": 4
+       },
+       {
+        "name": "partBaseDirectory",
+        "type": "EOS_CWSTR",
+        "array": "",
+        "offset": 48,
+        "size": 8
+       },
+       {
+        "name": "taskFormat",
+        "type": "EOS_TASKFORMAT",
+        "array": "",
+        "offset": 56,
+        "size": 4
+       },
+       {
+        "name": "reserved",
+        "type": "EOS_BYTE",
+        "array": "64",
+        "offset": 60,
+        "size": 64
+       }
+      ]
+     },
+     "size_changed": false
+    },
+    {
+     "name": "EOS_VARIANT",
+     "old": {
+      "kind": "union",
+      "size": 8,
+      "align": 8,
+      "members": [
+       {
+        "name": "intVariant",
+        "type": "EOS_INT",
+        "array": "",
+        "offset": 0,
+        "size": 4
+       },
+       {
+        "name": "doubleVariant",
+        "type": "EOS_DOUBLE",
+        "array": "",
+        "offset": 0,
+        "size": 8
+       },
+       {
+        "name": "cWStrVariant",
+        "type": "EOS_CWSTR",
+        "array": "",
+        "offset": 0,
+        "size": 8
+       }
+      ]
+     },
+     "new": {
+      "kind": "union",
+      "size": 8,
+      "align": 8,
+      "members": [
+       {
+        "name": "intVariant",
+        "type": "EOS_INT",
+        "array": "",
+        "offset": 0,
+        "size": 4
+       },
+       {
+        "name": "doubleVariant",
+        "type": "EOS_DOUBLE",
+        "array": "",
+        "offset": 0,
+        "size": 8
+       },
+       {
+        "name": "cWStrVariant",
+        "type": "EOS_CWSTR",
+        "array": "",
+        "offset": 0,
+        "size": 8
+       }
+      ]
+     },
+     "size_changed": false
+    },
+    {
+     "name": "EOS_VERSION",
+     "old": {
+      "kind": "struct",
+      "size": 16,
+      "align": 4,
+      "members": [
+       {
+        "name": "major",
+        "type": "EOS_INT",
+        "array": "",
+        "offset": 0,
+        "size": 4
+       },
+       {
+        "name": "minor",
+        "type": "EOS_INT",
+        "array": "",
+        "offset": 4,
+        "size": 4
+       },
+       {
+        "name": "build",
+        "type": "EOS_INT",
+        "array": "",
+        "offset": 8,
+        "size": 4
+       },
+       {
+        "name": "revision",
+        "type": "EOS_INT",
+        "array": "",
+        "offset": 12,
+        "size": 4
+       }
+      ]
+     },
+     "new": {
+      "kind": "struct",
+      "size": 16,
+      "align": 4,
+      "members": [
+       {
+        "name": "major",
+        "type": "EOS_INT",
+        "array": "",
+        "offset": 0,
+        "size": 4
+       },
+       {
+        "name": "minor",
+        "type": "EOS_INT",
+        "array": "",
+        "offset": 4,
+        "size": 4
+       },
+       {
+        "name": "build",
+        "type": "EOS_INT",
+        "array": "",
+        "offset": 8,
+        "size": 4
+       },
+       {
+        "name": "revision",
+        "type": "EOS_INT",
+        "array": "",
+        "offset": 12,
+        "size": 4
+       }
+      ]
+     },
+     "size_changed": false
+    }
+   ],
+   "unknown_to_headers": [],
+   "missing_in_libeos": [
+    "EOS_API_OPTIONS",
+    "EOS_BBOX",
+    "EOS_EXPOSUREPOINT",
+    "EOS_EXPOSUREPOINTARRAY",
+    "EOS_EXPOSURESTEP_INFO",
+    "EOS_EXPOSURETIME_DETAIL",
+    "EOS_EXPOSURETYPE_TEMPLATES",
+    "EOS_EXPOSURE_DATA",
+    "EOS_EXPOSURE_DATA_ARRAY",
+    "EOS_EXPOSURE_VECTOR",
+    "EOS_EXPOSURE_VECTOR_ARRAY",
+    "EOS_FILEPATH_LIST",
+    "EOS_LAYER_INFO",
+    "EOS_PART_SEGMENTATION_INFO",
+    "EOS_POINT2D",
+    "EOS_PROCESS_HEIGHTS",
+    "EOS_PROCESS_PARAMETER",
+    "EOS_PROCESS_PARAMETER_ADJUSTMENT",
+    "EOS_PROCESS_PARAMETER_ADJUSTMENT_LIST",
+    "EOS_PROCESS_PARAMETER_LIST",
+    "EOS_SCALING_OPTIONS",
+    "EOS_TASK_INFO",
+    "EOS_ZSEGMENT_INFO"
+   ]
+  },
+  "enums": {
+   "changed": [
+    {
+     "name": "EOS_ERROR",
+     "renumbered": [],
+     "missing_in_libeos": [
+      [
+       "EOS_ERR_INSUFFICIENT_SIZE",
+       100
+      ],
+      [
+       "EOS_ERR_NOT_ALLOWED",
+       101
+      ],
+      [
+       "EOS_ERR_CLIENT_NOT_AUTHENTICATED",
+       102
+      ],
+      [
+       "EOS_ERR_INVALID_EXPOSURE_PARAMETERS",
+       103
+      ],
+      [
+       "EOS_ERR_RESOURCECACHE_EXTERNAL_IMPORT_ERROR",
+       104
+      ],
+      [
+       "EOS_ERR_RESOURCECACHE_EXTERNAL_MESH_ERROR",
+       105
+      ],
+      [
+       "EOS_ERR_RESOURCECACHE_EXTERNAL_CONTOUR_ERROR",
+       106
+      ],
+      [
+       "EOS_ERR_RESOURCECACHE_EXTERNAL_IMPORT_WARNING",
+       107
+      ],
+      [
+       "EOS_ERR_RESOURCECACHE_EXTERNAL_MESH_WARNING",
+       108
+      ],
+      [
+       "EOS_ERR_RESOURCECACHE_EXTERNAL_CONTOUR_WARNING",
+       109
+      ],
+      [
+       "EOS_ERR_FILE_MALFORMED",
+       110
+      ],
+      [
+       "EOS_ERR_PARAMETER_DOES_NOT_EXIST",
+       111
+      ],
+      [
+       "EOS_ERR_PARAMETER_INACCESSIBLE",
+       112
+      ],
+      [
+       "EOS_ERR_INVALID_PARAMETER_VALUE",
+       113
+      ],
+      [
+       "EOS_ERR_ID_CONFLICT",
+       114
+      ],
+      [
+       "EOS_ERR_FILE_CORRUPT",
+       115
+      ]
+     ],
+     "unknown_to_headers": []
+    },
+    {
+     "name": "EOS_MODEL_TYPE",
+     "renumbered": [],
+     "missing_in_libeos": [
+      [
+       "EOS_MT_M294",
+       17
+      ],
+      [
+       "EOS_MT_M314",
+       18
+      ],
+      [
+       "EOS_MT_P397",
+       20
+      ],
+      [
+       "EOS_MT_P501",
+       22
+      ],
+      [
+       "EOS_MT_P521",
+       23
+      ]
+     ],
+     "unknown_to_headers": [
+      [
+       "EOS_MT_P900",
+       6
+      ],
+      [
+       "EOS_MT_P420",
+       8
+      ],
+      [
+       "EOS_MT_M100",
+       10
+      ],
+      [
+       "EOS_MT_P120",
+       11
+      ],
+      [
+       "EOS_MT_M292",
+       12
+      ],
+      [
+       "EOS_MT_P110",
+       15
+      ]
+     ]
+    }
+   ],
+   "unknown_to_headers": [
+    "EOS_TRANSFER_STATUS"
+   ],
+   "missing_in_libeos": [
+    "EOS_ADJUSTMENT_OPERATION",
+    "EOS_ADJUSTMENT_TYPE",
+    "EOS_ASYNC_OPERATION_STATUS",
+    "EOS_CODEMETER_LICENSING",
+    "EOS_COMPRESSION_LEVEL",
+    "EOS_EV_FILEINFO_EVENTS",
+    "EOS_EV_GALVOCON_EVENTS",
+    "EOS_EV_GALVODLL_EVENTS",
+    "EOS_EV_GEOMETRY_EVENTS",
+    "EOS_EV_MACHINESESSION_EVENTS",
+    "EOS_EV_MODULE_ID",
+    "EOS_EV_PARTMAN_EVENTS",
+    "EOS_EV_RESOURCECACHE_EVENTS",
+    "EOS_EV_SLI_EVENTS",
+    "EOS_EV_TASKGEN_EVENTS",
+    "EOS_PROCESS_PARAMETER_ACCESS_MODE",
+    "EOS_SEARCHMODE",
+    "EOS_SLICING_MODE",
+    "EOS_SMART_FUSION_COMPATIBILITY"
+   ]
+  },
+  "scalars": {
+   "changed": [
+    {
+     "name": "EOS_INT",
+     "old": "int32_t (int32_t)",
+     "new": "uint32_t (uint32_t)"
+    }
+   ],
+   "unknown_to_headers": [],
+   "missing_in_libeos": [
+    "EOS_AFFECTED_UNITS",
+    "EOS_EXPOSURETYPE_TEMPLATE",
+    "EOS_FILECREATION_HANDLE",
+    "EOS_FILECREATION_STATUS",
+    "EOS_FLAGS",
+    "EOS_FLAGS32",
+    "EOS_FLAGS64",
+    "EOS_FLOAT",
+    "EOS_LONG",
+    "EOS_LS_CAPABILITIES",
+    "EOS_MACHINE_LICENSE_INFOS",
+    "EOS_PARTID",
+    "EOS_TRANSFER_STATUS",
+    "EOS_VECTORTYPES",
+    "EOS_WCHAR",
+    "EOS_WSTR"
+   ]
+  }
+ }
+}

@@ -1,0 +1,192 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>Lib3MFToolpath4EOS examples</title>
+<link rel="stylesheet" href="style.css">
+</head>
+<body>
+<header class="site"><a class="brand" href="index.html"><img src="images/3mf-logo.png" alt=".3MF"><span>Lib3MFToolpath4EOS</span></a><nav><a href="index.html">Library guide</a><a href="api.html">API reference</a><a href="examples.html" class="active">Examples</a><a href="power-ramps.html">Power ramps</a><a href="conversion.html">Conversion</a></nav></header>
+<div class="layout">
+<aside class="toc">
+<h3>Examples</h3>
+<ul>
+<li><a href="#overview">Overview</a></li>
+<li><a href="#building">Building</a></li>
+<li><a href="#options">Common options</a></li>
+<li><a href="#walkthrough">Walkthrough</a></li>
+<li><a href="#tpapi">EOS Toolpath API</a></li>
+<li><a href="#credential">Toolpath API client key</a></li>
+<li><a href="#ex00">00 Generate sample 3MF</a></li>
+<li><a href="#ex01">01 Convert 3MF / OpenJZ</a></li>
+<li><a href="#ex02">02 OpenJZ to machine</a></li>
+<li><a href="#ex03">03 Mesh 3MF to machine</a></li>
+<li><a href="#ex06">06 Toolpath 3MF to machine</a></li>
+<li><a href="#owncode">Notes for your own code</a></li>
+</ul>
+</aside>
+<main>
+
+<h1>Lib3MFToolpath4EOS examples</h1>
+
+<section id="overview">
+<h2>Overview</h2>
+<p>Five command line programs cover the Lib3MFToolpath4EOS workflows, and <code>toolpath_credential</code> stores the
+Toolpath API client key. Each is a single C++ file in <code>examples/cpp</code>,
+sharing the helpers in <code>example_common.hpp</code> (argument parsing, library loading, waiting for futures).
+They use the dynamic C++ bindings and only need <code>lib3mftoolpath4eos.dll</code> and <code>lib3mf.dll</code> next to the
+executable; in a binary release they are in <code>bin/</code>.</p>
+<div class="flow"><span>00 sample 3MF</span><b>&rarr;</b><span>01 OpenJZ</span><b>&rarr;</b><span>02 / 03 task on machine</span></div>
+<div class="flow"><span>your own toolpath 3MF</span><b>&rarr;</b><span>06 task on machine</span></div>
+<table>
+<tr><th>Example</th><th>What it does</th><th>Needs</th></tr>
+<tr><td><a href="#ex00"><code>00_generate_sample_3mf</code></a></td><td>Creates a mesh 3MF with three parts; optionally embeds a material set</td><td>material set (optional)</td></tr>
+<tr><td><a href="#ex01"><code>01_convert_3mf_openjz</code></a></td><td>Converts a mesh 3MF into an OpenJZ job, or back</td><td>material set</td></tr>
+<tr><td><a href="#ex02"><code>02_openjz_to_machine</code></a></td><td>Creates an EOS task from an OpenJZ job and uploads it</td><td>machine configuration</td></tr>
+<tr><td><a href="#ex03"><code>03_mesh3mf_to_machine</code></a></td><td>Creates an EOS task from a mesh 3MF and uploads it</td><td>material set, machine configuration</td></tr>
+<tr><td><a href="#ex06"><code>06_toolpath3mf_to_machine</code></a></td><td>Creates an EOS task from your own toolpath 3MF and uploads it</td><td>machine configuration, Toolpath API</td></tr>
+<tr><td><a href="#credential"><code>toolpath_credential</code></a></td><td>Stores, checks and deletes the Toolpath API client key in the Windows Credential Manager</td><td>client key</td></tr>
+</table>
+</section>
+
+<section id="building">
+<h2>Building</h2>
+<p>In the repository, the examples are part of the main build and end up in <code>build/Examples/Release</code>:</p>
+<pre><code>cmake -S . -B build
+cmake --build build --config Release</code></pre>
+<p>In a binary release, <code>examples/CMakeLists.txt</code> is a standalone project that uses the release's headers
+and DLLs:</p>
+<pre><code>cmake -S examples -B build-examples
+cmake --build build-examples --config Release</code></pre>
+<p>In the repository, the standalone project needs the built library: <code>-DLIBEOS_DLL=&lt;path&gt;/lib3mftoolpath4eos.dll</code>.</p>
+</section>
+
+<section id="options">
+<h2>Common options</h2>
+<p>Every example prints its usage with <code>--help</code>. Options can also come from environment variables.</p>
+<table>
+<tr><th>Option</th><th>Environment variable</th><th>Meaning</th></tr>
+<tr><td><code>--sdk &lt;dir&gt;</code></td><td><code>LIBEOS_SDK_DIR</code></td><td>EOSPRINT API directory; auto-detected if omitted</td></tr>
+<tr><td><code>--log &lt;file&gt;</code></td><td></td><td>EOS SDK log file; a temporary file is used if omitted</td></tr>
+<tr><td><code>--material-set &lt;file&gt;</code></td><td><code>LIBEOS_MATERIAL_SET</code></td><td>Material set (<code>.eospar</code>) to embed if the 3MF has none</td></tr>
+<tr><td><code>--machine-config &lt;path&gt;</code></td><td><code>LIBEOS_MACHINE_CONFIG</code></td><td>Configuration directory or machine package file</td></tr>
+<tr><td><code>--client-id &lt;id&gt;</code></td><td><code>LIBEOS_TPAPI_CLIENT_ID</code></td><td>Toolpath API client ID</td></tr>
+<tr><td><code>--credential &lt;name&gt;</code></td><td><code>LIBEOS_TPAPI_CREDENTIAL</code></td><td>Name of the Windows Credential Manager entry with the Toolpath API client key (see <a href="#credential">below</a>)</td></tr>
+<tr><td><code>--machine &lt;address&gt;</code></td><td><code>LIBEOS_MACHINE_ADDRESS</code></td><td>Machine network address; without it, the connection is simulated</td></tr>
+<tr><td><code>--store-task &lt;dir&gt;</code></td><td></td><td>Also copy the created task into this directory</td></tr>
+</table>
+<p>The exit code is 0 on success, 2 for usage errors and 1 for all other errors.</p>
+<div class="note">If both EOSPRINT 2 and the EOSPRINT API SDK are installed, auto-detection picks EOSPRINT 2.
+Select the SDK with <code>--sdk "C:\Program Files\EOS\EOSPRINT 2 SDK\2_18\bin\x64\release"</code>.</div>
+</section>
+
+<section id="walkthrough">
+<h2>Walkthrough</h2>
+<p>Generate a sample part with an embedded material set. The first run lists the exposure sets and stops, because no
+<code>--part-parameter</code> is given; the second run picks one:</p>
+<pre><code>00_generate_sample_3mf.exe box.3mf --material-set 316L_040_FlexM291.eospar
+00_generate_sample_3mf.exe box.3mf --material-set 316L_040_FlexM291.eospar --part-parameter _Default_DirectPart</code></pre>
+<p>Convert to OpenJZ and back:</p>
+<pre><code>01_convert_3mf_openjz.exe box.3mf box.openjz
+01_convert_3mf_openjz.exe box.openjz box_roundtrip.3mf</code></pre>
+<p>Create tasks and upload them. Without <code>--machine</code> the connection is simulated, which requires an explicit
+machine configuration:</p>
+<pre><code>02_openjz_to_machine.exe --machine-config M290.eosmachineinformation --store-task tasks box.openjz
+03_mesh3mf_to_machine.exe --machine-config M290.eosmachineinformation --machine 192.168.0.10 box.3mf</code></pre>
+<p>To expose your own toolpaths, write them into a 3MF with the 3MF Toolpath extension, using the profile parameters of
+the <a href="index.html#conventions">3MF conventions</a>. Store the Toolpath API client key once and create a task from
+the toolpath 3MF:</p>
+<pre><code>toolpath_credential.exe store LibEOS-TPAPI client_key.pem
+06_toolpath3mf_to_machine.exe --machine-config M290.eosmachineinformation --client-id 1 --credential LibEOS-TPAPI my.toolpath.3mf</code></pre>
+</section>
+
+<section id="tpapi">
+<h2>EOS Toolpath API</h2>
+<div class="note">Example 06 uses the EOS Toolpath API, which requires an
+agreement with EOS GmbH and authorization by EOS. EOS process data, including EOS toolpaths and 3MF files containing EOS
+process data, must not be made accessible to third parties in human- or machine-readable form. See
+<a href="index.html#overview">EOS Toolpath API</a> in the library documentation.</div>
+</section>
+
+<section id="credential">
+<h2>Toolpath API client key</h2>
+<p>The client key (the client-side encryption key that EOS assigns under the Toolpath API agreement) is a PEM file and a
+confidential credential, even though RSA libraries may refer to it as a "public key". The examples
+do not read it from a file: <code>toolpath_credential</code> stores its PEM text once as a generic credential in the
+Windows Credential Manager, which encrypts it for the current Windows user, and the examples get the credential's name
+with <code>--credential</code>:</p>
+<pre><code>toolpath_credential.exe store LibEOS-TPAPI client_key.pem   # import the file issued by EOS
+toolpath_credential.exe store LibEOS-TPAPI                  # or paste the PEM text into the console
+toolpath_credential.exe check LibEOS-TPAPI                  # shows the PEM type and size, never the key
+toolpath_credential.exe delete LibEOS-TPAPI</code></pre>
+<p>After importing, remove the PEM file from the computer and keep the original in a secure place. The credential is bound
+to the Windows user that stored it; a service under another account needs its own entry. The examples pass only the
+credential name to <code>AuthenticateToolpathAPIFromCredentialStore</code>; the library reads the key and erases its copies
+after authenticating, so the key never passes through the example.</p>
+</section>
+
+<section id="ex00">
+<h2>00 Generate sample 3MF</h2>
+<p><code>00_generate_sample_3mf [options] &lt;output.3mf&gt;</code></p>
+<p>Writes three parts that exercise part placement: a 20&nbsp;mm cube moved by its build item, a 40&nbsp;&times;&nbsp;10&nbsp;&times;&nbsp;10&nbsp;mm
+bar rotated by 30&deg; about Z, and a 10&nbsp;mm cube placed through a components object.</p>
+<p>With <code>--material-set</code>, the material set is imported (this loads the EOS SDK), its exposure sets are listed
+and it is embedded. <code>--part-parameter</code> must then name one of the listed exposure sets and is stored as
+<code>eos3mf:partparameter</code> on every part.</p>
+<p>API: <code>ImportMaterialSet</code>, <code>EOSMaterialSet::GetExposureSetName</code>, <code>AttachMaterialSetTo3MF</code>.</p>
+</section>
+
+<section id="ex01">
+<h2>01 Convert 3MF / OpenJZ</h2>
+<p><code>01_convert_3mf_openjz [options] &lt;input.3mf|input.openjz&gt; &lt;output&gt;</code></p>
+<p>The direction follows the input extension. For 3MF input, the material set comes from the file or from
+<code>--material-set</code>. For OpenJZ input, the geometry, part metadata and the OpenJZ's material set are written into a
+mesh 3MF.</p>
+<p>API: <code>Convert3MFToOpenJZ</code>, <code>ConvertOpenJZTo3MF</code>.</p>
+</section>
+
+<section id="ex02">
+<h2>02 OpenJZ to machine</h2>
+<p><code>02_openjz_to_machine [options] &lt;job.openjz&gt;</code></p>
+<p>Loads the job, activates the machine configuration, creates an EOS task and uploads it. The machine configuration is
+<code>--machine-config</code> if given, otherwise it is downloaded from the connected machine.</p>
+<p>API: <code>ConnectToMachine</code>, <code>LoadOpenJZFromFile</code>, <code>ActivateMachineConfiguration</code>,
+<code>CreateTask</code>, <code>UploadTask</code>.</p>
+</section>
+
+<section id="ex03">
+<h2>03 Mesh 3MF to machine</h2>
+<p><code>03_mesh3mf_to_machine [options] &lt;model.3mf&gt;</code></p>
+<p>Like example 02, but the job comes from a mesh 3MF with an embedded material set.</p>
+<p>API: <code>LoadJobFrom3MF</code>, <code>ActivateMachineConfiguration</code>, <code>CreateTask</code>, <code>UploadTask</code>.</p>
+</section>
+
+<section id="ex06">
+<h2>06 Toolpath 3MF to machine</h2>
+<p><code>06_toolpath3mf_to_machine [options] &lt;toolpath.3mf&gt;</code></p>
+<p>Reads a toolpath 3MF from your own toolpath generation through a persistent source, writes its layers into an EOS task
+and uploads it. Besides the toolpath, the 3MF needs the part meshes and an embedded material set, or else all
+<code>eos3mf</code> job metadata.</p>
+<p>After the task is created, or if creating it fails, the example prints the
+<a href="conversion.html#log">conversion log</a>: the message counts, the warnings and errors, and the counters that are not 0.
+<code>--conversion-log &lt;file.json&gt;</code> also writes the log as JSON, and <code>--power-ramp-mode</code> selects
+<code>polyline</code> (default), <code>split-hatches</code>, <code>flatten</code> or <code>reject</code>.</p>
+<p>API: <code>CreateToolpathConversionSettings</code>, <code>CreateTaskFrom3MFToolpath</code>, <code>GetConversionLog</code>, <code>UploadTask</code>.</p>
+</section>
+
+<section id="owncode">
+<h2>Notes for your own code</h2>
+<ul>
+<li>Load <code>lib3mf.dll</code> and <code>lib3mftoolpath4eos.dll</code> and call <code>InjectComponent("Lib3MF", ...)</code>, so both
+libraries share one Lib3MF instance (<code>loadLibraries</code>).</li>
+<li>Register the material set relationship with <code>AddRelationToRead</code> before reading a 3MF, otherwise Lib3MF drops
+the attachment (<code>read3MF</code>).</li>
+<li>Read toolpath 3MFs with <code>ReadFromPersistentSource</code> and keep the source alive (<code>read3MF</code>).</li>
+<li>Call <code>EnableSDKSimulation</code> before anything loads the SDK (<code>createContext</code>).</li>
+</ul>
+</section>
+
+</main>
+</div>
+</body>
+</html>

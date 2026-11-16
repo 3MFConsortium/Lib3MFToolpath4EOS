@@ -1,0 +1,1072 @@
+/*++
+
+Copyright (C) 2026 3MF Consortium.
+
+All rights reserved.
+
+Redistribution and use in source and binary forms, with or without
+modification, are permitted provided that the following conditions are met:
+	* Redistributions of source code must retain the above copyright
+	  notice, this list of conditions and the following disclaimer.
+	* Redistributions in binary form must reproduce the above copyright
+	  notice, this list of conditions and the following disclaimer in the
+	  documentation and/or other materials provided with the distribution.
+	* Neither the name of the 3MF Consortium nor the
+	  names of its contributors may be used to endorse or promote products
+	  derived from this software without specific prior written permission.
+
+THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND
+ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED
+WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE
+DISCLAIMED. IN NO EVENT SHALL THE 3MF CONSORTIUM BE LIABLE FOR ANY
+DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES
+(INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES;
+LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND
+ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
+(INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS
+SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+
+*/
+
+
+#include <string>
+#include <algorithm>
+#include <vector>
+#include <sstream>
+#include <exception>
+#include <iomanip>
+#include <thread>
+#include <cctype>
+
+#include "Libraries/crossguid/guid.hpp"
+
+#include "Libraries/cppcodec/base64_rfc4648.hpp"
+#include "Libraries/cppcodec/base64_url.hpp"
+
+#ifdef _WIN32
+#include <objbase.h>
+#include <shlwapi.h>
+#include <iomanip>
+#else
+#include <sys/types.h>
+#include <sys/stat.h>
+#include <ctime>
+#include <unistd.h>
+#include <dirent.h> 
+#include <limits.h>
+#include <stdlib.h>
+#include <stdio.h>
+#endif
+
+
+
+#include "common_utils.hpp"
+
+namespace AMCCommon {
+
+#define LIBMC_MAXSTRINGBUFFERSIZE (1024 * 1024 * 1024)
+#define LIBMC_MAXPATHBUFFERSIZE 65536
+
+	// Lookup table to convert UTF8 bytes to sequence length
+	const unsigned char UTF8DecodeTable[256] = {
+		1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,
+		1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,
+		1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,
+		1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,
+		1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,
+		1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,
+		1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,
+		1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,
+		0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,
+		0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,
+		0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,
+		0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,
+		2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,
+		2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,
+		3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,
+		4,4,4,4,4,4,4,4,5,5,5,5,6,6,0,0
+	};
+
+	// Masks to decode highest UTF8 sequence byte
+	const unsigned char UTF8DecodeMask[7] = { 0, 0x7f, 0x1f, 0x0f, 0x07, 0x03, 0x01 };
+
+
+
+
+	bool fnUTF16CharIsSurrogate(wchar_t cChar)
+	{
+		uint32_t nSignature = (cChar & 0xfc00);
+		return (nSignature == 0xd800) || (nSignature == 0xdc00);
+	}
+
+	bool fnUTF16CharIsHighSurrogate(wchar_t cChar)
+	{
+		uint32_t nSignature = (cChar & 0xfc00);
+		return (nSignature == 0xd800);
+	}
+
+	bool fnUTF16CharIsLowSurrogate(wchar_t cChar)
+	{
+		uint32_t nSignature = (cChar & 0xfc00);
+		return (nSignature == 0xdc00);
+	}
+
+	uint32_t fnUTF16toCharacterID(uint16_t nHighSurrogate, uint16_t nLowSurrogate)
+	{
+		if ((fnUTF16CharIsHighSurrogate(nLowSurrogate)) && (fnUTF16CharIsLowSurrogate(nHighSurrogate))) {
+			std::swap(nLowSurrogate, nHighSurrogate); // UTF16LE
+		}
+
+		if ((!fnUTF16CharIsHighSurrogate(nHighSurrogate)) || (!fnUTF16CharIsLowSurrogate(nLowSurrogate)))
+			throw std::runtime_error ("could not convert to utf8");
+
+		uint32_t nCode = (((uint32_t)(nHighSurrogate & 0x3ff)) << 10 | ((uint32_t)(nLowSurrogate & 0x3ff)));
+		return nCode + 0x10000;
+	}
+
+
+	std::string CUtils::UTF16toUTF8(const std::wstring sString)
+	{
+
+		// Check Input Sanity
+		size_t nLength = sString.length();
+		if (nLength == 0)
+			return "";
+		if (nLength > LIBMC_MAXSTRINGBUFFERSIZE)
+			throw std::runtime_error("invalid buffer size");
+
+		// Reserve UTF8 Buffer
+		uint32_t nBufferSize = (uint32_t)nLength * 4 + 1;
+		std::vector<char> Buffer;
+		Buffer.resize(nBufferSize);
+
+		// nfInt32 nResult;
+		// Alternative: Convert via Win API
+		// nResult = WideCharToMultiByte(CP_UTF8, 0, sString.c_str(), (nfUint32)nLength, &Buffer[0], nBufferSize, nullptr, nullptr);
+		// if (nResult == 0)
+		//	throw CNMRException(NMR_ERROR_COULDNOTCONVERTTOUTF8);
+
+		const wchar_t* pChar = sString.c_str();
+		char* pOutput = &Buffer[0];
+
+		while (*pChar) {
+			wchar_t cChar = *pChar;
+			uint32_t nCharacter;
+			pChar++;
+
+			if (fnUTF16CharIsSurrogate(cChar)) {
+				wchar_t cLowChar = *pChar;
+				if (cLowChar == 0)
+					throw std::runtime_error("could not convert to utf8");
+				pChar++;
+
+				nCharacter = fnUTF16toCharacterID(cChar, cLowChar);
+			}
+			else {
+				nCharacter = cChar;
+			}
+
+			if (nCharacter < 0x80) {
+				// One Byte Encoding
+				*pOutput = nCharacter;
+				pOutput++;
+			}
+			else if (nCharacter < 0x800) {
+				// Two Byte Encoding
+				*pOutput = (nCharacter >> 6) | 0xC0;
+				pOutput++;
+				*pOutput = (nCharacter & 0x3f) | 0x80;
+				pOutput++;
+			}
+			else if (nCharacter < 0x10000) {
+				// Three Byte Encoding
+				*pOutput = (nCharacter >> 12) | 0xE0;
+				pOutput++;
+				*pOutput = ((nCharacter >> 6) & 0x3f) | 0x80;
+				pOutput++;
+				*pOutput = (nCharacter & 0x3f) | 0x80;
+				pOutput++;
+			}
+			else if (nCharacter < 0x200000) {
+				// Four Byte Encoding
+				*pOutput = (nCharacter >> 18) | 0xF0;
+				pOutput++;
+				*pOutput = ((nCharacter >> 12) & 0x3f) | 0x80;
+				pOutput++;
+				*pOutput = ((nCharacter >> 6) & 0x3f) | 0x80;
+				pOutput++;
+				*pOutput = (nCharacter & 0x3f) | 0x80;
+				pOutput++;
+			}
+			else if (nCharacter < 0x4000000) {
+				// Five Byte Encoding
+				*pOutput = (nCharacter >> 24) | 0xF8;
+				pOutput++;
+				*pOutput = ((nCharacter >> 18) & 0x3f) | 0x80;
+				pOutput++;
+				*pOutput = ((nCharacter >> 12) & 0x3f) | 0x80;
+				pOutput++;
+				*pOutput = ((nCharacter >> 6) & 0x3f) | 0x80;
+				pOutput++;
+				*pOutput = (nCharacter & 0x3f) | 0x80;
+				pOutput++;
+			}
+			else {
+				// Six Byte Encoding
+				*pOutput = (nCharacter >> 30) | 0xFC;
+				pOutput++;
+				*pOutput = ((nCharacter >> 24) & 0x3f) | 0x80;
+				pOutput++;
+				*pOutput = ((nCharacter >> 18) & 0x3f) | 0x80;
+				pOutput++;
+				*pOutput = ((nCharacter >> 12) & 0x3f) | 0x80;
+				pOutput++;
+				*pOutput = ((nCharacter >> 6) & 0x3f) | 0x80;
+				pOutput++;
+				*pOutput = (nCharacter & 0x3f) | 0x80;
+				pOutput++;
+			}
+
+		}
+
+		// write end byte
+		*pOutput = 0;
+
+		return std::string(&Buffer[0]);
+
+	}
+
+	void CUtils::characterIDToUTF16(uint32_t nCharacterID, uint16_t& nHighSurrogate, uint16_t& nLowSurrogate)
+	{
+		if ((nCharacterID < 0x10000) || (nCharacterID > 0x10FFFF))
+			throw std::runtime_error("could not convert to utf16");
+		nCharacterID -= 0x10000;
+		nHighSurrogate = (nCharacterID >> 10) | 0xd800;
+		nLowSurrogate = (nCharacterID & 0x3ff) | 0xdc00;
+	}
+
+	bool CUtils::UTF8StringIsValid(const std::string& sString)
+	{
+		const char* pChar = sString.c_str();
+
+		while (*pChar) {
+			unsigned char cChar = (unsigned char)*pChar;
+			uint32_t nLength = UTF8DecodeTable[(uint32_t)cChar];
+			pChar++;
+
+			if (nLength == 0)
+				return false;
+			if (nLength > 6)
+				return false;
+
+			// Check for BOM (0xEF,0xBB,0xBF), this also checks for #0 characters at the end,
+			// so it does not read over the string end!
+			bool bIsBOM = false;
+			if (cChar == 0xef) {
+				if (*((const unsigned char*)pChar) == 0xbb) {
+					if (*((const unsigned char*)(pChar + 1)) == 0xbf) {
+						bIsBOM = true;
+					}
+				}
+			};
+
+
+			if (!bIsBOM) {
+				uint32_t nCode = cChar & UTF8DecodeMask[nLength];
+
+				while (nLength > 1) {
+					cChar = *pChar;
+					if ((cChar & 0xc0) != 0x80)
+						return false;
+					pChar++;
+
+					// Map UTF8 sequence to code
+					nCode = (nCode << 6) | (cChar & 0x3f);
+					nLength--;
+				}
+
+				// Map Code to UTF16
+				if ((nCode < 0xd800) || ((nCode >= 0xe000) && (nCode <= 0xffff))) {
+					// everything is good in this case
+
+				}
+				else {
+					if ((nCode < 0x10000) || (nCode > 0x10FFFF))
+						return false;
+
+					// everything is good in this case
+				}
+			}
+			else {
+				// If we find a UTF8 bom, we just ignore it.
+				if (nLength != 3)
+					return false;
+				pChar += 2;
+			}
+		}
+
+
+		// success
+		return true;
+	}
+
+	
+	std::string CUtils::trimString(const std::string& sString)
+	{
+		std::string s = sString;
+		// left trim
+		s.erase(s.begin(), std::find_if(s.begin(), s.end(), [](int ch) {
+			return !std::isspace(ch);
+		}));
+
+		// right trim
+		s.erase(std::find_if(s.rbegin(), s.rend(), [](int ch) {
+			return !std::isspace(ch);
+		}).base(), s.end());
+
+		return s;
+	}
+
+	std::string CUtils::toLowerString(const std::string& sString)
+	{
+		std::string s = sString;
+		std::transform(s.begin(), s.end(), s.begin(),
+			[](unsigned char c) { return std::tolower(c); } // correct
+		);
+		return s;
+	}
+
+
+
+	void CUtils::splitString(const std::string& sString, const std::string& sDelimiter, std::vector<std::string>& stringVector)
+	{
+		auto nDelimiterLength = sDelimiter.length();
+		if (nDelimiterLength == 0)
+			throw std::runtime_error("split string delimiter is empty");
+
+		if (!sString.empty()) {
+			
+			size_t nOffset = 0;
+			bool bFinished = false;
+			while (!bFinished) {
+				auto nPos = sString.find(sDelimiter, nOffset);
+				if (nPos == std::string::npos) {
+					stringVector.push_back(sString);
+					bFinished = true;
+				}
+				else {
+					stringVector.push_back(sString.substr (nOffset, nPos - nOffset));
+					nOffset = nPos + nDelimiterLength;
+				}
+
+			}
+
+
+		}
+
+	}
+
+
+	int64_t CUtils::stringToInteger(const std::string& sString)
+	{
+		std::string trimmedString = trimString(sString);
+
+		size_t nConversionErrorIndex = 0;
+		int64_t nResult = std::stoll(trimmedString, &nConversionErrorIndex, 10);
+		
+		if (nConversionErrorIndex != trimmedString.length())
+			throw std::runtime_error("invalid integer string: " + sString);
+
+		return nResult;
+	}
+
+	double CUtils::stringToDouble(const std::string& sString)
+	{
+		std::string trimmedString = trimString(sString);
+
+		size_t nConversionErrorIndex = 0;
+		double dResult = std::stod(trimmedString, &nConversionErrorIndex);
+
+		if (nConversionErrorIndex != trimmedString.length())
+			throw std::runtime_error("invalid integer string: " + sString);
+
+		return dResult;
+	}
+
+
+    std::wstring CUtils::UTF8toUTF16(const std::string sString)
+	{
+
+		// Check Input Sanity
+		size_t nLength = sString.length();
+		if (nLength == 0)
+			return L"";
+		if (nLength > LIBMC_MAXSTRINGBUFFERSIZE)
+			throw std::runtime_error("invalid buffer size");
+
+		// Reserve UTF8 Buffer
+		uint32_t nBufferSize = (uint32_t)nLength;
+		std::vector<wchar_t> Buffer;
+		Buffer.resize(nBufferSize * 2 + 2);
+
+		const char * pChar = sString.c_str();
+		wchar_t* pOutput = &Buffer[0];
+
+		while (*pChar) {
+			unsigned char cChar = (unsigned char)*pChar;
+			uint32_t nLength = UTF8DecodeTable[(uint32_t)cChar];
+			pChar++;
+
+			if (nLength == 0)
+				throw std::runtime_error("could not convert to utf16");
+			if (nLength > 6)
+				throw std::runtime_error("could not convert to utf16");
+
+			// Check for BOM (0xEF,0xBB,0xBF), this also checks for #0 characters at the end,
+			// so it does not read over the string end!
+			bool bIsBOM = false;
+			if (cChar == 0xef) {
+				if (*((const unsigned char*)pChar) == 0xbb) {
+					if (*((const unsigned char*)(pChar + 1)) == 0xbf) {
+						bIsBOM = true;
+					}
+				}
+			};
+
+
+			if (!bIsBOM) {
+				uint32_t nCode = cChar & UTF8DecodeMask[nLength];
+
+				while (nLength > 1) {
+					cChar = *pChar;
+					if ((cChar & 0xc0) != 0x80)
+						throw std::runtime_error("could not convert to utf16");
+					pChar++;
+
+					// Map UTF8 sequence to code
+					nCode = (nCode << 6) | (cChar & 0x3f);
+					nLength--;
+				}
+
+				// Map Code to UTF16
+				if ((nCode < 0xd800) || ((nCode >= 0xe000) && (nCode <= 0xffff))) {
+					*pOutput = nCode;
+					pOutput++;
+				}
+				else {
+					uint16_t nHighSurrogate, nLowSurrogate;
+					characterIDToUTF16(nCode, nHighSurrogate, nLowSurrogate);
+					*pOutput = nHighSurrogate;
+					pOutput++;
+					*pOutput = nLowSurrogate;
+					pOutput++;
+				}
+			}
+			else {
+				// If we find a UTF8 bom, we just ignore it.
+				if (nLength != 3)
+					throw std::runtime_error("could not convert to utf16");
+				pChar += 2;
+			}
+		}
+
+		// write end byte
+		*pOutput = 0;
+
+		return std::wstring(&Buffer[0]);
+
+	}
+
+
+	bool UUIDInValid(char c)
+	{
+		return !(((c >= '0') && (c <= '9'))
+			|| ((c >= 'a') && (c <= 'f'))
+			// || (c == '-')
+			);
+	}
+
+	bool CUtils::stringCharactersAreValid(const std::string& sString, bool allowEmptyString, bool allowLowerCaseLetters, bool allowUpperCaseLetters, bool allowNumbers, bool allowUnderscore, bool allowScore, bool allowDots)
+	{
+		if (sString.empty())
+			return allowEmptyString;
+
+		for (const char& cChar : sString) {
+			if ((cChar >= '0') && (cChar <= '9')) {
+				if (!allowNumbers)
+					return false;
+			}
+			else if ((cChar >= 'a') && (cChar <= 'z')) {
+				if (!allowLowerCaseLetters)
+					return false;
+			}
+			else if ((cChar >= 'A') && (cChar <= 'Z')) {
+				if (!allowUpperCaseLetters)
+					return false;
+			}
+			else if (cChar == '.') {
+				if (!allowDots)
+					return false;
+			}
+			else if (cChar == '_') {
+				if (!allowUnderscore)
+					return false;
+			}
+			else if (cChar == '-') {
+				if (!allowScore)
+					return false;
+			}
+			else {
+				return false;
+			}
+
+		}
+
+		return true;
+
+	}
+
+
+	bool CUtils::stringIsValidAlphanumericNameString(const std::string& sString)
+	{
+		if (sString.empty())
+			return false;
+
+		if (sString.at(0) == '_')
+			return false;
+
+		for (const char& cChar : sString) {
+			if (!(((cChar >= '0') && (cChar <= '9'))
+				|| ((cChar >= 'a') && (cChar <= 'z'))
+				|| ((cChar >= 'A') && (cChar <= 'Z'))
+				|| (cChar == '_')
+				))
+				return false;
+		}
+
+		return true;
+	}
+
+	bool CUtils::stringIsValidAlphanumericPathString(const std::string& sString)
+	{
+		if (sString.empty())
+			return false;
+
+		if (sString.at(0) == '_')
+			return false;
+
+		bool previousCharWasDot = true; // first character is not allowed to be a dot.
+
+		for (const char& cChar : sString) {
+			if (!(((cChar >= '0') && (cChar <= '9'))
+				|| ((cChar >= 'a') && (cChar <= 'z'))
+				|| ((cChar >= 'A') && (cChar <= 'Z'))
+				|| (cChar == '_') || (cChar == '.')
+				))
+				return false;
+
+			if ((cChar == '.')) {
+				if (previousCharWasDot) // two dots in a row is invalid!
+					return false;
+				previousCharWasDot = true;
+			}
+			else {
+				previousCharWasDot = false;
+			}
+			
+		}
+
+		// Last characters is also not allowed to be a dot
+		if (previousCharWasDot)
+			return false;
+
+		return true;
+	}
+
+	std::string CUtils::normalizeUUIDString(std::string sRawString)
+	{
+		
+		// to lowercase, remove all non hex characters, insert dashes again
+		std::transform(sRawString.begin(), sRawString.end(), sRawString.begin(), ::tolower);
+		sRawString.erase(std::remove_if(sRawString.begin(), sRawString.end(), &UUIDInValid), sRawString.end());
+		if (sRawString.length() != 32) {
+			throw std::runtime_error("invalid uuid string " + sRawString);
+		}
+		return sRawString.substr(0, 8) + '-' + sRawString.substr(8, 4) + '-' + sRawString.substr(12, 4) + '-' + sRawString.substr(16, 4) + '-' + sRawString.substr(20, 12);
+	}
+
+
+	std::string CUtils::normalizeSHA256String(std::string sRawString)
+	{
+		// to lowercase, remove all non hex characters, insert dashes again
+		std::transform(sRawString.begin(), sRawString.end(), sRawString.begin(), ::tolower);
+		sRawString.erase(std::remove_if(sRawString.begin(), sRawString.end(), &UUIDInValid), sRawString.end());
+		if (sRawString.length() != 64) {
+			throw std::runtime_error("invalid sha256 string " + sRawString);
+		}
+
+		return sRawString;
+	}
+
+
+
+	std::string CUtils::createEmptyUUID()
+	{
+		return "00000000-0000-0000-0000-000000000000";
+	}
+
+
+	void CUtils::deleteFileFromDisk(const std::string& sFileName, bool bMustSucceed)
+	{
+#ifdef _WIN32
+		std::wstring sFileNameUTF16 = UTF8toUTF16(sFileName);
+		if (!DeleteFileW(sFileNameUTF16.c_str())) {
+			if (bMustSucceed)
+				throw std::runtime_error("could not delete file: " + sFileName);		
+		}
+#else
+		if (std::remove(sFileName.c_str())) {
+			if (bMustSucceed)
+				throw std::runtime_error("could not delete file: " + sFileName);
+		}
+#endif
+	}
+
+	void CUtils::deleteDirectoryFromDisk(const std::string& sPath, bool bMustSucceed)
+	{
+#ifdef _WIN32
+		std::wstring sPathUTF16 = UTF8toUTF16(sPath);
+		if (!RemoveDirectoryW(sPathUTF16.c_str())) {
+			if (bMustSucceed)
+				throw std::runtime_error("could not delete path: " + sPath);
+		}
+#else
+		if (std::remove(sPath.c_str())) {
+			if (bMustSucceed)
+				throw std::runtime_error("could not delete path: " + sPath);
+		}
+#endif
+	}
+
+	void CUtils::createDirectoryOnDisk(const std::string& sPath)
+	{
+#ifdef _WIN32
+		std::wstring sPathUTF16 = UTF8toUTF16(sPath);
+		if (!CreateDirectoryW(sPathUTF16.c_str(), nullptr)) {
+			throw std::runtime_error("could not create path: " + sPath);
+		}
+#else
+		if (mkdir(sPath.c_str(), 0700)) {
+			throw std::runtime_error("could not create path: " + sPath);
+		}
+#endif
+	}
+
+	// ATTENTION: On Linux, will try to create the path name if it does not exist!
+	std::string CUtils::getFullPathName(const std::string& sRelativePath, bool bMustExist)
+	{
+
+		if (sRelativePath.empty())
+			throw std::runtime_error("empty relative path");
+
+#ifdef _WIN32
+
+		std::wstring sRelativePathW = UTF8toUTF16(sRelativePath);		
+		std::vector<wchar_t> Buffer;
+		Buffer.resize(LIBMC_MAXPATHBUFFERSIZE + 1);
+
+		DWORD nCount = GetFullPathNameW(sRelativePathW.c_str(), LIBMC_MAXPATHBUFFERSIZE, Buffer.data(), nullptr);
+		if (nCount == 0) 
+			throw std::runtime_error("could not get absolute path of " + sRelativePath + "(" + std::to_string (GetLastError ()) + ")");
+
+		Buffer[LIBMC_MAXPATHBUFFERSIZE] = 0;
+
+		std::string sAbsoluteFileName = UTF16toUTF8(Buffer.data());		
+
+		if (bMustExist) {
+			if (!fileOrPathExistsOnDisk(sAbsoluteFileName))
+				throw std::runtime_error("mandatory path/file does not exist on disk: " + sAbsoluteFileName);
+
+		}
+
+		return sAbsoluteFileName;
+
+#else
+		std::vector <char> resolvedPath;
+		resolvedPath.resize(PATH_MAX + 1);
+
+		// realpath unfortunately only works on existing files...
+		if (!realpath(sRelativePath.c_str(), resolvedPath.data())) {
+			if ((errno == ENOENT) && (!bMustExist)) {
+				FILE* fileP = fopen(sRelativePath.c_str(), "w");
+				if (fileP == nullptr)
+					throw std::runtime_error("inaccessible file path: " + sRelativePath + "(" + std::to_string(errno) + ")");
+
+				fclose(fileP);
+
+				if (!realpath(sRelativePath.c_str(), resolvedPath.data())) {
+					int err = errno;
+					unlink(sRelativePath.c_str());
+					throw std::runtime_error("could not get absolute path of " + sRelativePath + "(" + std::to_string(err) + ")");
+				}
+
+				if (unlink(sRelativePath.c_str()))
+					throw std::runtime_error("could not delete file: " + sRelativePath + "(" + std::to_string(errno) + ")");
+
+			} else
+				throw std::runtime_error("could not get absolute path of " + sRelativePath + "(" + std::to_string(errno) + ")");
+		}
+
+		resolvedPath[PATH_MAX] = 0;
+		return std::string (resolvedPath.data());
+		
+#endif
+
+
+	}
+
+	uint64_t CUtils::calculateSizeOfFile(const std::string& sFileNameUTF8)
+	{
+#ifdef _WIN32
+		std::wstring sFileNameW = UTF8toUTF16(sFileNameUTF8);
+		HANDLE hFile = CreateFileW(sFileNameW.c_str (), GENERIC_READ,
+			FILE_SHARE_READ | FILE_SHARE_WRITE, NULL, OPEN_EXISTING,
+			FILE_ATTRIBUTE_NORMAL, NULL);
+
+		if (hFile == INVALID_HANDLE_VALUE)
+			throw std::runtime_error("could not open " + sFileNameUTF8);
+
+		LARGE_INTEGER size;
+		size.QuadPart = 0;
+
+		if (!GetFileSizeEx(hFile, &size))
+		{
+			CloseHandle(hFile);
+			throw std::runtime_error("could not determine size of " + sFileNameUTF8);
+		}
+
+		CloseHandle(hFile);
+
+		return size.QuadPart;
+#else
+#error not implemented
+
+#endif
+	}
+
+#ifdef _WIN32
+	sFileTimeInformation convertSystemTimeToFileTimeInfo(const SYSTEMTIME& systemTime)
+	{
+		sFileTimeInformation timeInformation;
+		timeInformation.m_Year = systemTime.wYear;
+		timeInformation.m_Month = systemTime.wMonth;
+		timeInformation.m_DayOfWeek = systemTime.wDayOfWeek;
+		timeInformation.m_Day = systemTime.wDay;
+		timeInformation.m_Hour = systemTime.wHour;
+		timeInformation.m_Minute = systemTime.wMinute;
+		timeInformation.m_Second = systemTime.wSecond;
+		timeInformation.m_Milliseconds = systemTime.wMilliseconds;
+
+		return timeInformation;
+	}
+#endif
+
+	void CUtils::determineTimeOfFile(const std::string& sFileNameUTF8, sFileTimeInformation& creationTime, sFileTimeInformation& accessTime, sFileTimeInformation& writeTime)
+	{
+
+		memset((void*)&creationTime, 0, sizeof(creationTime));
+		memset((void*)&accessTime, 0, sizeof(accessTime));
+		memset((void*)&writeTime, 0, sizeof(writeTime));
+
+#ifdef _WIN32
+		std::wstring sFileNameW = UTF8toUTF16(sFileNameUTF8);
+		HANDLE hFile = CreateFileW(sFileNameW.c_str(), GENERIC_READ,
+			FILE_SHARE_READ | FILE_SHARE_WRITE, NULL, OPEN_EXISTING,
+			FILE_ATTRIBUTE_NORMAL, NULL);
+
+		if (hFile == INVALID_HANDLE_VALUE)
+			throw std::runtime_error("could not open " + sFileNameUTF8);
+
+		LARGE_INTEGER size;
+		size.QuadPart = 0;
+
+		FILETIME creationTimeStruct;
+		FILETIME accessTimeStruct;
+		FILETIME writeTimeStruct;
+
+		SYSTEMTIME creationTimeSystem;
+		SYSTEMTIME accessTimeSystem;
+		SYSTEMTIME writeTimeSystem;
+
+		if (!GetFileTime(hFile, &creationTimeStruct, &accessTimeStruct, &writeTimeStruct))
+		{
+			CloseHandle(hFile);
+			throw std::runtime_error("could not determine time of " + sFileNameUTF8);
+		}
+
+		CloseHandle(hFile);
+
+		if (FileTimeToSystemTime(&creationTimeStruct, &creationTimeSystem)) {
+			creationTime = convertSystemTimeToFileTimeInfo(creationTimeSystem);
+		}
+
+		if (FileTimeToSystemTime(&accessTimeStruct, &accessTimeSystem)) {
+			accessTime = convertSystemTimeToFileTimeInfo(accessTimeSystem);
+		}
+
+		if (FileTimeToSystemTime(&writeTimeStruct, &writeTimeSystem)) {
+			writeTime = convertSystemTimeToFileTimeInfo(writeTimeSystem);
+		}
+
+		
+#else
+#error not implemented
+
+#endif
+	}
+
+	bool CUtils::fileOrPathExistsOnDisk(const std::string& sPathName)
+	{
+
+#ifdef _WIN32
+		std::wstring sFileNameUTF16 = UTF8toUTF16(sPathName);
+		return PathFileExistsW(sFileNameUTF16.c_str());
+#else
+		if (access(sPathName.c_str(), F_OK) != -1) {
+			return true;
+		}
+		else {
+			return false;
+		}
+#endif
+
+	}
+
+	char CUtils::getPathDelimiter()
+	{
+#ifdef _WIN32
+		return '\\';
+#else
+		return '/';
+#endif 
+	}
+
+	std::string CUtils::includeTrailingPathDelimiter(const std::string& sPathName)
+	{
+		char delimiter = getPathDelimiter();		
+
+		if (!sPathName.empty()) {
+
+			char lastChar = *sPathName.rbegin();
+			if ((lastChar == '/') || (lastChar == '\\'))
+				return sPathName;
+
+			return sPathName + delimiter;
+
+		}
+		else
+		{
+			return std::string () + delimiter;
+		}
+	
+		
+	}
+
+	std::string CUtils::removeLeadingPathDelimiter(const std::string& sPathName)
+	{
+		const char* pChar = sPathName.c_str();
+
+		while ((*pChar == '/') || (*pChar == '\\'))
+			pChar++;
+
+		return std::string(pChar);
+	}
+
+
+	bool CUtils::pathIsDirectory(const std::string& sPathName)
+	{
+#ifdef _WIN32
+		std::wstring sPathNameW = UTF8toUTF16(sPathName);
+		DWORD dwAttrib = GetFileAttributesW(sPathNameW.c_str());
+
+		return (dwAttrib != INVALID_FILE_ATTRIBUTES &&
+			(dwAttrib & FILE_ATTRIBUTE_DIRECTORY));
+
+#else
+		std::string sAbsolutePath = getFullPathName(sPathName, false);
+
+		if (access(sAbsolutePath.c_str(), 0) == 0) {
+
+			struct stat status;
+			stat(sAbsolutePath.c_str (), &status);
+
+			return (status.st_mode & S_IFDIR) != 0;
+		}
+		return false;
+#endif
+	}
+
+
+	std::string CUtils::encodeBase64(const std::string& sString, eBase64Type eType)
+	{		
+		switch (eType) {
+		case eBase64Type::RFC4648:
+			return cppcodec::base64_rfc4648::encode(sString);
+		case eBase64Type::URL:
+			return cppcodec::base64_url::encode(sString);
+		default:
+			throw std::runtime_error("invalid base64 type");
+		}
+
+	}
+
+	void CUtils::decodeBase64(const std::string& sString, eBase64Type eType, std::vector<uint8_t>& byteBuffer)
+	{
+		switch (eType) {
+		case eBase64Type::RFC4648:
+			cppcodec::base64_rfc4648::decode(byteBuffer, sString);
+			break;
+		case eBase64Type::URL:
+			cppcodec::base64_url::decode(byteBuffer, sString);
+			break;
+		default:
+			throw std::runtime_error("invalid base64 type");
+		}
+
+	}
+
+	std::string CUtils::decodeBase64ToASCIIString(const std::string& sString, eBase64Type eType)
+	{
+		std::vector<uint8_t> byteBuffer;
+		byteBuffer.reserve (sString.length () + 1);
+		decodeBase64(sString, eType, byteBuffer);
+
+		for (auto b : byteBuffer) {
+			if ((b < 32) || (b >= 128))
+				throw std::runtime_error("invalid ASCII character in base64 decoding");
+		}
+
+		byteBuffer.push_back (0);
+		return std::string((char*)byteBuffer.data());
+	}
+
+
+	std::set<std::string> CUtils::findContentOfDirectory(const std::string& sDirectory, bool bReturnFiles, bool bReturnDirectories)
+	{
+		std::set<std::string> foundItems;
+
+#ifdef _WIN32
+
+		std::wstring sSearchString = UTF8toUTF16(sDirectory + "/*");
+		WIN32_FIND_DATAW findData;
+
+		HANDLE hSearchHandle = FindFirstFileW(sSearchString.c_str(), &findData);
+		if (hSearchHandle != INVALID_HANDLE_VALUE) {
+
+			bool bFound = true;
+			while (bFound) {
+
+				std::string sFileName = UTF16toUTF8(findData.cFileName);
+				bool bIsDirectory = (findData.dwFileAttributes & FILE_ATTRIBUTE_DIRECTORY) != 0;
+
+				if ((sFileName != "..") && (sFileName != ".")) {
+					if ((bIsDirectory && bReturnDirectories) || ((!bIsDirectory) && bReturnFiles)) {
+						foundItems.insert(sFileName);
+					}
+				}
+
+				bFound = FindNextFileW (hSearchHandle, &findData);
+			}
+
+			FindClose(hSearchHandle);
+			
+
+		}
+
+
+#else
+		DIR* pDir = opendir (sDirectory.c_str ()); 
+		if (pDir != nullptr) {
+			struct dirent* pDirEnt = readdir (pDir);
+			while (pDirEnt != nullptr) {
+				std::string sFileName = pDirEnt->d_name;
+				if ((sFileName != "..") && (sFileName != ".")) {
+					bool bIsDirectory = (pDirEnt->d_type == DT_DIR);
+					if ((bIsDirectory && bReturnDirectories) || ((!bIsDirectory) && bReturnFiles)) {
+						foundItems.insert(sFileName);
+					}
+				}
+				
+				pDirEnt = readdir(pDir);
+			}
+
+			closedir(pDir);
+
+		}
+
+#endif
+
+		return foundItems;
+	}
+
+
+	std::string CUtils::formatTime(const uint32_t nTotalSeconds)
+	{
+
+		uint64_t nSeconds = (nTotalSeconds % 60);
+		uint64_t nMinutes = (nTotalSeconds / 60) % 60;
+		uint64_t nHours = (nTotalSeconds / 3600);
+
+		std::stringstream sStream;
+		sStream << nHours << ":" << std::setfill('0') << std::setw(2) << nMinutes << ":" << std::setfill('0') << std::setw(2) << nSeconds;
+		std::string sTimeString = sStream.str();
+		return sTimeString;
+	}
+
+
+	uint64_t CUtils::getUnixTimeStamp()
+	{
+#if defined(_WIN32) && !defined(__MINGW32__)
+		return _time64(nullptr);
+#else
+		return time(nullptr);
+#endif
+
+	}
+
+
+	std::string CUtils::getTempFolder()
+	{
+#if defined _WIN32
+		std::vector<wchar_t> TempPathBuffer;
+		TempPathBuffer.resize(MAX_PATH + 1);
+		auto nSize = GetTempPathW(MAX_PATH, TempPathBuffer.data());
+		if (nSize == 0)
+			throw std::runtime_error("could not get temp file path");
+
+		TempPathBuffer[MAX_PATH] = 0;
+		std::string tmpfolder = CUtils::UTF16toUTF8(TempPathBuffer.data());
+#else
+		std::string tmpfolder = GetEnv("TMPDIR");
+#endif
+		if (tmpfolder.empty())
+			return "";
+		else {
+			auto finaltmpfolder = tmpfolder + "/LibEOS/";
+			if (!CUtils::fileOrPathExistsOnDisk(finaltmpfolder)) {
+#ifdef _WIN32
+				auto finaltmpfolderw = CUtils::UTF8toUTF16(finaltmpfolder);
+				CreateDirectoryW(finaltmpfolderw.data(), NULL);
+#else
+				mkdir(finaltmpfolder.c_str(), S_IRWXU | S_IRWXG | S_IROTH | S_IXOTH);
+#endif
+
+			}
+			if (!CUtils::fileOrPathExistsOnDisk(finaltmpfolder)) {
+				throw std::runtime_error("tmp filepath does not exist");
+			}
+			return finaltmpfolder;
+		}
+	}
+
+}

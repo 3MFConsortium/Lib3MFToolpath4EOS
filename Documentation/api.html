@@ -1,0 +1,1672 @@
+<!DOCTYPE html>
+<html lang="en"><head><meta charset="utf-8">
+<title>Lib3MFToolpath4EOS 1.1.0 API reference</title>
+<link rel="stylesheet" href="style.css"></head><body>
+<header class="site"><a class="brand" href="index.html"><img src="images/3mf-logo.png" alt=".3MF"><span>Lib3MFToolpath4EOS</span></a><nav><a href="index.html">Library guide</a><a href="api.html" class="active">API reference</a><a href="examples.html">Examples</a><a href="power-ramps.html">Power ramps</a><a href="conversion.html">Conversion</a></nav></header>
+<div class="layout"><aside class="toc"><h3>Global</h3><ul><li><a href="#Wrapper">Wrapper functions</a></li><li><a href="#Errors">Error codes</a></li></ul>
+<h3>Classes</h3><ul>
+<li><a href="#Base">Base</a></li>
+<li><a href="#EOSSDKSimulator">EOSSDKSimulator</a></li>
+<li><a href="#EOSMaterialSet">EOSMaterialSet</a></li>
+<li><a href="#EOSMachineInfo">EOSMachineInfo</a></li>
+<li><a href="#EOSRawTaskLayer">EOSRawTaskLayer</a></li>
+<li><a href="#EOSRawTask">EOSRawTask</a></li>
+<li><a href="#EOSToolpathConversionSettings">EOSToolpathConversionSettings</a></li>
+<li><a href="#EOSConversionLog">EOSConversionLog</a></li>
+<li><a href="#EOSRawTaskWriter">EOSRawTaskWriter</a></li>
+<li><a href="#Future">Future</a></li>
+<li><a href="#TaskUploadFuture">TaskUploadFuture</a></li>
+<li><a href="#TaskCreationFuture">TaskCreationFuture</a></li>
+<li><a href="#MachineConfigFuture">MachineConfigFuture</a></li>
+<li><a href="#MachineSessionFuture">MachineSessionFuture</a></li>
+<li><a href="#BuildTimeEstimationFuture">BuildTimeEstimationFuture</a></li>
+<li><a href="#ToolpathComputationFuture">ToolpathComputationFuture</a></li>
+<li><a href="#EOSContext">EOSContext</a></li>
+</ul><h3>Enums and structs</h3><ul>
+<li><a href="#EOSTaskBlockType">EOSTaskBlockType</a></li>
+<li><a href="#EOSPowerRampMode">EOSPowerRampMode</a></li>
+<li><a href="#EOSHatchWriteMode">EOSHatchWriteMode</a></li>
+<li><a href="#EOSDwellTimeUnit">EOSDwellTimeUnit</a></li>
+<li><a href="#EOSLayerZConvention">EOSLayerZConvention</a></li>
+<li><a href="#EOSLogSeverity">EOSLogSeverity</a></li>
+<li><a href="#EOSVolumeType">EOSVolumeType</a></li>
+<li><a href="#EOSSimulationMode">EOSSimulationMode</a></li>
+<li><a href="#EOSModelType">EOSModelType</a></li>
+<li><a href="#EOSNamespaceKind">EOSNamespaceKind</a></li>
+<li><a href="#EOSTaskPoint">EOSTaskPoint</a></li>
+<li><a href="#EOSTaskBlock">EOSTaskBlock</a></li>
+</ul></aside><main>
+<h1>Lib3MFToolpath4EOS 1.1.0 API reference</h1>
+<p>Generated from <code>ACT/Lib3MFToolpath4EOS.xml</code> by <code>Scripts/generate_api_reference.py</code>. The reference is language neutral: parameters marked <code>out</code> are output parameters, the value before the method name is the return value. Every binding maps these to its own conventions; in the C++ bindings, classes are returned as shared pointers (<code>PEOSContext</code> etc.) and errors are thrown as <code>ELib3MF4EOSException</code>.</p>
+<section id="Wrapper"><h2>Wrapper functions</h2>
+<p>Functions of the library object (<code>Lib3MF4EOS::CWrapper</code> in C++).</p>
+<div class="method" id="GetVersion">
+<code class="signature">void <b>GetVersion</b>(out uint32 <span class="param">Major</span>, out uint32 <span class="param">Minor</span>, out uint32 <span class="param">Micro</span>)</code>
+<p>retrieves the binary version of this library.</p>
+<table class="params"><tr><th>Parameter</th><th>Direction</th><th>Type</th><th>Description</th></tr>
+<tr><td><code>Major</code></td><td>out</td><td>uint32</td><td>returns the major version of this library</td></tr>
+<tr><td><code>Minor</code></td><td>out</td><td>uint32</td><td>returns the minor version of this library</td></tr>
+<tr><td><code>Micro</code></td><td>out</td><td>uint32</td><td>returns the micro version of this library</td></tr>
+</table>
+</div>
+<div class="method" id="GetLastError">
+<code class="signature">bool <b>GetLastError</b>(<a href="#Base">Base</a> <span class="param">Instance</span>, out string <span class="param">ErrorMessage</span>)</code>
+<p>Returns the last error recorded on this object</p>
+<table class="params"><tr><th>Parameter</th><th>Direction</th><th>Type</th><th>Description</th></tr>
+<tr><td><code>Instance</code></td><td>in</td><td><a href="#Base">Base</a></td><td>Instance Handle</td></tr>
+<tr><td><code>ErrorMessage</code></td><td>out</td><td>string</td><td>Message of the last error</td></tr>
+<tr><td><code>HasError</code></td><td>return</td><td>bool</td><td>Is there a last error to query</td></tr>
+</table>
+</div>
+<div class="method" id="ReleaseInstance">
+<code class="signature">void <b>ReleaseInstance</b>(<a href="#Base">Base</a> <span class="param">Instance</span>)</code>
+<p>Releases shared ownership of an Instance</p>
+<table class="params"><tr><th>Parameter</th><th>Direction</th><th>Type</th><th>Description</th></tr>
+<tr><td><code>Instance</code></td><td>in</td><td><a href="#Base">Base</a></td><td>Instance Handle</td></tr>
+</table>
+</div>
+<div class="method" id="AcquireInstance">
+<code class="signature">void <b>AcquireInstance</b>(<a href="#Base">Base</a> <span class="param">Instance</span>)</code>
+<p>Acquires shared ownership of an Instance</p>
+<table class="params"><tr><th>Parameter</th><th>Direction</th><th>Type</th><th>Description</th></tr>
+<tr><td><code>Instance</code></td><td>in</td><td><a href="#Base">Base</a></td><td>Instance Handle</td></tr>
+</table>
+</div>
+<div class="method" id="InjectComponent">
+<code class="signature">void <b>InjectComponent</b>(string <span class="param">NameSpace</span>, pointer <span class="param">SymbolAddressMethod</span>)</code>
+<p>Injects an imported component for usage within this component</p>
+<table class="params"><tr><th>Parameter</th><th>Direction</th><th>Type</th><th>Description</th></tr>
+<tr><td><code>NameSpace</code></td><td>in</td><td>string</td><td>NameSpace of the injected component</td></tr>
+<tr><td><code>SymbolAddressMethod</code></td><td>in</td><td>pointer</td><td>Address of the SymbolAddressMethod of the injected component</td></tr>
+</table>
+</div>
+<div class="method" id="CreateContext">
+<code class="signature"><a href="#EOSContext">EOSContext</a> <b>CreateContext</b>(string <span class="param">SDKDirectory</span>, string <span class="param">LogFileName</span>)</code>
+<p>Creates EOSPrint Context.</p>
+<table class="params"><tr><th>Parameter</th><th>Direction</th><th>Type</th><th>Description</th></tr>
+<tr><td><code>SDKDirectory</code></td><td>in</td><td>string</td><td>Directory of EOSPrint SDK. If empty string, the SDK will be autodetected.</td></tr>
+<tr><td><code>LogFileName</code></td><td>in</td><td>string</td><td>Absolute File name the EOS SDK shall log to. Empty string for handling logging in memory.</td></tr>
+<tr><td><code>Instance</code></td><td>return</td><td><a href="#EOSContext">EOSContext</a></td><td>New EOSContext instance</td></tr>
+</table>
+</div>
+</section>
+<section id="Base"><h2>Base</h2>
+<div class="method" id="ClassTypeId">
+<code class="signature">uint64 <b>ClassTypeId</b>()</code>
+<p>Get Class Type Id</p>
+<table class="params"><tr><th>Parameter</th><th>Direction</th><th>Type</th><th>Description</th></tr>
+<tr><td><code>ClassTypeId</code></td><td>return</td><td>uint64</td><td>Class type as a 64 bits integer</td></tr>
+</table>
+</div>
+</section>
+<section id="EOSSDKSimulator"><h2>EOSSDKSimulator</h2>
+<p class="inherits">Inherits from <a href="#Base">Base</a></p>
+<p>SDK Simulation class</p>
+<div class="method" id="GetAPIVersion">
+<code class="signature">string <b>GetAPIVersion</b>()</code>
+<p>Returns the EOS SDK version the simulator simulates, for example 2.18. It is the version set with SetSDKVersionOverride, otherwise the detected version.</p>
+<table class="params"><tr><th>Parameter</th><th>Direction</th><th>Type</th><th>Description</th></tr>
+<tr><td><code>APIVersion</code></td><td>return</td><td>string</td><td>Simulated SDK version (major.minor).</td></tr>
+</table>
+</div>
+<div class="method" id="IsRecording">
+<code class="signature">bool <b>IsRecording</b>()</code>
+<p>Returns whether toolpath writers record their commands, that is whether the simulation mode is Recording.</p>
+<table class="params"><tr><th>Parameter</th><th>Direction</th><th>Type</th><th>Description</th></tr>
+<tr><td><code>Recording</code></td><td>return</td><td>bool</td><td>True in the simulation mode Recording.</td></tr>
+</table>
+</div>
+<div class="method" id="GetRecordedCommandCount">
+<code class="signature">uint64 <b>GetRecordedCommandCount</b>()</code>
+<p>Returns the number of toolpath commands recorded since the recording started or was cleared. Every toolpath file starts with OpenFile and ends with CloseFile. Fails with SIMULATORNOTRECORDING outside the simulation mode Recording.</p>
+<table class="params"><tr><th>Parameter</th><th>Direction</th><th>Type</th><th>Description</th></tr>
+<tr><td><code>Count</code></td><td>return</td><td>uint64</td><td>Number of recorded commands.</td></tr>
+</table>
+</div>
+<div class="method" id="GetRecordedCommandName">
+<code class="signature">string <b>GetRecordedCommandName</b>(uint64 <span class="param">Index</span>)</code>
+<p>Returns the name of a recorded toolpath command. Fails with SIMULATORNOTRECORDING outside the simulation mode Recording.</p>
+<table class="params"><tr><th>Parameter</th><th>Direction</th><th>Type</th><th>Description</th></tr>
+<tr><td><code>Index</code></td><td>in</td><td>uint64</td><td>Index of the command, from 0 to GetRecordedCommandCount - 1.</td></tr>
+<tr><td><code>Name</code></td><td>return</td><td>string</td><td>Name of the command, for example BeginLayer, Hatch or SetLaserPower.</td></tr>
+</table>
+</div>
+<div class="method" id="GetRecordedCommandArguments">
+<code class="signature">void <b>GetRecordedCommandArguments</b>(uint64 <span class="param">Index</span>, out array of double <span class="param">Arguments</span>)</code>
+<p>Returns the arguments of a recorded toolpath command. Fails with SIMULATORNOTRECORDING outside the simulation mode Recording.</p>
+<table class="params"><tr><th>Parameter</th><th>Direction</th><th>Type</th><th>Description</th></tr>
+<tr><td><code>Index</code></td><td>in</td><td>uint64</td><td>Index of the command, from 0 to GetRecordedCommandCount - 1.</td></tr>
+<tr><td><code>Arguments</code></td><td>out</td><td>array of double</td><td>Arguments of the command in the order of the corresponding EOS SDK call; coordinates in mm, Z and depth in micrometers, times in microseconds.</td></tr>
+</table>
+</div>
+<div class="method" id="GetRecordedCommandsAsText">
+<code class="signature">string <b>GetRecordedCommandsAsText</b>()</code>
+<p>Returns all recorded toolpath commands, one per line, as the name followed by the arguments. Numbers have at most 6 decimals. Fails with SIMULATORNOTRECORDING outside the simulation mode Recording.</p>
+<table class="params"><tr><th>Parameter</th><th>Direction</th><th>Type</th><th>Description</th></tr>
+<tr><td><code>Text</code></td><td>return</td><td>string</td><td>Recorded commands.</td></tr>
+</table>
+</div>
+<div class="method" id="GetRecordedLayerCount">
+<code class="signature">uint64 <b>GetRecordedLayerCount</b>()</code>
+<p>Returns the number of layers recorded since the recording started or was cleared. Fails with SIMULATORNOTRECORDING outside the simulation mode Recording.</p>
+<table class="params"><tr><th>Parameter</th><th>Direction</th><th>Type</th><th>Description</th></tr>
+<tr><td><code>Count</code></td><td>return</td><td>uint64</td><td>Number of recorded layers.</td></tr>
+</table>
+</div>
+<div class="method" id="ClearRecording">
+<code class="signature">void <b>ClearRecording</b>()</code>
+<p>Removes all recorded toolpath commands. Fails with SIMULATORNOTRECORDING outside the simulation mode Recording.</p>
+</div>
+<div class="method" id="SetNumberOfLaserScanners">
+<code class="signature">void <b>SetNumberOfLaserScanners</b>(uint32 <span class="param">Count</span>)</code>
+<p>Sets the number of laser scanners of the simulated machine. Every scanner has the field of the simulated build volume. Once it is set, in the simulation mode Recording every layer must begin a part on each of them.</p>
+<table class="params"><tr><th>Parameter</th><th>Direction</th><th>Type</th><th>Description</th></tr>
+<tr><td><code>Count</code></td><td>in</td><td>uint32</td><td>Number of laser scanners, from 1 to 16. Default 1.</td></tr>
+</table>
+</div>
+<div class="method" id="GetNumberOfLaserScanners">
+<code class="signature">uint32 <b>GetNumberOfLaserScanners</b>()</code>
+<p>Returns the number of laser scanners of the simulated machine.</p>
+<table class="params"><tr><th>Parameter</th><th>Direction</th><th>Type</th><th>Description</th></tr>
+<tr><td><code>Count</code></td><td>return</td><td>uint32</td><td>Number of laser scanners.</td></tr>
+</table>
+</div>
+</section>
+<section id="EOSMaterialSet"><h2>EOSMaterialSet</h2>
+<p class="inherits">Inherits from <a href="#Base">Base</a></p>
+<p>EOS Machine Information</p>
+<div class="method" id="GetName">
+<code class="signature">string <b>GetName</b>()</code>
+<p>Get Material Set Name</p>
+<table class="params"><tr><th>Parameter</th><th>Direction</th><th>Type</th><th>Description</th></tr>
+<tr><td><code>Name</code></td><td>return</td><td>string</td><td>Material set name.</td></tr>
+</table>
+</div>
+<div class="method" id="GetUUID">
+<code class="signature">string <b>GetUUID</b>()</code>
+<p>Get Material Set UUID</p>
+<table class="params"><tr><th>Parameter</th><th>Direction</th><th>Type</th><th>Description</th></tr>
+<tr><td><code>UUID</code></td><td>return</td><td>string</td><td>Material set UUID.</td></tr>
+</table>
+</div>
+<div class="method" id="GetMaterial">
+<code class="signature">string <b>GetMaterial</b>()</code>
+<p>Get Material Set Material</p>
+<table class="params"><tr><th>Parameter</th><th>Direction</th><th>Type</th><th>Description</th></tr>
+<tr><td><code>Material</code></td><td>return</td><td>string</td><td>Material set Material.</td></tr>
+</table>
+</div>
+<div class="method" id="GetModelType">
+<code class="signature">string <b>GetModelType</b>()</code>
+<p>Returns the machine target the material set is made for, as used in OpenJob files, for example M291 for the M 290.</p>
+<table class="params"><tr><th>Parameter</th><th>Direction</th><th>Type</th><th>Description</th></tr>
+<tr><td><code>ModelType</code></td><td>return</td><td>string</td><td>Machine target. Empty if LibEOS does not know the model type of the material set.</td></tr>
+</table>
+</div>
+<div class="method" id="GetBaseLayerthickness">
+<code class="signature">uint32 <b>GetBaseLayerthickness</b>()</code>
+<p>Get Material Set Base layer thickness</p>
+<table class="params"><tr><th>Parameter</th><th>Direction</th><th>Type</th><th>Description</th></tr>
+<tr><td><code>Layerthickness</code></td><td>return</td><td>uint32</td><td>Material set base layer thickness in micron.</td></tr>
+</table>
+</div>
+<div class="method" id="GetParameterSetVersion">
+<code class="signature">string <b>GetParameterSetVersion</b>()</code>
+<p>Get Material Set Parameter Set Version</p>
+<table class="params"><tr><th>Parameter</th><th>Direction</th><th>Type</th><th>Description</th></tr>
+<tr><td><code>Material</code></td><td>return</td><td>string</td><td>Material set Material.</td></tr>
+</table>
+</div>
+<div class="method" id="GetExposureSetCount">
+<code class="signature">uint32 <b>GetExposureSetCount</b>()</code>
+<p>Get Exposure Set Count</p>
+<table class="params"><tr><th>Parameter</th><th>Direction</th><th>Type</th><th>Description</th></tr>
+<tr><td><code>ExposureSetCount</code></td><td>return</td><td>uint32</td><td>Number of exposure sets.</td></tr>
+</table>
+</div>
+<div class="method" id="GetExposureSetName">
+<code class="signature">string <b>GetExposureSetName</b>(uint32 <span class="param">ExposureSetIndex</span>)</code>
+<p>Get Exposure Set Name</p>
+<table class="params"><tr><th>Parameter</th><th>Direction</th><th>Type</th><th>Description</th></tr>
+<tr><td><code>ExposureSetIndex</code></td><td>in</td><td>uint32</td><td>Index of exposure set.</td></tr>
+<tr><td><code>ExposureSetName</code></td><td>return</td><td>string</td><td>Name of exposure set.</td></tr>
+</table>
+</div>
+<div class="method" id="GetExposureSetLayerThickness">
+<code class="signature">uint32 <b>GetExposureSetLayerThickness</b>(uint32 <span class="param">ExposureSetIndex</span>)</code>
+<p>Get Exposure layer thickness in micron</p>
+<table class="params"><tr><th>Parameter</th><th>Direction</th><th>Type</th><th>Description</th></tr>
+<tr><td><code>ExposureSetIndex</code></td><td>in</td><td>uint32</td><td>Index of exposure set.</td></tr>
+<tr><td><code>LayerThickness</code></td><td>return</td><td>uint32</td><td>Layer thickness in micron.</td></tr>
+</table>
+</div>
+</section>
+<section id="EOSMachineInfo"><h2>EOSMachineInfo</h2>
+<p class="inherits">Inherits from <a href="#Base">Base</a></p>
+<p>EOS Machine Information</p>
+<div class="method" id="GetVolumeType">
+<code class="signature"><a href="#EOSVolumeType">EOSVolumeType</a> <b>GetVolumeType</b>()</code>
+<p>Retrieves the volume type of the machine.</p>
+<table class="params"><tr><th>Parameter</th><th>Direction</th><th>Type</th><th>Description</th></tr>
+<tr><td><code>VolumeType</code></td><td>return</td><td><a href="#EOSVolumeType">EOSVolumeType</a></td><td>Volume type.</td></tr>
+</table>
+</div>
+<div class="method" id="GetDimensions">
+<code class="signature">void <b>GetDimensions</b>(out double <span class="param">DimensionX</span>, out double <span class="param">DimensionY</span>, out double <span class="param">DimensionZ</span>)</code>
+<p>Retrieves dimensions of the cuboid, if VolumeType is cuboid. Fails if VolumeType is not new.</p>
+<table class="params"><tr><th>Parameter</th><th>Direction</th><th>Type</th><th>Description</th></tr>
+<tr><td><code>DimensionX</code></td><td>out</td><td>double</td><td>Dimension in X.</td></tr>
+<tr><td><code>DimensionY</code></td><td>out</td><td>double</td><td>Dimension in Y.</td></tr>
+<tr><td><code>DimensionZ</code></td><td>out</td><td>double</td><td>Dimension in Z.</td></tr>
+</table>
+</div>
+<div class="method" id="GetRadius">
+<code class="signature">void <b>GetRadius</b>(out double <span class="param">Radius</span>)</code>
+<p>Retrieves dimensions of the cuboid, if VolumeType is cylindrical. Fails if VolumeType is not Cylinder.</p>
+<table class="params"><tr><th>Parameter</th><th>Direction</th><th>Type</th><th>Description</th></tr>
+<tr><td><code>Radius</code></td><td>out</td><td>double</td><td>Radius of Cylinder.</td></tr>
+</table>
+</div>
+<div class="method" id="GetModelType">
+<code class="signature"><a href="#EOSModelType">EOSModelType</a> <b>GetModelType</b>()</code>
+<p>Retrieves model type of the machine.</p>
+<table class="params"><tr><th>Parameter</th><th>Direction</th><th>Type</th><th>Description</th></tr>
+<tr><td><code>ModelType</code></td><td>return</td><td><a href="#EOSModelType">EOSModelType</a></td><td>Model type. Unknown if LibEOS does not know the model type the EOS SDK reports.</td></tr>
+</table>
+</div>
+<div class="method" id="GetModelTypeIdentifier">
+<code class="signature">string <b>GetModelTypeIdentifier</b>()</code>
+<p>Retrieves the machine target of the machine as used in OpenJob files, for example M304. For the M 290 this is M291. Fails with UNKNOWNMODELTYPE if the model type is Unknown.</p>
+<table class="params"><tr><th>Parameter</th><th>Direction</th><th>Type</th><th>Description</th></tr>
+<tr><td><code>ModelTypeIdentifier</code></td><td>return</td><td>string</td><td>Machine target string.</td></tr>
+</table>
+</div>
+<div class="method" id="GetModelTypeProductName">
+<code class="signature">string <b>GetModelTypeProductName</b>()</code>
+<p>Retrieves the proper product name of the machine. (e.g. M 300-4)</p>
+<table class="params"><tr><th>Parameter</th><th>Direction</th><th>Type</th><th>Description</th></tr>
+<tr><td><code>ModelTypeProductName</code></td><td>return</td><td>string</td><td>Model type product name.</td></tr>
+</table>
+</div>
+<div class="method" id="GetSoftwareVersion">
+<code class="signature">void <b>GetSoftwareVersion</b>(out uint32 <span class="param">Major</span>, out uint32 <span class="param">Minor</span>, out uint32 <span class="param">Build</span>, out uint32 <span class="param">Revision</span>)</code>
+<p>Retrieves the version of the software.</p>
+<table class="params"><tr><th>Parameter</th><th>Direction</th><th>Type</th><th>Description</th></tr>
+<tr><td><code>Major</code></td><td>out</td><td>uint32</td><td>Major version.</td></tr>
+<tr><td><code>Minor</code></td><td>out</td><td>uint32</td><td>Minor version.</td></tr>
+<tr><td><code>Build</code></td><td>out</td><td>uint32</td><td>Build version.</td></tr>
+<tr><td><code>Revision</code></td><td>out</td><td>uint32</td><td>Revision.</td></tr>
+</table>
+</div>
+<div class="method" id="GetSoftwareVersionString">
+<code class="signature">string <b>GetSoftwareVersionString</b>()</code>
+<p>Retrieves the version string of the software.</p>
+<table class="params"><tr><th>Parameter</th><th>Direction</th><th>Type</th><th>Description</th></tr>
+<tr><td><code>SoftwareVersion</code></td><td>return</td><td>string</td><td>Software version string.</td></tr>
+</table>
+</div>
+<div class="method" id="GetInterfaceVersion">
+<code class="signature">void <b>GetInterfaceVersion</b>(out uint32 <span class="param">Major</span>, out uint32 <span class="param">Minor</span>, out uint32 <span class="param">Build</span>, out uint32 <span class="param">Revision</span>)</code>
+<p>Retrieves the version of the machine interface.</p>
+<table class="params"><tr><th>Parameter</th><th>Direction</th><th>Type</th><th>Description</th></tr>
+<tr><td><code>Major</code></td><td>out</td><td>uint32</td><td>Major version.</td></tr>
+<tr><td><code>Minor</code></td><td>out</td><td>uint32</td><td>Minor version.</td></tr>
+<tr><td><code>Build</code></td><td>out</td><td>uint32</td><td>Build version.</td></tr>
+<tr><td><code>Revision</code></td><td>out</td><td>uint32</td><td>Revision.</td></tr>
+</table>
+</div>
+<div class="method" id="GetInterfaceVersionString">
+<code class="signature">string <b>GetInterfaceVersionString</b>()</code>
+<p>Retrieves the version string of the machine interface.</p>
+<table class="params"><tr><th>Parameter</th><th>Direction</th><th>Type</th><th>Description</th></tr>
+<tr><td><code>InterfaceVersion</code></td><td>return</td><td>string</td><td>Software version string.</td></tr>
+</table>
+</div>
+<div class="method" id="GetSerialNumber">
+<code class="signature">string <b>GetSerialNumber</b>()</code>
+<p>Retrieves the serial number of the machine.</p>
+<table class="params"><tr><th>Parameter</th><th>Direction</th><th>Type</th><th>Description</th></tr>
+<tr><td><code>SerialNumber</code></td><td>return</td><td>string</td><td>Serial number string.</td></tr>
+</table>
+</div>
+<div class="method" id="GetNumberOfLaserScanners">
+<code class="signature">uint32 <b>GetNumberOfLaserScanners</b>()</code>
+<p>Retrieves the number of laser scanners.</p>
+<table class="params"><tr><th>Parameter</th><th>Direction</th><th>Type</th><th>Description</th></tr>
+<tr><td><code>LaserScanners</code></td><td>return</td><td>uint32</td><td>Laser scanners .</td></tr>
+</table>
+</div>
+<div class="method" id="GetPrintDomain">
+<code class="signature">string <b>GetPrintDomain</b>()</code>
+<p>Retrieves the print domain of the machine.</p>
+<table class="params"><tr><th>Parameter</th><th>Direction</th><th>Type</th><th>Description</th></tr>
+<tr><td><code>PrintDomain</code></td><td>return</td><td>string</td><td>Print domain string.</td></tr>
+</table>
+</div>
+<div class="method" id="GetLaserScannerField">
+<code class="signature">void <b>GetLaserScannerField</b>(uint32 <span class="param">ScannerIndex</span>, out double <span class="param">MinX</span>, out double <span class="param">MinY</span>, out double <span class="param">MaxX</span>, out double <span class="param">MaxY</span>)</code>
+<p>Retrieves the scan field of a laser scanner, as reported by the EOS SDK. Fails with COULDNOTGETMACHINEINFORMATION if the SDK gives no scanner details.</p>
+<table class="params"><tr><th>Parameter</th><th>Direction</th><th>Type</th><th>Description</th></tr>
+<tr><td><code>ScannerIndex</code></td><td>in</td><td>uint32</td><td>Index of the laser scanner, from 0 to GetNumberOfLaserScanners - 1.</td></tr>
+<tr><td><code>MinX</code></td><td>out</td><td>double</td><td>Minimum X of the scan field in mm.</td></tr>
+<tr><td><code>MinY</code></td><td>out</td><td>double</td><td>Minimum Y of the scan field in mm.</td></tr>
+<tr><td><code>MaxX</code></td><td>out</td><td>double</td><td>Maximum X of the scan field in mm.</td></tr>
+<tr><td><code>MaxY</code></td><td>out</td><td>double</td><td>Maximum Y of the scan field in mm.</td></tr>
+</table>
+</div>
+<div class="method" id="GetLaserScannerLimits">
+<code class="signature">void <b>GetLaserScannerLimits</b>(uint32 <span class="param">ScannerIndex</span>, out double <span class="param">NominalPower</span>, out double <span class="param">MaxPower</span>, out double <span class="param">MaxScanSpeed</span>)</code>
+<p>Retrieves the laser power and scan speed limits of a laser scanner. Fails with COULDNOTGETMACHINEINFORMATION if the SDK gives no scanner details.</p>
+<table class="params"><tr><th>Parameter</th><th>Direction</th><th>Type</th><th>Description</th></tr>
+<tr><td><code>ScannerIndex</code></td><td>in</td><td>uint32</td><td>Index of the laser scanner, from 0 to GetNumberOfLaserScanners - 1.</td></tr>
+<tr><td><code>NominalPower</code></td><td>out</td><td>double</td><td>Nominal laser power in W.</td></tr>
+<tr><td><code>MaxPower</code></td><td>out</td><td>double</td><td>Maximum laser power in W.</td></tr>
+<tr><td><code>MaxScanSpeed</code></td><td>out</td><td>double</td><td>Maximum scan speed in mm/s.</td></tr>
+</table>
+</div>
+<div class="method" id="GetLaserScannerCapabilities">
+<code class="signature">void <b>GetLaserScannerCapabilities</b>(uint32 <span class="param">ScannerIndex</span>, out bool <span class="param">FocusDefocus</span>, out bool <span class="param">VariableFocus</span>, out bool <span class="param">BeamShaping</span>)</code>
+<p>Retrieves the capabilities of a laser scanner. Fails with COULDNOTGETMACHINEINFORMATION if the SDK gives no scanner details.</p>
+<table class="params"><tr><th>Parameter</th><th>Direction</th><th>Type</th><th>Description</th></tr>
+<tr><td><code>ScannerIndex</code></td><td>in</td><td>uint32</td><td>Index of the laser scanner, from 0 to GetNumberOfLaserScanners - 1.</td></tr>
+<tr><td><code>FocusDefocus</code></td><td>out</td><td>bool</td><td>The scanner can defocus the beam.</td></tr>
+<tr><td><code>VariableFocus</code></td><td>out</td><td>bool</td><td>The scanner can change the focus during exposure.</td></tr>
+<tr><td><code>BeamShaping</code></td><td>out</td><td>bool</td><td>The scanner can change the beam shape. Only reported by EOS SDK 2.26 and later.</td></tr>
+</table>
+</div>
+</section>
+<section id="EOSRawTaskLayer"><h2>EOSRawTaskLayer</h2>
+<p class="inherits">Inherits from <a href="#Base">Base</a></p>
+<p>A layer of a raw task</p>
+<div class="method" id="GetZHeight">
+<code class="signature">int64 <b>GetZHeight</b>()</code>
+<p>Returns the Z Height in micrometers.</p>
+<table class="params"><tr><th>Parameter</th><th>Direction</th><th>Type</th><th>Description</th></tr>
+<tr><td><code>ZHeight</code></td><td>return</td><td>int64</td><td>Z Height in Micrometers.</td></tr>
+</table>
+</div>
+<div class="method" id="GetPointData">
+<code class="signature">void <b>GetPointData</b>(out array of <a href="#EOSTaskPoint">EOSTaskPoint</a> <span class="param">Points</span>)</code>
+<p>Returns all the points of the layer.</p>
+<table class="params"><tr><th>Parameter</th><th>Direction</th><th>Type</th><th>Description</th></tr>
+<tr><td><code>Points</code></td><td>out</td><td>array of <a href="#EOSTaskPoint">EOSTaskPoint</a></td><td>Point array.</td></tr>
+</table>
+</div>
+<div class="method" id="GetBlockData">
+<code class="signature">void <b>GetBlockData</b>(out array of <a href="#EOSTaskBlock">EOSTaskBlock</a> <span class="param">Blocks</span>)</code>
+<p>Returns all the blocks of the layer.</p>
+<table class="params"><tr><th>Parameter</th><th>Direction</th><th>Type</th><th>Description</th></tr>
+<tr><td><code>Blocks</code></td><td>out</td><td>array of <a href="#EOSTaskBlock">EOSTaskBlock</a></td><td>Block array.</td></tr>
+</table>
+</div>
+<div class="method" id="ClearData">
+<code class="signature">void <b>ClearData</b>()</code>
+<p>Clears all points and blocks of the layer.</p>
+</div>
+<div class="method" id="AddData">
+<code class="signature">void <b>AddData</b>(array of <a href="#EOSTaskPoint">EOSTaskPoint</a> <span class="param">Points</span>, array of <a href="#EOSTaskBlock">EOSTaskBlock</a> <span class="param">Blocks</span>)</code>
+<p>Adds new blocks and points to the layer. The indices will be concatenated to match up with the current data. Fails, if indices are out of range!</p>
+<table class="params"><tr><th>Parameter</th><th>Direction</th><th>Type</th><th>Description</th></tr>
+<tr><td><code>Points</code></td><td>in</td><td>array of <a href="#EOSTaskPoint">EOSTaskPoint</a></td><td>Point array.</td></tr>
+<tr><td><code>Blocks</code></td><td>in</td><td>array of <a href="#EOSTaskBlock">EOSTaskBlock</a></td><td>Block array.</td></tr>
+</table>
+</div>
+</section>
+<section id="EOSRawTask"><h2>EOSRawTask</h2>
+<p class="inherits">Inherits from <a href="#Base">Base</a></p>
+<p>A reader for a raw task</p>
+<div class="method" id="GetAbsoluteFilename">
+<code class="signature">string <b>GetAbsoluteFilename</b>()</code>
+<p>Returns the absolute filename of the task.</p>
+<table class="params"><tr><th>Parameter</th><th>Direction</th><th>Type</th><th>Description</th></tr>
+<tr><td><code>Filename</code></td><td>return</td><td>string</td><td>Filename of the .rawtask file.</td></tr>
+</table>
+</div>
+<div class="method" id="GetTaskDirectory">
+<code class="signature">string <b>GetTaskDirectory</b>()</code>
+<p>Returns the task directory.</p>
+<table class="params"><tr><th>Parameter</th><th>Direction</th><th>Type</th><th>Description</th></tr>
+<tr><td><code>TaskDirectory</code></td><td>return</td><td>string</td><td>The task directory.</td></tr>
+</table>
+</div>
+<div class="method" id="GetNumberOfLayers">
+<code class="signature">uint32 <b>GetNumberOfLayers</b>()</code>
+<p>Returns the number of layers. The layers have the indices GetFirstLayerIndex to GetFirstLayerIndex + NumberOfLayers - 1.</p>
+<table class="params"><tr><th>Parameter</th><th>Direction</th><th>Type</th><th>Description</th></tr>
+<tr><td><code>NumberOfLayers</code></td><td>return</td><td>uint32</td><td>Number of Layers.</td></tr>
+</table>
+</div>
+<div class="method" id="GetFirstLayerIndex">
+<code class="signature">uint32 <b>GetFirstLayerIndex</b>()</code>
+<p>Returns the EOS layer index of the first layer of the task. A task that starts above the build plate has a first layer index above 1.</p>
+<table class="params"><tr><th>Parameter</th><th>Direction</th><th>Type</th><th>Description</th></tr>
+<tr><td><code>FirstLayerIndex</code></td><td>return</td><td>uint32</td><td>EOS layer index of the first layer.</td></tr>
+</table>
+</div>
+<div class="method" id="ReadLayer">
+<code class="signature"><a href="#EOSRawTaskLayer">EOSRawTaskLayer</a> <b>ReadLayer</b>(uint32 <span class="param">LayerIndex</span>)</code>
+<p>Reads a layer from the EOS Task file. Fails if a read error occurs.</p>
+<table class="params"><tr><th>Parameter</th><th>Direction</th><th>Type</th><th>Description</th></tr>
+<tr><td><code>LayerIndex</code></td><td>in</td><td>uint32</td><td>EOS layer index to read, from GetFirstLayerIndex to GetFirstLayerIndex + GetNumberOfLayers - 1.</td></tr>
+<tr><td><code>Layer</code></td><td>return</td><td><a href="#EOSRawTaskLayer">EOSRawTaskLayer</a></td><td>Instance of layer that has been read.</td></tr>
+</table>
+</div>
+<div class="method" id="Release">
+<code class="signature">void <b>Release</b>()</code>
+<p>Releases the raw task from memory.</p>
+</div>
+</section>
+<section id="EOSToolpathConversionSettings"><h2>EOSToolpathConversionSettings</h2>
+<p class="inherits">Inherits from <a href="#Base">Base</a></p>
+<p>Settings for converting toolpaths into EOS tasks. A conversion copies the settings when it starts, so later changes do not affect it. Setters fail with INVALIDCONVERSIONSETTINGS for invalid values.</p>
+<div class="method" id="ResetToDefaults">
+<code class="signature">void <b>ResetToDefaults</b>()</code>
+<p>Sets all settings to their default values and removes all exposure set assignments.</p>
+</div>
+<div class="method" id="SetStrictMode">
+<code class="signature">void <b>SetStrictMode</b>(bool <span class="param">Value</span>)</code>
+<p>Sets whether problems that could be corrected or left out are refused instead, for example modifier factors below 0 or above 1, unknown toolpath profile parameters, jumpspeed, or a Z shrinkage compensation of the job.</p>
+<table class="params"><tr><th>Parameter</th><th>Direction</th><th>Type</th><th>Description</th></tr>
+<tr><td><code>Value</code></td><td>in</td><td>bool</td><td>True to refuse, false to correct and log a warning. Default true.</td></tr>
+</table>
+</div>
+<div class="method" id="GetStrictMode">
+<code class="signature">bool <b>GetStrictMode</b>()</code>
+<p>Returns whether problems that could be corrected are refused instead.</p>
+<table class="params"><tr><th>Parameter</th><th>Direction</th><th>Type</th><th>Description</th></tr>
+<tr><td><code>Value</code></td><td>return</td><td>bool</td><td>Strict mode.</td></tr>
+</table>
+</div>
+<div class="method" id="SetPowerDelay">
+<code class="signature">void <b>SetPowerDelay</b>(double <span class="param">Value</span>)</code>
+<p>Sets the delay passed with every laser power change.</p>
+<table class="params"><tr><th>Parameter</th><th>Direction</th><th>Type</th><th>Description</th></tr>
+<tr><td><code>Value</code></td><td>in</td><td>double</td><td>Delay in microseconds. Must not be negative. Default 190.</td></tr>
+</table>
+</div>
+<div class="method" id="GetPowerDelay">
+<code class="signature">double <b>GetPowerDelay</b>()</code>
+<p>Returns the delay passed with every laser power change.</p>
+<table class="params"><tr><th>Parameter</th><th>Direction</th><th>Type</th><th>Description</th></tr>
+<tr><td><code>Value</code></td><td>return</td><td>double</td><td>Delay in microseconds.</td></tr>
+</table>
+</div>
+<div class="method" id="SetMaxPowerStep">
+<code class="signature">void <b>SetMaxPowerStep</b>(double <span class="param">Value</span>)</code>
+<p>Sets the largest laser power difference between neighbouring sub-vectors of a ramp.</p>
+<table class="params"><tr><th>Parameter</th><th>Direction</th><th>Type</th><th>Description</th></tr>
+<tr><td><code>Value</code></td><td>in</td><td>double</td><td>Power step in Watts. Must be positive. Default 1.</td></tr>
+</table>
+</div>
+<div class="method" id="GetMaxPowerStep">
+<code class="signature">double <b>GetMaxPowerStep</b>()</code>
+<p>Returns the largest laser power difference between neighbouring sub-vectors of a ramp.</p>
+<table class="params"><tr><th>Parameter</th><th>Direction</th><th>Type</th><th>Description</th></tr>
+<tr><td><code>Value</code></td><td>return</td><td>double</td><td>Power step in Watts.</td></tr>
+</table>
+</div>
+<div class="method" id="SetMaxSpeedStep">
+<code class="signature">void <b>SetMaxSpeedStep</b>(double <span class="param">Value</span>)</code>
+<p>Sets the largest scan speed difference between neighbouring sub-vectors of a ramp.</p>
+<table class="params"><tr><th>Parameter</th><th>Direction</th><th>Type</th><th>Description</th></tr>
+<tr><td><code>Value</code></td><td>in</td><td>double</td><td>Speed step in mm/s. Must be positive. Default 10.</td></tr>
+</table>
+</div>
+<div class="method" id="GetMaxSpeedStep">
+<code class="signature">double <b>GetMaxSpeedStep</b>()</code>
+<p>Returns the largest scan speed difference between neighbouring sub-vectors of a ramp.</p>
+<table class="params"><tr><th>Parameter</th><th>Direction</th><th>Type</th><th>Description</th></tr>
+<tr><td><code>Value</code></td><td>return</td><td>double</td><td>Speed step in mm/s.</td></tr>
+</table>
+</div>
+<div class="method" id="SetMaxFocusStep">
+<code class="signature">void <b>SetMaxFocusStep</b>(double <span class="param">Value</span>)</code>
+<p>Sets the largest focus difference between neighbouring sub-vectors of a ramp.</p>
+<table class="params"><tr><th>Parameter</th><th>Direction</th><th>Type</th><th>Description</th></tr>
+<tr><td><code>Value</code></td><td>in</td><td>double</td><td>Step of the EOS focus value, which goes from 0.0 (fully defocused) to 1.0 (fully focused). Must be positive. Default 0.05.</td></tr>
+</table>
+</div>
+<div class="method" id="GetMaxFocusStep">
+<code class="signature">double <b>GetMaxFocusStep</b>()</code>
+<p>Returns the largest focus difference between neighbouring sub-vectors of a ramp.</p>
+<table class="params"><tr><th>Parameter</th><th>Direction</th><th>Type</th><th>Description</th></tr>
+<tr><td><code>Value</code></td><td>return</td><td>double</td><td>Step of the EOS focus value.</td></tr>
+</table>
+</div>
+<div class="method" id="SetMinSubVectorLength">
+<code class="signature">void <b>SetMinSubVectorLength</b>(double <span class="param">Value</span>)</code>
+<p>Sets the length of the shortest sub-vector of a ramp.</p>
+<table class="params"><tr><th>Parameter</th><th>Direction</th><th>Type</th><th>Description</th></tr>
+<tr><td><code>Value</code></td><td>in</td><td>double</td><td>Length in mm. Must be positive. Default 0.05.</td></tr>
+</table>
+</div>
+<div class="method" id="GetMinSubVectorLength">
+<code class="signature">double <b>GetMinSubVectorLength</b>()</code>
+<p>Returns the length of the shortest sub-vector of a ramp.</p>
+<table class="params"><tr><th>Parameter</th><th>Direction</th><th>Type</th><th>Description</th></tr>
+<tr><td><code>Value</code></td><td>return</td><td>double</td><td>Length in mm.</td></tr>
+</table>
+</div>
+<div class="method" id="SetPowerRampMode">
+<code class="signature">void <b>SetPowerRampMode</b>(<a href="#EOSPowerRampMode">EOSPowerRampMode</a> <span class="param">Value</span>)</code>
+<p>Sets how ramped hatches are written.</p>
+<table class="params"><tr><th>Parameter</th><th>Direction</th><th>Type</th><th>Description</th></tr>
+<tr><td><code>Value</code></td><td>in</td><td><a href="#EOSPowerRampMode">EOSPowerRampMode</a></td><td>Power ramp mode. Default Polyline.</td></tr>
+</table>
+</div>
+<div class="method" id="GetPowerRampMode">
+<code class="signature"><a href="#EOSPowerRampMode">EOSPowerRampMode</a> <b>GetPowerRampMode</b>()</code>
+<p>Returns how ramped hatches are written.</p>
+<table class="params"><tr><th>Parameter</th><th>Direction</th><th>Type</th><th>Description</th></tr>
+<tr><td><code>Value</code></td><td>return</td><td><a href="#EOSPowerRampMode">EOSPowerRampMode</a></td><td>Power ramp mode.</td></tr>
+</table>
+</div>
+<div class="method" id="SetHatchWriteMode">
+<code class="signature">void <b>SetHatchWriteMode</b>(<a href="#EOSHatchWriteMode">EOSHatchWriteMode</a> <span class="param">Value</span>)</code>
+<p>Sets how hatches are written.</p>
+<table class="params"><tr><th>Parameter</th><th>Direction</th><th>Type</th><th>Description</th></tr>
+<tr><td><code>Value</code></td><td>in</td><td><a href="#EOSHatchWriteMode">EOSHatchWriteMode</a></td><td>Hatch write mode. Default JoinTouching.</td></tr>
+</table>
+</div>
+<div class="method" id="GetHatchWriteMode">
+<code class="signature"><a href="#EOSHatchWriteMode">EOSHatchWriteMode</a> <b>GetHatchWriteMode</b>()</code>
+<p>Returns how hatches are written.</p>
+<table class="params"><tr><th>Parameter</th><th>Direction</th><th>Type</th><th>Description</th></tr>
+<tr><td><code>Value</code></td><td>return</td><td><a href="#EOSHatchWriteMode">EOSHatchWriteMode</a></td><td>Hatch write mode.</td></tr>
+</table>
+</div>
+<div class="method" id="SetJoinTolerance">
+<code class="signature">void <b>SetJoinTolerance</b>(double <span class="param">Value</span>)</code>
+<p>Sets the largest distance between the end of a vector and the start of the next one that still counts as touching, for joining hatches and contours.</p>
+<table class="params"><tr><th>Parameter</th><th>Direction</th><th>Type</th><th>Description</th></tr>
+<tr><td><code>Value</code></td><td>in</td><td>double</td><td>Distance in mm. Must not be negative. Default 0.001.</td></tr>
+</table>
+</div>
+<div class="method" id="GetJoinTolerance">
+<code class="signature">double <b>GetJoinTolerance</b>()</code>
+<p>Returns the largest distance between the end of a vector and the start of the next one that still counts as touching.</p>
+<table class="params"><tr><th>Parameter</th><th>Direction</th><th>Type</th><th>Description</th></tr>
+<tr><td><code>Value</code></td><td>return</td><td>double</td><td>Distance in mm.</td></tr>
+</table>
+</div>
+<div class="method" id="SetHatchPowerDeadband">
+<code class="signature">void <b>SetHatchPowerDeadband</b>(double <span class="param">Value</span>)</code>
+<p>Sets the smallest laser power change that is written inside joined hatches.</p>
+<table class="params"><tr><th>Parameter</th><th>Direction</th><th>Type</th><th>Description</th></tr>
+<tr><td><code>Value</code></td><td>in</td><td>double</td><td>Power in Watts. Must not be negative. Default 0.</td></tr>
+</table>
+</div>
+<div class="method" id="GetHatchPowerDeadband">
+<code class="signature">double <b>GetHatchPowerDeadband</b>()</code>
+<p>Returns the smallest laser power change that is written inside joined hatches.</p>
+<table class="params"><tr><th>Parameter</th><th>Direction</th><th>Type</th><th>Description</th></tr>
+<tr><td><code>Value</code></td><td>return</td><td>double</td><td>Power in Watts.</td></tr>
+</table>
+</div>
+<div class="method" id="SetJoinContours">
+<code class="signature">void <b>SetJoinContours</b>(bool <span class="param">Value</span>)</code>
+<p>Sets whether touching contour segments are joined into one polyline.</p>
+<table class="params"><tr><th>Parameter</th><th>Direction</th><th>Type</th><th>Description</th></tr>
+<tr><td><code>Value</code></td><td>in</td><td>bool</td><td>True to join. Default true.</td></tr>
+</table>
+</div>
+<div class="method" id="GetJoinContours">
+<code class="signature">bool <b>GetJoinContours</b>()</code>
+<p>Returns whether touching contour segments are joined into one polyline.</p>
+<table class="params"><tr><th>Parameter</th><th>Direction</th><th>Type</th><th>Description</th></tr>
+<tr><td><code>Value</code></td><td>return</td><td>bool</td><td>Join contours.</td></tr>
+</table>
+</div>
+<div class="method" id="SetRefuseUnequalConstantHatch">
+<code class="signature">void <b>SetRefuseUnequalConstantHatch</b>(bool <span class="param">Value</span>)</code>
+<p>Sets whether a constant modifier with different factors at the two ends of a hatch is refused. If not, the factor at the end of the hatch is used and a warning is logged.</p>
+<table class="params"><tr><th>Parameter</th><th>Direction</th><th>Type</th><th>Description</th></tr>
+<tr><td><code>Value</code></td><td>in</td><td>bool</td><td>True to refuse. Default true.</td></tr>
+</table>
+</div>
+<div class="method" id="GetRefuseUnequalConstantHatch">
+<code class="signature">bool <b>GetRefuseUnequalConstantHatch</b>()</code>
+<p>Returns whether a constant modifier with different factors at the two ends of a hatch is refused.</p>
+<table class="params"><tr><th>Parameter</th><th>Direction</th><th>Type</th><th>Description</th></tr>
+<tr><td><code>Value</code></td><td>return</td><td>bool</td><td>Refuse unequal constant hatches.</td></tr>
+</table>
+</div>
+<div class="method" id="SetDefaultSkywriting">
+<code class="signature">void <b>SetDefaultSkywriting</b>(bool <span class="param">Value</span>)</code>
+<p>Sets whether skywriting is enabled for profiles that do not specify it.</p>
+<table class="params"><tr><th>Parameter</th><th>Direction</th><th>Type</th><th>Description</th></tr>
+<tr><td><code>Value</code></td><td>in</td><td>bool</td><td>True to enable. Default true.</td></tr>
+</table>
+</div>
+<div class="method" id="GetDefaultSkywriting">
+<code class="signature">bool <b>GetDefaultSkywriting</b>()</code>
+<p>Returns whether skywriting is enabled for profiles that do not specify it.</p>
+<table class="params"><tr><th>Parameter</th><th>Direction</th><th>Type</th><th>Description</th></tr>
+<tr><td><code>Value</code></td><td>return</td><td>bool</td><td>Default skywriting.</td></tr>
+</table>
+</div>
+<div class="method" id="SetDefaultHatchExposureType">
+<code class="signature">void <b>SetDefaultHatchExposureType</b>(uint32 <span class="param">Value</span>)</code>
+<p>Sets the EOS exposure type of hatches whose profile does not specify one.</p>
+<table class="params"><tr><th>Parameter</th><th>Direction</th><th>Type</th><th>Description</th></tr>
+<tr><td><code>Value</code></td><td>in</td><td>uint32</td><td>EOS exposure type, 0 to 16. Default 2 (infill).</td></tr>
+</table>
+</div>
+<div class="method" id="GetDefaultHatchExposureType">
+<code class="signature">uint32 <b>GetDefaultHatchExposureType</b>()</code>
+<p>Returns the EOS exposure type of hatches whose profile does not specify one.</p>
+<table class="params"><tr><th>Parameter</th><th>Direction</th><th>Type</th><th>Description</th></tr>
+<tr><td><code>Value</code></td><td>return</td><td>uint32</td><td>EOS exposure type.</td></tr>
+</table>
+</div>
+<div class="method" id="SetDefaultContourExposureType">
+<code class="signature">void <b>SetDefaultContourExposureType</b>(uint32 <span class="param">Value</span>)</code>
+<p>Sets the EOS exposure type of polylines and loops whose profile does not specify one.</p>
+<table class="params"><tr><th>Parameter</th><th>Direction</th><th>Type</th><th>Description</th></tr>
+<tr><td><code>Value</code></td><td>in</td><td>uint32</td><td>EOS exposure type, 0 to 16. Default 10 (simple contour).</td></tr>
+</table>
+</div>
+<div class="method" id="GetDefaultContourExposureType">
+<code class="signature">uint32 <b>GetDefaultContourExposureType</b>()</code>
+<p>Returns the EOS exposure type of polylines and loops whose profile does not specify one.</p>
+<table class="params"><tr><th>Parameter</th><th>Direction</th><th>Type</th><th>Description</th></tr>
+<tr><td><code>Value</code></td><td>return</td><td>uint32</td><td>EOS exposure type.</td></tr>
+</table>
+</div>
+<div class="method" id="SetLayerOpening">
+<code class="signature">void <b>SetLayerOpening</b>(bool <span class="param">Value</span>)</code>
+<p>Sets whether every scanner starts each layer with the standard beam shape and a delay. Only written with EOS SDK 2.26 and later.</p>
+<table class="params"><tr><th>Parameter</th><th>Direction</th><th>Type</th><th>Description</th></tr>
+<tr><td><code>Value</code></td><td>in</td><td>bool</td><td>True to write the layer opening. Default true.</td></tr>
+</table>
+</div>
+<div class="method" id="GetLayerOpening">
+<code class="signature">bool <b>GetLayerOpening</b>()</code>
+<p>Returns whether every scanner starts each layer with the standard beam shape and a delay.</p>
+<table class="params"><tr><th>Parameter</th><th>Direction</th><th>Type</th><th>Description</th></tr>
+<tr><td><code>Value</code></td><td>return</td><td>bool</td><td>Layer opening.</td></tr>
+</table>
+</div>
+<div class="method" id="SetLayerOpeningDelay">
+<code class="signature">void <b>SetLayerOpeningDelay</b>(double <span class="param">Value</span>)</code>
+<p>Sets the delay of the layer opening.</p>
+<table class="params"><tr><th>Parameter</th><th>Direction</th><th>Type</th><th>Description</th></tr>
+<tr><td><code>Value</code></td><td>in</td><td>double</td><td>Delay in microseconds. Must not be negative. Default 10.</td></tr>
+</table>
+</div>
+<div class="method" id="GetLayerOpeningDelay">
+<code class="signature">double <b>GetLayerOpeningDelay</b>()</code>
+<p>Returns the delay of the layer opening.</p>
+<table class="params"><tr><th>Parameter</th><th>Direction</th><th>Type</th><th>Description</th></tr>
+<tr><td><code>Value</code></td><td>return</td><td>double</td><td>Delay in microseconds.</td></tr>
+</table>
+</div>
+<div class="method" id="SetDwellTimeUnit">
+<code class="signature">void <b>SetDwellTimeUnit</b>(<a href="#EOSDwellTimeUnit">EOSDwellTimeUnit</a> <span class="param">Value</span>)</code>
+<p>Sets the unit of the dwell times (prewaittime and postwaittime) of the toolpath.</p>
+<table class="params"><tr><th>Parameter</th><th>Direction</th><th>Type</th><th>Description</th></tr>
+<tr><td><code>Value</code></td><td>in</td><td><a href="#EOSDwellTimeUnit">EOSDwellTimeUnit</a></td><td>Dwell time unit. Default Unset, which refuses toolpaths with dwell times.</td></tr>
+</table>
+</div>
+<div class="method" id="GetDwellTimeUnit">
+<code class="signature"><a href="#EOSDwellTimeUnit">EOSDwellTimeUnit</a> <b>GetDwellTimeUnit</b>()</code>
+<p>Returns the unit of the dwell times of the toolpath.</p>
+<table class="params"><tr><th>Parameter</th><th>Direction</th><th>Type</th><th>Description</th></tr>
+<tr><td><code>Value</code></td><td>return</td><td><a href="#EOSDwellTimeUnit">EOSDwellTimeUnit</a></td><td>Dwell time unit.</td></tr>
+</table>
+</div>
+<div class="method" id="SetLayerZConvention">
+<code class="signature">void <b>SetLayerZConvention</b>(<a href="#EOSLayerZConvention">EOSLayerZConvention</a> <span class="param">Value</span>)</code>
+<p>Sets whether the Z value of a 3MF toolpath layer is the top or the base of the layer. EOS layers are given by their top, so with Base the smallest layer distance of the toolpath is added to every layer Z. With Top, a layer at Z 0 fails with LAYERZINVALID. A first layer whose Z equals the layer distance fits both conventions and is reported in the conversion log.</p>
+<table class="params"><tr><th>Parameter</th><th>Direction</th><th>Type</th><th>Description</th></tr>
+<tr><td><code>Value</code></td><td>in</td><td><a href="#EOSLayerZConvention">EOSLayerZConvention</a></td><td>Layer Z convention. Default Top.</td></tr>
+</table>
+</div>
+<div class="method" id="GetLayerZConvention">
+<code class="signature"><a href="#EOSLayerZConvention">EOSLayerZConvention</a> <b>GetLayerZConvention</b>()</code>
+<p>Returns whether the Z value of a 3MF toolpath layer is the top or the base of the layer.</p>
+<table class="params"><tr><th>Parameter</th><th>Direction</th><th>Type</th><th>Description</th></tr>
+<tr><td><code>Value</code></td><td>return</td><td><a href="#EOSLayerZConvention">EOSLayerZConvention</a></td><td>Layer Z convention.</td></tr>
+</table>
+</div>
+<div class="method" id="SetAllowDefaultExposureSets">
+<code class="signature">void <b>SetAllowDefaultExposureSets</b>(bool <span class="param">Value</span>)</code>
+<p>Sets whether parts whose exposure set cannot be determined may use the exposure sets _Default_DirectPart and _Default_ExternalSupport.</p>
+<table class="params"><tr><th>Parameter</th><th>Direction</th><th>Type</th><th>Description</th></tr>
+<tr><td><code>Value</code></td><td>in</td><td>bool</td><td>True to allow. Default false.</td></tr>
+</table>
+</div>
+<div class="method" id="GetAllowDefaultExposureSets">
+<code class="signature">bool <b>GetAllowDefaultExposureSets</b>()</code>
+<p>Returns whether parts whose exposure set cannot be determined may use the default exposure sets.</p>
+<table class="params"><tr><th>Parameter</th><th>Direction</th><th>Type</th><th>Description</th></tr>
+<tr><td><code>Value</code></td><td>return</td><td>bool</td><td>Allow default exposure sets.</td></tr>
+</table>
+</div>
+<div class="method" id="SetExposureSetForThickness">
+<code class="signature">void <b>SetExposureSetForThickness</b>(uint32 <span class="param">Thickness</span>, bool <span class="param">IsSupport</span>, string <span class="param">Name</span>)</code>
+<p>Assigns the exposure set for parts or supports of a layer thickness, for thicknesses that match none or several exposure sets of the material set.</p>
+<table class="params"><tr><th>Parameter</th><th>Direction</th><th>Type</th><th>Description</th></tr>
+<tr><td><code>Thickness</code></td><td>in</td><td>uint32</td><td>Layer thickness in micrometers. Must be positive.</td></tr>
+<tr><td><code>IsSupport</code></td><td>in</td><td>bool</td><td>True for supports, false for parts.</td></tr>
+<tr><td><code>Name</code></td><td>in</td><td>string</td><td>Name of the exposure set. An empty name removes the assignment.</td></tr>
+</table>
+</div>
+<div class="method" id="GetExposureSetForThickness">
+<code class="signature">string <b>GetExposureSetForThickness</b>(uint32 <span class="param">Thickness</span>, bool <span class="param">IsSupport</span>)</code>
+<p>Returns the exposure set assigned to parts or supports of a layer thickness.</p>
+<table class="params"><tr><th>Parameter</th><th>Direction</th><th>Type</th><th>Description</th></tr>
+<tr><td><code>Thickness</code></td><td>in</td><td>uint32</td><td>Layer thickness in micrometers.</td></tr>
+<tr><td><code>IsSupport</code></td><td>in</td><td>bool</td><td>True for supports, false for parts.</td></tr>
+<tr><td><code>Name</code></td><td>return</td><td>string</td><td>Name of the exposure set. Empty if none is assigned.</td></tr>
+</table>
+</div>
+<div class="method" id="ClearExposureSetsForThickness">
+<code class="signature">void <b>ClearExposureSetsForThickness</b>()</code>
+<p>Removes all exposure set assignments.</p>
+</div>
+<div class="method" id="ToJSON">
+<code class="signature">string <b>ToJSON</b>()</code>
+<p>Returns all settings as a JSON object.</p>
+<table class="params"><tr><th>Parameter</th><th>Direction</th><th>Type</th><th>Description</th></tr>
+<tr><td><code>JSON</code></td><td>return</td><td>string</td><td>Settings as JSON.</td></tr>
+</table>
+</div>
+</section>
+<section id="EOSConversionLog"><h2>EOSConversionLog</h2>
+<p class="inherits">Inherits from <a href="#Base">Base</a></p>
+<p>The log of a toolpath conversion: messages, counters and the context of the conversion.</p>
+<div class="method" id="GetLogMessageCount">
+<code class="signature">uint32 <b>GetLogMessageCount</b>()</code>
+<p>Returns the number of messages. A message that repeats within a layer is counted once.</p>
+<table class="params"><tr><th>Parameter</th><th>Direction</th><th>Type</th><th>Description</th></tr>
+<tr><td><code>Count</code></td><td>return</td><td>uint32</td><td>Number of messages.</td></tr>
+</table>
+</div>
+<div class="method" id="GetLogMessage">
+<code class="signature">void <b>GetLogMessage</b>(uint32 <span class="param">Index</span>, out <a href="#EOSLogSeverity">EOSLogSeverity</a> <span class="param">Severity</span>, out string <span class="param">Code</span>, out int32 <span class="param">LayerIndex</span>, out uint32 <span class="param">PartID</span>, out string <span class="param">Text</span>)</code>
+<p>Returns a message.</p>
+<table class="params"><tr><th>Parameter</th><th>Direction</th><th>Type</th><th>Description</th></tr>
+<tr><td><code>Index</code></td><td>in</td><td>uint32</td><td>Index of the message, 0 to GetLogMessageCount - 1.</td></tr>
+<tr><td><code>Severity</code></td><td>out</td><td><a href="#EOSLogSeverity">EOSLogSeverity</a></td><td>Severity of the message.</td></tr>
+<tr><td><code>Code</code></td><td>out</td><td>string</td><td>Stable code of the message, for example SDK_VERSION.</td></tr>
+<tr><td><code>LayerIndex</code></td><td>out</td><td>int32</td><td>Index of the toolpath layer the message is about, -1 if it is not about a layer. For CreateTaskFrom3MFToolpath the 0-based 3MF layer index, for a raw task writer the index passed to WriteLayer.</td></tr>
+<tr><td><code>PartID</code></td><td>out</td><td>uint32</td><td>ID of the part the message is about, 0 if it is not about a part.</td></tr>
+<tr><td><code>Text</code></td><td>out</td><td>string</td><td>Text of the message. A repeated message ends with the number of repetitions.</td></tr>
+</table>
+</div>
+<div class="method" id="GetCountBySeverity">
+<code class="signature">uint32 <b>GetCountBySeverity</b>(<a href="#EOSLogSeverity">EOSLogSeverity</a> <span class="param">Severity</span>)</code>
+<p>Returns the number of messages of a severity.</p>
+<table class="params"><tr><th>Parameter</th><th>Direction</th><th>Type</th><th>Description</th></tr>
+<tr><td><code>Severity</code></td><td>in</td><td><a href="#EOSLogSeverity">EOSLogSeverity</a></td><td>Severity.</td></tr>
+<tr><td><code>Count</code></td><td>return</td><td>uint32</td><td>Number of messages.</td></tr>
+</table>
+</div>
+<div class="method" id="HasErrors">
+<code class="signature">bool <b>HasErrors</b>()</code>
+<p>Returns whether the log contains an error.</p>
+<table class="params"><tr><th>Parameter</th><th>Direction</th><th>Type</th><th>Description</th></tr>
+<tr><td><code>Value</code></td><td>return</td><td>bool</td><td>True if there is at least one error.</td></tr>
+</table>
+</div>
+<div class="method" id="GetSummaryValue">
+<code class="signature">uint64 <b>GetSummaryValue</b>(string <span class="param">Key</span>)</code>
+<p>Returns a counter of the conversion, for example layersWritten.</p>
+<table class="params"><tr><th>Parameter</th><th>Direction</th><th>Type</th><th>Description</th></tr>
+<tr><td><code>Key</code></td><td>in</td><td>string</td><td>Name of the counter.</td></tr>
+<tr><td><code>Value</code></td><td>return</td><td>uint64</td><td>Value of the counter. 0 if the counter does not exist.</td></tr>
+</table>
+</div>
+<div class="method" id="GetSummaryValueCount">
+<code class="signature">uint32 <b>GetSummaryValueCount</b>()</code>
+<p>Returns the number of counters.</p>
+<table class="params"><tr><th>Parameter</th><th>Direction</th><th>Type</th><th>Description</th></tr>
+<tr><td><code>Count</code></td><td>return</td><td>uint32</td><td>Number of counters.</td></tr>
+</table>
+</div>
+<div class="method" id="GetSummaryValueByIndex">
+<code class="signature">void <b>GetSummaryValueByIndex</b>(uint32 <span class="param">Index</span>, out string <span class="param">Key</span>, out uint64 <span class="param">Value</span>)</code>
+<p>Returns a counter by index.</p>
+<table class="params"><tr><th>Parameter</th><th>Direction</th><th>Type</th><th>Description</th></tr>
+<tr><td><code>Index</code></td><td>in</td><td>uint32</td><td>Index of the counter, 0 to GetSummaryValueCount - 1.</td></tr>
+<tr><td><code>Key</code></td><td>out</td><td>string</td><td>Name of the counter.</td></tr>
+<tr><td><code>Value</code></td><td>out</td><td>uint64</td><td>Value of the counter.</td></tr>
+</table>
+</div>
+<div class="method" id="ToJSON">
+<code class="signature">string <b>ToJSON</b>()</code>
+<p>Returns the whole log as a JSON document.</p>
+<table class="params"><tr><th>Parameter</th><th>Direction</th><th>Type</th><th>Description</th></tr>
+<tr><td><code>JSON</code></td><td>return</td><td>string</td><td>Log as JSON.</td></tr>
+</table>
+</div>
+</section>
+<section id="EOSRawTaskWriter"><h2>EOSRawTaskWriter</h2>
+<p class="inherits">Inherits from <a href="#Base">Base</a></p>
+<p>A writer for a raw task</p>
+<div class="method" id="GetAbsoluteFilename">
+<code class="signature">string <b>GetAbsoluteFilename</b>()</code>
+<p>Returns the absolute filename of the task.</p>
+<table class="params"><tr><th>Parameter</th><th>Direction</th><th>Type</th><th>Description</th></tr>
+<tr><td><code>Filename</code></td><td>return</td><td>string</td><td>Filename of the .rawtask file.</td></tr>
+</table>
+</div>
+<div class="method" id="GetTaskDirectory">
+<code class="signature">string <b>GetTaskDirectory</b>()</code>
+<p>Returns the task directory.</p>
+<table class="params"><tr><th>Parameter</th><th>Direction</th><th>Type</th><th>Description</th></tr>
+<tr><td><code>TaskDirectory</code></td><td>return</td><td>string</td><td>The task directory.</td></tr>
+</table>
+</div>
+<div class="method" id="WriteLayer">
+<code class="signature">void <b>WriteLayer</b>(uint32 <span class="param">LayerIndex</span>, <a href="#EOSRawTaskLayer">EOSRawTaskLayer</a> <span class="param">Layer</span>)</code>
+<p>Writes a layer to the EOS Task file. Fails if the Z Height is not incrementing. The blocks are written per laser scanner, in ascending scanner order; the blocks of one scanner keep their order.</p>
+<table class="params"><tr><th>Parameter</th><th>Direction</th><th>Type</th><th>Description</th></tr>
+<tr><td><code>LayerIndex</code></td><td>in</td><td>uint32</td><td>Layer Index to read.</td></tr>
+<tr><td><code>Layer</code></td><td>in</td><td><a href="#EOSRawTaskLayer">EOSRawTaskLayer</a></td><td>Instance of layer to write.</td></tr>
+</table>
+</div>
+<div class="method" id="ConvertToTask">
+<code class="signature"><a href="#TaskCreationFuture">TaskCreationFuture</a> <b>ConvertToTask</b>(string <span class="param">Name</span>, string <span class="param">Comment</span>, string <span class="param">GeneratorName</span>, string <span class="param">GeneratorVersion</span>)</code>
+<p>Closes the raw task file and begins converting it into a regular machine task. Returns a future to track conversion progress.</p>
+<table class="params"><tr><th>Parameter</th><th>Direction</th><th>Type</th><th>Description</th></tr>
+<tr><td><code>Name</code></td><td>in</td><td>string</td><td>The name of the output task.</td></tr>
+<tr><td><code>Comment</code></td><td>in</td><td>string</td><td>An optional comment for the task.</td></tr>
+<tr><td><code>GeneratorName</code></td><td>in</td><td>string</td><td>Name of the application that generated the task.</td></tr>
+<tr><td><code>GeneratorVersion</code></td><td>in</td><td>string</td><td>Version of the application that generated the task.</td></tr>
+<tr><td><code>Result</code></td><td>return</td><td><a href="#TaskCreationFuture">TaskCreationFuture</a></td><td>Task Creation Future for tracking conversion progress.</td></tr>
+</table>
+</div>
+<div class="method" id="GetConversionLog">
+<code class="signature"><a href="#EOSConversionLog">EOSConversionLog</a> <b>GetConversionLog</b>()</code>
+<p>Returns the log of the layers written so far. It is the same log that the future of ConvertToTask returns.</p>
+<table class="params"><tr><th>Parameter</th><th>Direction</th><th>Type</th><th>Description</th></tr>
+<tr><td><code>Log</code></td><td>return</td><td><a href="#EOSConversionLog">EOSConversionLog</a></td><td>Conversion log.</td></tr>
+</table>
+</div>
+</section>
+<section id="Future"><h2>Future</h2>
+<p class="inherits">Inherits from <a href="#Base">Base</a></p>
+<p>Future base class</p>
+<div class="method" id="IsRunning">
+<code class="signature">bool <b>IsRunning</b>()</code>
+<p>Check if the background calculation is still running</p>
+<table class="params"><tr><th>Parameter</th><th>Direction</th><th>Type</th><th>Description</th></tr>
+<tr><td><code>Result</code></td><td>return</td><td>bool</td><td>Flag if calculation is still running.</td></tr>
+</table>
+</div>
+<div class="method" id="Abort">
+<code class="signature">void <b>Abort</b>()</code>
+<p>Abort the background calculation. Does nothing if calculation is not running.</p>
+</div>
+<div class="method" id="HasFinished">
+<code class="signature">bool <b>HasFinished</b>()</code>
+<p>Check if the background calculation has finished successfully</p>
+<table class="params"><tr><th>Parameter</th><th>Direction</th><th>Type</th><th>Description</th></tr>
+<tr><td><code>Result</code></td><td>return</td><td>bool</td><td>Flag if calculation has finished successfully.</td></tr>
+</table>
+</div>
+<div class="method" id="HasFailed">
+<code class="signature">bool <b>HasFailed</b>()</code>
+<p>Check if the background calculation has failed with an error.</p>
+<table class="params"><tr><th>Parameter</th><th>Direction</th><th>Type</th><th>Description</th></tr>
+<tr><td><code>Result</code></td><td>return</td><td>bool</td><td>Flag if calculation has failed.</td></tr>
+</table>
+</div>
+<div class="method" id="HasBeenAborted">
+<code class="signature">bool <b>HasBeenAborted</b>()</code>
+<p>Check if the background calculation has been aborted.</p>
+<table class="params"><tr><th>Parameter</th><th>Direction</th><th>Type</th><th>Description</th></tr>
+<tr><td><code>Result</code></td><td>return</td><td>bool</td><td>Checks if calculation has been aborted.</td></tr>
+</table>
+</div>
+<div class="method" id="WaitFor">
+<code class="signature">bool <b>WaitFor</b>(uint32 <span class="param">Time</span>)</code>
+<p>Wait for background calculation.</p>
+<table class="params"><tr><th>Parameter</th><th>Direction</th><th>Type</th><th>Description</th></tr>
+<tr><td><code>Time</code></td><td>in</td><td>uint32</td><td>Milliseconds to wait. MUST be positive.</td></tr>
+<tr><td><code>Result</code></td><td>return</td><td>bool</td><td>True if task background calculation has finished successfully, false if waitfor timed out or if the calculation has not been successful.</td></tr>
+</table>
+</div>
+<div class="method" id="GetErrorMessage">
+<code class="signature">string <b>GetErrorMessage</b>()</code>
+<p>Returns the error message of the background calculation if it has failed. Returns an empty string if the calculation has not failed.</p>
+<table class="params"><tr><th>Parameter</th><th>Direction</th><th>Type</th><th>Description</th></tr>
+<tr><td><code>ErrorMessage</code></td><td>return</td><td>string</td><td>Error message of the failed calculation, or empty string if there was no error.</td></tr>
+</table>
+</div>
+</section>
+<section id="TaskUploadFuture"><h2>TaskUploadFuture</h2>
+<p class="inherits">Inherits from <a href="#Future">Future</a></p>
+<p>Task Upload Future.</p>
+<div class="method" id="GetProgress">
+<code class="signature">double <b>GetProgress</b>()</code>
+<p>Returns current progress.</p>
+<table class="params"><tr><th>Parameter</th><th>Direction</th><th>Type</th><th>Description</th></tr>
+<tr><td><code>Progress</code></td><td>return</td><td>double</td><td>Current progress (0-1).</td></tr>
+</table>
+</div>
+</section>
+<section id="TaskCreationFuture"><h2>TaskCreationFuture</h2>
+<p class="inherits">Inherits from <a href="#Future">Future</a></p>
+<p>Task Creation Future.</p>
+<div class="method" id="GetProgress">
+<code class="signature">void <b>GetProgress</b>(out uint32 <span class="param">CurrentLayer</span>, out uint32 <span class="param">NumberOfLayers</span>, out uint32 <span class="param">CurrentZHeight</span>, out uint32 <span class="param">TargetZHeight</span>)</code>
+<p>Returns current progress.</p>
+<table class="params"><tr><th>Parameter</th><th>Direction</th><th>Type</th><th>Description</th></tr>
+<tr><td><code>CurrentLayer</code></td><td>out</td><td>uint32</td><td>Layer currently in process.</td></tr>
+<tr><td><code>NumberOfLayers</code></td><td>out</td><td>uint32</td><td>Number of layers.</td></tr>
+<tr><td><code>CurrentZHeight</code></td><td>out</td><td>uint32</td><td>Z Height currently in process (in Micron).</td></tr>
+<tr><td><code>TargetZHeight</code></td><td>out</td><td>uint32</td><td>Target Z Height. (in Micron)</td></tr>
+</table>
+</div>
+<div class="method" id="StoreInDirectory">
+<code class="signature">void <b>StoreInDirectory</b>(string <span class="param">Path</span>)</code>
+<p>Stores task in directory. Will fail if Task Creation has not finished successfully.</p>
+<table class="params"><tr><th>Parameter</th><th>Direction</th><th>Type</th><th>Description</th></tr>
+<tr><td><code>Path</code></td><td>in</td><td>string</td><td>Directory that the task shall be stored in.</td></tr>
+</table>
+</div>
+<div class="method" id="FindTaskFileName">
+<code class="signature">string <b>FindTaskFileName</b>()</code>
+<p>Finds the absolute filename of the task on disk. Fails if task is not present.</p>
+<table class="params"><tr><th>Parameter</th><th>Direction</th><th>Type</th><th>Description</th></tr>
+<tr><td><code>TaskFileName</code></td><td>return</td><td>string</td><td>Absolute filename of the task file.</td></tr>
+</table>
+</div>
+<div class="method" id="GetWorkingDirectory">
+<code class="signature">string <b>GetWorkingDirectory</b>()</code>
+<p>Returns the working directory.</p>
+<table class="params"><tr><th>Parameter</th><th>Direction</th><th>Type</th><th>Description</th></tr>
+<tr><td><code>WorkingDirectory</code></td><td>return</td><td>string</td><td>Directory that the task is stored in.</td></tr>
+</table>
+</div>
+<div class="method" id="IsRawTask">
+<code class="signature">bool <b>IsRawTask</b>()</code>
+<p>Returns if the task is a raw task.</p>
+<table class="params"><tr><th>Parameter</th><th>Direction</th><th>Type</th><th>Description</th></tr>
+<tr><td><code>IsRawTaskValue</code></td><td>return</td><td>bool</td><td>Returns true, if the task is a raw task, false otherwise.</td></tr>
+</table>
+</div>
+<div class="method" id="LoadRawTask">
+<code class="signature"><a href="#EOSRawTask">EOSRawTask</a> <b>LoadRawTask</b>()</code>
+<p>Loads the task if it is a raw task. Fails if it is not a raw task or the computation is not finished.</p>
+<table class="params"><tr><th>Parameter</th><th>Direction</th><th>Type</th><th>Description</th></tr>
+<tr><td><code>RawTask</code></td><td>return</td><td><a href="#EOSRawTask">EOSRawTask</a></td><td>Raw Task Instance.</td></tr>
+</table>
+</div>
+<div class="method" id="GetConversionLog">
+<code class="signature"><a href="#EOSConversionLog">EOSConversionLog</a> <b>GetConversionLog</b>()</code>
+<p>Returns the conversion log. For tasks created from a toolpath it holds the messages and counters of the conversion, also if the conversion failed. For other tasks it is empty.</p>
+<table class="params"><tr><th>Parameter</th><th>Direction</th><th>Type</th><th>Description</th></tr>
+<tr><td><code>Log</code></td><td>return</td><td><a href="#EOSConversionLog">EOSConversionLog</a></td><td>Conversion log.</td></tr>
+</table>
+</div>
+</section>
+<section id="MachineConfigFuture"><h2>MachineConfigFuture</h2>
+<p class="inherits">Inherits from <a href="#Future">Future</a></p>
+<p>Machine Configuration Download Future.</p>
+<div class="method" id="StoreInDirectory">
+<code class="signature">void <b>StoreInDirectory</b>(string <span class="param">Path</span>)</code>
+<p>Stores machine configuration in directory. Will fail if download has not finished successfully.</p>
+<table class="params"><tr><th>Parameter</th><th>Direction</th><th>Type</th><th>Description</th></tr>
+<tr><td><code>Path</code></td><td>in</td><td>string</td><td>Directory that the machine config shall be stored in.</td></tr>
+</table>
+</div>
+<div class="method" id="RetrievePackageData">
+<code class="signature">void <b>RetrievePackageData</b>(out array of uint8 <span class="param">StreamData</span>)</code>
+<p>Retrieves the machine config as package stream. Will fail if download has not finished successfully.</p>
+<table class="params"><tr><th>Parameter</th><th>Direction</th><th>Type</th><th>Description</th></tr>
+<tr><td><code>StreamData</code></td><td>out</td><td>array of uint8</td><td>Package stream of the machine config.</td></tr>
+</table>
+</div>
+<div class="method" id="StorePackageInFile">
+<code class="signature">void <b>StorePackageInFile</b>(string <span class="param">FileName</span>)</code>
+<p>Store the machine config as package on disk. Will fail if download has not finished successfully.</p>
+<table class="params"><tr><th>Parameter</th><th>Direction</th><th>Type</th><th>Description</th></tr>
+<tr><td><code>FileName</code></td><td>in</td><td>string</td><td>File name to store in.</td></tr>
+</table>
+</div>
+<div class="method" id="ReadMachineInformation">
+<code class="signature"><a href="#EOSMachineInfo">EOSMachineInfo</a> <b>ReadMachineInformation</b>()</code>
+<p>Retrieves information of the current machine.</p>
+<table class="params"><tr><th>Parameter</th><th>Direction</th><th>Type</th><th>Description</th></tr>
+<tr><td><code>MachineInformation</code></td><td>return</td><td><a href="#EOSMachineInfo">EOSMachineInfo</a></td><td>Machine information instance.</td></tr>
+</table>
+</div>
+</section>
+<section id="MachineSessionFuture"><h2>MachineSessionFuture</h2>
+<p class="inherits">Inherits from <a href="#Future">Future</a></p>
+<p>Machine Session Future.</p>
+<div class="method" id="Disconnect">
+<code class="signature">void <b>Disconnect</b>()</code>
+<p>Disconnect from the machine. Will fail if connection has not finished successfully.</p>
+</div>
+<div class="method" id="IsConnected">
+<code class="signature">bool <b>IsConnected</b>()</code>
+<p>Checks if machine is still connected. Will return false if connection has not finished successfully.</p>
+<table class="params"><tr><th>Parameter</th><th>Direction</th><th>Type</th><th>Description</th></tr>
+<tr><td><code>IsConnected</code></td><td>return</td><td>bool</td><td>Flag if machine is connected.</td></tr>
+</table>
+</div>
+<div class="method" id="GetNetworkAddress">
+<code class="signature">string <b>GetNetworkAddress</b>()</code>
+<p>Returns the network address.</p>
+<table class="params"><tr><th>Parameter</th><th>Direction</th><th>Type</th><th>Description</th></tr>
+<tr><td><code>NetworkAddress</code></td><td>return</td><td>string</td><td>Network address of the machine.</td></tr>
+</table>
+</div>
+<div class="method" id="DownloadMachineConfig">
+<code class="signature"><a href="#MachineConfigFuture">MachineConfigFuture</a> <b>DownloadMachineConfig</b>()</code>
+<p>Downloads the current machine config.</p>
+<table class="params"><tr><th>Parameter</th><th>Direction</th><th>Type</th><th>Description</th></tr>
+<tr><td><code>MachineConfig</code></td><td>return</td><td><a href="#MachineConfigFuture">MachineConfigFuture</a></td><td>Machine config object.</td></tr>
+</table>
+</div>
+<div class="method" id="UploadTask">
+<code class="signature"><a href="#TaskUploadFuture">TaskUploadFuture</a> <b>UploadTask</b>(<a href="#TaskCreationFuture">TaskCreationFuture</a> <span class="param">TaskCreationInstance</span>)</code>
+<p>Uploads a created task to machine.</p>
+<table class="params"><tr><th>Parameter</th><th>Direction</th><th>Type</th><th>Description</th></tr>
+<tr><td><code>TaskCreationInstance</code></td><td>in</td><td><a href="#TaskCreationFuture">TaskCreationFuture</a></td><td>Task creation instance. MUST be a finished future object.</td></tr>
+<tr><td><code>TaskUploadInstance</code></td><td>return</td><td><a href="#TaskUploadFuture">TaskUploadFuture</a></td><td>Task upload instance.</td></tr>
+</table>
+</div>
+<div class="method" id="UploadTaskFile">
+<code class="signature"><a href="#TaskUploadFuture">TaskUploadFuture</a> <b>UploadTaskFile</b>(string <span class="param">TaskFileName</span>)</code>
+<p>Uploads an existing task file from disk to the machine. Collects the accompanying data files located next to the task file.</p>
+<table class="params"><tr><th>Parameter</th><th>Direction</th><th>Type</th><th>Description</th></tr>
+<tr><td><code>TaskFileName</code></td><td>in</td><td>string</td><td>Absolute filename of the .task or .rawtask file on disk.</td></tr>
+<tr><td><code>TaskUploadInstance</code></td><td>return</td><td><a href="#TaskUploadFuture">TaskUploadFuture</a></td><td>Task upload instance.</td></tr>
+</table>
+</div>
+</section>
+<section id="BuildTimeEstimationFuture"><h2>BuildTimeEstimationFuture</h2>
+<p class="inherits">Inherits from <a href="#Future">Future</a></p>
+<p>BuildTime Estimation Future.</p>
+<div class="method" id="GetBuildTime">
+<code class="signature">uint64 <b>GetBuildTime</b>()</code>
+<p>Returns build time. Fails if build time estimation is not finished or has failed.</p>
+<table class="params"><tr><th>Parameter</th><th>Direction</th><th>Type</th><th>Description</th></tr>
+<tr><td><code>Result</code></td><td>return</td><td>uint64</td><td>Estimated build time in milliseconds.</td></tr>
+</table>
+</div>
+<div class="method" id="GetProgress">
+<code class="signature">void <b>GetProgress</b>(out uint32 <span class="param">CurrentLayer</span>, out uint32 <span class="param">NumberOfLayers</span>, out uint64 <span class="param">CurrentEstimationInMs</span>, out uint64 <span class="param">ExposureTimeInMs</span>, out uint64 <span class="param">NonExposureTimeInMs</span>)</code>
+<p>Returns current progress.</p>
+<table class="params"><tr><th>Parameter</th><th>Direction</th><th>Type</th><th>Description</th></tr>
+<tr><td><code>CurrentLayer</code></td><td>out</td><td>uint32</td><td>Layer currently in process.</td></tr>
+<tr><td><code>NumberOfLayers</code></td><td>out</td><td>uint32</td><td>Number of layers.</td></tr>
+<tr><td><code>CurrentEstimationInMs</code></td><td>out</td><td>uint64</td><td>Estimated build time in milliseconds.</td></tr>
+<tr><td><code>ExposureTimeInMs</code></td><td>out</td><td>uint64</td><td>Estimated exposure time in milliseconds.</td></tr>
+<tr><td><code>NonExposureTimeInMs</code></td><td>out</td><td>uint64</td><td>Estimated non-exposure time in milliseconds.</td></tr>
+</table>
+</div>
+</section>
+<section id="ToolpathComputationFuture"><h2>ToolpathComputationFuture</h2>
+<p class="inherits">Inherits from <a href="#Future">Future</a></p>
+<p>Tracks async toolpath computation and provides methods to retrieve results as 3MF.</p>
+<div class="method" id="GetProgress">
+<code class="signature">void <b>GetProgress</b>(out uint32 <span class="param">CurrentLayer</span>, out uint32 <span class="param">NumberOfLayers</span>, out uint32 <span class="param">CurrentZHeight</span>, out uint32 <span class="param">TargetZHeight</span>)</code>
+<p>Returns current computation progress.</p>
+<table class="params"><tr><th>Parameter</th><th>Direction</th><th>Type</th><th>Description</th></tr>
+<tr><td><code>CurrentLayer</code></td><td>out</td><td>uint32</td><td>Layer currently in process.</td></tr>
+<tr><td><code>NumberOfLayers</code></td><td>out</td><td>uint32</td><td>Number of layers.</td></tr>
+<tr><td><code>CurrentZHeight</code></td><td>out</td><td>uint32</td><td>Z Height currently in process (in Micron).</td></tr>
+<tr><td><code>TargetZHeight</code></td><td>out</td><td>uint32</td><td>Target Z Height (in Micron).</td></tr>
+</table>
+</div>
+<div class="method" id="WriteResultTo3MFFile">
+<code class="signature">void <b>WriteResultTo3MFFile</b>(string <span class="param">FilePath</span>)</code>
+<p>Creates a 3MF output file containing computed toolpath, original geometry, metadata and material set. Fails if computation has not finished successfully.</p>
+<table class="params"><tr><th>Parameter</th><th>Direction</th><th>Type</th><th>Description</th></tr>
+<tr><td><code>FilePath</code></td><td>in</td><td>string</td><td>Output 3MF file path.</td></tr>
+</table>
+</div>
+<div class="method" id="WriteResultTo3MF">
+<code class="signature">void <b>WriteResultTo3MF</b>(<span class="external">Lib3MF::Model</span> <span class="param">OutputModel</span>, <span class="external">Lib3MF::Writer</span> <span class="param">OutputWriter</span>)</code>
+<p>Populates a 3MF model with computed toolpath, original geometry, metadata and material set. The provided Writer must have been obtained from the OutputModel via QueryWriter before this call. Fails if computation has not finished successfully.</p>
+<table class="params"><tr><th>Parameter</th><th>Direction</th><th>Type</th><th>Description</th></tr>
+<tr><td><code>OutputModel</code></td><td>in</td><td><span class="external">Lib3MF::Model</span></td><td>Output 3MF Model to populate.</td></tr>
+<tr><td><code>OutputWriter</code></td><td>in</td><td><span class="external">Lib3MF::Writer</span></td><td>Writer associated with the output model.</td></tr>
+</table>
+</div>
+<div class="method" id="LoadRawTask">
+<code class="signature"><a href="#EOSRawTask">EOSRawTask</a> <b>LoadRawTask</b>()</code>
+<p>Loads the raw task result for manual inspection. Fails if computation has not finished successfully.</p>
+<table class="params"><tr><th>Parameter</th><th>Direction</th><th>Type</th><th>Description</th></tr>
+<tr><td><code>RawTask</code></td><td>return</td><td><a href="#EOSRawTask">EOSRawTask</a></td><td>Raw Task Instance.</td></tr>
+</table>
+</div>
+</section>
+<section id="EOSContext"><h2>EOSContext</h2>
+<p class="inherits">Inherits from <a href="#Base">Base</a></p>
+<p>EOS Context</p>
+<div class="method" id="LoadSDK">
+<code class="signature">string <b>LoadSDK</b>()</code>
+<p>Forces Loading the EOSPrint SDK From Disk.</p>
+<table class="params"><tr><th>Parameter</th><th>Direction</th><th>Type</th><th>Description</th></tr>
+<tr><td><code>DetectedAPIVersion</code></td><td>return</td><td>string</td><td>Detected SDK product version, for example 2.18.1149.0. If the product version cannot be detected, the version whose structures are used, for example 2.18.</td></tr>
+</table>
+</div>
+<div class="method" id="GetSDKFilePath">
+<code class="signature">string <b>GetSDKFilePath</b>()</code>
+<p>Returns the EOS SDK file path. MUST be called after LoadSDK.</p>
+<table class="params"><tr><th>Parameter</th><th>Direction</th><th>Type</th><th>Description</th></tr>
+<tr><td><code>SDKFilePath</code></td><td>return</td><td>string</td><td>Detected EOS SDK File Path. Empty if full SDK simulation runs without an installed SDK.</td></tr>
+</table>
+</div>
+<div class="method" id="EnableSDKSimulation">
+<code class="signature"><a href="#EOSSDKSimulator">EOSSDKSimulator</a> <b>EnableSDKSimulation</b>(<a href="#EOSSimulationMode">EOSSimulationMode</a> <span class="param">SimulationMode</span>)</code>
+<p>Enables the simulation mode of EOS SDK Simulator. Loads the SDK from disk if it is found, but performs no calls to it. In the full SDK simulation modes an installed SDK is not required; the simulated version is the one set with SetSDKVersionOverride, otherwise the detected version, or the lowest supported version if no SDK is installed. Recording is a full SDK simulation in which raw task writers record their commands in the simulator instead of writing a file; ConvertToTask then returns a future that has finished at once and has no task file.</p>
+<table class="params"><tr><th>Parameter</th><th>Direction</th><th>Type</th><th>Description</th></tr>
+<tr><td><code>SimulationMode</code></td><td>in</td><td><a href="#EOSSimulationMode">EOSSimulationMode</a></td><td>Simulation mode.</td></tr>
+<tr><td><code>SimulationInstance</code></td><td>return</td><td><a href="#EOSSDKSimulator">EOSSDKSimulator</a></td><td>Simulator instance.</td></tr>
+</table>
+</div>
+<div class="method" id="GetDetectedAPIVersion">
+<code class="signature">string <b>GetDetectedAPIVersion</b>()</code>
+<p>Returns the detected EOS SDK version. Will load SDK if it has not been loaded yet.</p>
+<table class="params"><tr><th>Parameter</th><th>Direction</th><th>Type</th><th>Description</th></tr>
+<tr><td><code>DetectedAPIVersion</code></td><td>return</td><td>string</td><td>Detected SDK product version, for example 2.18.1149.0. If the product version cannot be detected, the version whose structures are used, for example 2.18.</td></tr>
+</table>
+</div>
+<div class="method" id="SetSDKVersionOverride">
+<code class="signature">void <b>SetSDKVersionOverride</b>(uint32 <span class="param">Major</span>, uint32 <span class="param">Minor</span>)</code>
+<p>Uses the structures of the given EOS SDK version instead of those of the detected version. MUST be called before the SDK is loaded. A version unknown to LibEOS uses the nearest lower known version; a version below the lowest known version fails when the SDK is loaded.</p>
+<table class="params"><tr><th>Parameter</th><th>Direction</th><th>Type</th><th>Description</th></tr>
+<tr><td><code>Major</code></td><td>in</td><td>uint32</td><td>Major version. 0 together with Minor 0 removes the override.</td></tr>
+<tr><td><code>Minor</code></td><td>in</td><td>uint32</td><td>Minor version.</td></tr>
+</table>
+</div>
+<div class="method" id="GetSDKProductVersion">
+<code class="signature">void <b>GetSDKProductVersion</b>(out uint32 <span class="param">Major</span>, out uint32 <span class="param">Minor</span>, out uint32 <span class="param">Build</span>, out uint32 <span class="param">Revision</span>)</code>
+<p>Returns the product version of the loaded EOS SDK. All values are 0 if it could not be detected. Will load SDK if it has not been loaded yet.</p>
+<table class="params"><tr><th>Parameter</th><th>Direction</th><th>Type</th><th>Description</th></tr>
+<tr><td><code>Major</code></td><td>out</td><td>uint32</td><td>Major version.</td></tr>
+<tr><td><code>Minor</code></td><td>out</td><td>uint32</td><td>Minor version.</td></tr>
+<tr><td><code>Build</code></td><td>out</td><td>uint32</td><td>Build number.</td></tr>
+<tr><td><code>Revision</code></td><td>out</td><td>uint32</td><td>Revision.</td></tr>
+</table>
+</div>
+<div class="method" id="GetSDKAdapterVersion">
+<code class="signature">void <b>GetSDKAdapterVersion</b>(out uint32 <span class="param">Major</span>, out uint32 <span class="param">Minor</span>)</code>
+<p>Returns the EOS SDK version whose structures LibEOS uses for the loaded SDK. Will load SDK if it has not been loaded yet.</p>
+<table class="params"><tr><th>Parameter</th><th>Direction</th><th>Type</th><th>Description</th></tr>
+<tr><td><code>Major</code></td><td>out</td><td>uint32</td><td>Major version.</td></tr>
+<tr><td><code>Minor</code></td><td>out</td><td>uint32</td><td>Minor version.</td></tr>
+</table>
+</div>
+<div class="method" id="GetSupportedSDKVersions">
+<code class="signature">string <b>GetSupportedSDKVersions</b>()</code>
+<p>Returns the EOS SDK versions known to LibEOS.</p>
+<table class="params"><tr><th>Parameter</th><th>Direction</th><th>Type</th><th>Description</th></tr>
+<tr><td><code>SupportedVersions</code></td><td>return</td><td>string</td><td>Comma separated list, for example 2.18,2.26.</td></tr>
+</table>
+</div>
+<div class="method" id="GetSDKVersionMessages">
+<code class="signature">string <b>GetSDKVersionMessages</b>()</code>
+<p>Returns the messages of the SDK version selection, for example that an override is used or that an unknown version is handled as a lower one. Will load SDK if it has not been loaded yet.</p>
+<table class="params"><tr><th>Parameter</th><th>Direction</th><th>Type</th><th>Description</th></tr>
+<tr><td><code>Messages</code></td><td>return</td><td>string</td><td>Messages separated by line feeds. Empty if the detected version is known and not overridden.</td></tr>
+</table>
+</div>
+<div class="method" id="ImportMaterialSet">
+<code class="signature"><a href="#EOSMaterialSet">EOSMaterialSet</a> <b>ImportMaterialSet</b>(string <span class="param">FileName</span>)</code>
+<p>Import EOS MaterialSet from file. Will load SDK if it has not been loaded yet.</p>
+<table class="params"><tr><th>Parameter</th><th>Direction</th><th>Type</th><th>Description</th></tr>
+<tr><td><code>FileName</code></td><td>in</td><td>string</td><td>Filename of EOSPAR file.</td></tr>
+<tr><td><code>EOSMaterialSet</code></td><td>return</td><td><a href="#EOSMaterialSet">EOSMaterialSet</a></td><td>EOS Material Set.</td></tr>
+</table>
+</div>
+<div class="method" id="LoadOpenJZFromFile">
+<code class="signature">void <b>LoadOpenJZFromFile</b>(string <span class="param">FileName</span>)</code>
+<p>Loads an OpenJZ File. Will load SDK if it has not been loaded yet.</p>
+<table class="params"><tr><th>Parameter</th><th>Direction</th><th>Type</th><th>Description</th></tr>
+<tr><td><code>FileName</code></td><td>in</td><td>string</td><td>Filename of OpenJZ file.</td></tr>
+</table>
+</div>
+<div class="method" id="LoadJobFrom3MF">
+<code class="signature">void <b>LoadJobFrom3MF</b>(<span class="external">Lib3MF::Model</span> <span class="param">Model</span>)</code>
+<p>Converts a 3MF file to an OpenJZ and loads it as Job. Will load SDK if it has not been loaded yet.</p>
+<table class="params"><tr><th>Parameter</th><th>Direction</th><th>Type</th><th>Description</th></tr>
+<tr><td><code>Model</code></td><td>in</td><td><span class="external">Lib3MF::Model</span></td><td>Lib3MF Model Object.</td></tr>
+</table>
+</div>
+<div class="method" id="LoadOpenJob">
+<code class="signature">void <b>LoadOpenJob</b>(string <span class="param">OpenJobFileName</span>, string <span class="param">MaterialSetFileName</span>)</code>
+<p>Packs an unpacked OpenJob file, the part files it references and a material set into an OpenJZ, and loads it as job. Will load SDK if it has not been loaded yet.</p>
+<table class="params"><tr><th>Parameter</th><th>Direction</th><th>Type</th><th>Description</th></tr>
+<tr><td><code>OpenJobFileName</code></td><td>in</td><td>string</td><td>Filename of the .openjob file. Part file names in it are relative to its directory.</td></tr>
+<tr><td><code>MaterialSetFileName</code></td><td>in</td><td>string</td><td>Filename of the .eospar material set file.</td></tr>
+</table>
+</div>
+<div class="method" id="CheckLayerCoverage">
+<code class="signature"><a href="#EOSConversionLog">EOSConversionLog</a> <b>CheckLayerCoverage</b>(<span class="external">Lib3MF::Model</span> <span class="param">Model</span>, <a href="#MachineConfigFuture">MachineConfigFuture</a> <span class="param">MachineConfiguration</span>, <a href="#EOSToolpathConversionSettings">EOSToolpathConversionSettings</a> <span class="param">Settings</span>)</code>
+<p>Loads the job of a 3MF model with a toolpath and the machine configuration, and compares the toolpath layers with the layer stack and process heights of the EOS SDK, without writing a task. CreateTaskFrom3MFToolpath runs the same check before it writes the toolpath. Toolpath layers that are not in the layer stack are errors in strict mode and warnings otherwise; part layers without toolpath are warnings; a job that needs more Z travel than the machine allows is an error.</p>
+<table class="params"><tr><th>Parameter</th><th>Direction</th><th>Type</th><th>Description</th></tr>
+<tr><td><code>Model</code></td><td>in</td><td><span class="external">Lib3MF::Model</span></td><td>Input 3MF Model containing geometry and a toolpath.</td></tr>
+<tr><td><code>MachineConfiguration</code></td><td>in</td><td><a href="#MachineConfigFuture">MachineConfigFuture</a></td><td>Machine configuration to activate.</td></tr>
+<tr><td><code>Settings</code></td><td>in</td><td><a href="#EOSToolpathConversionSettings">EOSToolpathConversionSettings</a></td><td>Conversion settings. The layer Z convention, the exposure set rules and strict mode are used.</td></tr>
+<tr><td><code>Log</code></td><td>return</td><td><a href="#EOSConversionLog">EOSConversionLog</a></td><td>Result of the check. Errors of the check are messages of the log, not exceptions.</td></tr>
+</table>
+</div>
+<div class="method" id="CheckPartToolpathAlignment">
+<code class="signature"><a href="#EOSConversionLog">EOSConversionLog</a> <b>CheckPartToolpathAlignment</b>(<span class="external">Lib3MF::Model</span> <span class="param">Model</span>, double <span class="param">Tolerance</span>)</code>
+<p>Compares, for every part of a 3MF model with a toolpath, the XY bounds of its mesh in world coordinates with the XY bounds of its toolpath vectors, and the Z range of the mesh with the Z range of its toolpath layers. Needs no SDK.</p>
+<table class="params"><tr><th>Parameter</th><th>Direction</th><th>Type</th><th>Description</th></tr>
+<tr><td><code>Model</code></td><td>in</td><td><span class="external">Lib3MF::Model</span></td><td>Input 3MF Model containing geometry and a toolpath.</td></tr>
+<tr><td><code>Tolerance</code></td><td>in</td><td>double</td><td>Largest accepted difference between the bounds in mm. Must be positive.</td></tr>
+<tr><td><code>Log</code></td><td>return</td><td><a href="#EOSConversionLog">EOSConversionLog</a></td><td>One message per part, a warning if a bound differs by more than the tolerance.</td></tr>
+</table>
+</div>
+<div class="method" id="UnloadJob">
+<code class="signature">void <b>UnloadJob</b>()</code>
+<p>Unloads the currently open job. Fails if SDK has not been loaded yet.</p>
+</div>
+<div class="method" id="SetCacheDirectory">
+<code class="signature">void <b>SetCacheDirectory</b>(string <span class="param">Directory</span>)</code>
+<p>Sets the EOS Cache Directory. Will load SDK if it has not been loaded yet.</p>
+<table class="params"><tr><th>Parameter</th><th>Direction</th><th>Type</th><th>Description</th></tr>
+<tr><td><code>Directory</code></td><td>in</td><td>string</td><td>Path of Cache Directory.</td></tr>
+</table>
+</div>
+<div class="method" id="JobIsLoaded">
+<code class="signature">bool <b>JobIsLoaded</b>()</code>
+<p>Checks if a job is loaded. Will return false if SDK has not been loaded yet.</p>
+<table class="params"><tr><th>Parameter</th><th>Direction</th><th>Type</th><th>Description</th></tr>
+<tr><td><code>Result</code></td><td>return</td><td>bool</td><td>Flag if job is loaded.</td></tr>
+</table>
+</div>
+<div class="method" id="EstimateBuildTime">
+<code class="signature"><a href="#BuildTimeEstimationFuture">BuildTimeEstimationFuture</a> <b>EstimateBuildTime</b>()</code>
+<p>Start a build time estimation on the current job. Fails if SDK has not been loaded yet.</p>
+<table class="params"><tr><th>Parameter</th><th>Direction</th><th>Type</th><th>Description</th></tr>
+<tr><td><code>Result</code></td><td>return</td><td><a href="#BuildTimeEstimationFuture">BuildTimeEstimationFuture</a></td><td>Build Time Estimation Instance.</td></tr>
+</table>
+</div>
+<div class="method" id="CreateTask">
+<code class="signature"><a href="#TaskCreationFuture">TaskCreationFuture</a> <b>CreateTask</b>(string <span class="param">Name</span>, string <span class="param">Comment</span>, string <span class="param">GeneratorName</span>, string <span class="param">GeneratorVersion</span>)</code>
+<p>Creates a task on the current job. Fails if SDK has not been loaded yet.</p>
+<table class="params"><tr><th>Parameter</th><th>Direction</th><th>Type</th><th>Description</th></tr>
+<tr><td><code>Name</code></td><td>in</td><td>string</td><td>The name of the task.</td></tr>
+<tr><td><code>Comment</code></td><td>in</td><td>string</td><td>An optional comment to the task.</td></tr>
+<tr><td><code>GeneratorName</code></td><td>in</td><td>string</td><td>Name of the application that generated the task, i.e. your application</td></tr>
+<tr><td><code>GeneratorVersion</code></td><td>in</td><td>string</td><td>Version of the application that generated the task</td></tr>
+<tr><td><code>Result</code></td><td>return</td><td><a href="#TaskCreationFuture">TaskCreationFuture</a></td><td>Task Creation Instance.</td></tr>
+</table>
+</div>
+<div class="method" id="CreateRawTask">
+<code class="signature"><a href="#TaskCreationFuture">TaskCreationFuture</a> <b>CreateRawTask</b>(string <span class="param">Name</span>, string <span class="param">Comment</span>, string <span class="param">GeneratorName</span>, string <span class="param">GeneratorVersion</span>)</code>
+<p>Creates a raw task on the current job. Fails if SDK has not been loaded yet.</p>
+<table class="params"><tr><th>Parameter</th><th>Direction</th><th>Type</th><th>Description</th></tr>
+<tr><td><code>Name</code></td><td>in</td><td>string</td><td>The name of the task.</td></tr>
+<tr><td><code>Comment</code></td><td>in</td><td>string</td><td>An optional comment to the task.</td></tr>
+<tr><td><code>GeneratorName</code></td><td>in</td><td>string</td><td>Name of the application that generated the task, i.e. your application</td></tr>
+<tr><td><code>GeneratorVersion</code></td><td>in</td><td>string</td><td>Version of the application that generated the task</td></tr>
+<tr><td><code>Result</code></td><td>return</td><td><a href="#TaskCreationFuture">TaskCreationFuture</a></td><td>Task Creation Instance.</td></tr>
+</table>
+</div>
+<div class="method" id="ConnectToMachine">
+<code class="signature"><a href="#MachineSessionFuture">MachineSessionFuture</a> <b>ConnectToMachine</b>(string <span class="param">NetworkAddress</span>)</code>
+<p>Connects to an EOS Machine on the network. Will throw an error if connection fails.</p>
+<table class="params"><tr><th>Parameter</th><th>Direction</th><th>Type</th><th>Description</th></tr>
+<tr><td><code>NetworkAddress</code></td><td>in</td><td>string</td><td>The host name or IP of the EOS Machine.</td></tr>
+<tr><td><code>FutureInstance</code></td><td>return</td><td><a href="#MachineSessionFuture">MachineSessionFuture</a></td><td>Machine Session future.</td></tr>
+</table>
+</div>
+<div class="method" id="LoadMachinePackage">
+<code class="signature"><a href="#MachineConfigFuture">MachineConfigFuture</a> <b>LoadMachinePackage</b>(array of uint8 <span class="param">StreamData</span>)</code>
+<p>Loads a machine config package from memory.</p>
+<table class="params"><tr><th>Parameter</th><th>Direction</th><th>Type</th><th>Description</th></tr>
+<tr><td><code>StreamData</code></td><td>in</td><td>array of uint8</td><td>The package data of the machine.</td></tr>
+<tr><td><code>MachineConfigInstance</code></td><td>return</td><td><a href="#MachineConfigFuture">MachineConfigFuture</a></td><td>Machine config instance.</td></tr>
+</table>
+</div>
+<div class="method" id="LoadMachinePackageFromFile">
+<code class="signature"><a href="#MachineConfigFuture">MachineConfigFuture</a> <b>LoadMachinePackageFromFile</b>(string <span class="param">FileName</span>)</code>
+<p>Loads a machine config package from file.</p>
+<table class="params"><tr><th>Parameter</th><th>Direction</th><th>Type</th><th>Description</th></tr>
+<tr><td><code>FileName</code></td><td>in</td><td>string</td><td>The file name of the machine config file.</td></tr>
+<tr><td><code>MachineConfigInstance</code></td><td>return</td><td><a href="#MachineConfigFuture">MachineConfigFuture</a></td><td>Machine config instance.</td></tr>
+</table>
+</div>
+<div class="method" id="ActivateMachineConfigurationFromPath">
+<code class="signature"><a href="#EOSMachineInfo">EOSMachineInfo</a> <b>ActivateMachineConfigurationFromPath</b>(string <span class="param">FilePath</span>)</code>
+<p>Loads a machine configuration directly from path on disk. Will load SDK if it has not been loaded yet.</p>
+<table class="params"><tr><th>Parameter</th><th>Direction</th><th>Type</th><th>Description</th></tr>
+<tr><td><code>FilePath</code></td><td>in</td><td>string</td><td>Path of machine configuration.</td></tr>
+<tr><td><code>MachineInformation</code></td><td>return</td><td><a href="#EOSMachineInfo">EOSMachineInfo</a></td><td>Machine information instance.</td></tr>
+</table>
+</div>
+<div class="method" id="ActivateMachineConfiguration">
+<code class="signature"><a href="#EOSMachineInfo">EOSMachineInfo</a> <b>ActivateMachineConfiguration</b>(<a href="#MachineConfigFuture">MachineConfigFuture</a> <span class="param">MachineConfiguration</span>)</code>
+<p>Loads a machine configuration from a package in memory. Will load SDK if it has not been loaded yet.</p>
+<table class="params"><tr><th>Parameter</th><th>Direction</th><th>Type</th><th>Description</th></tr>
+<tr><td><code>MachineConfiguration</code></td><td>in</td><td><a href="#MachineConfigFuture">MachineConfigFuture</a></td><td>Machine configuration instance.</td></tr>
+<tr><td><code>MachineInformation</code></td><td>return</td><td><a href="#EOSMachineInfo">EOSMachineInfo</a></td><td>Machine information instance.</td></tr>
+</table>
+</div>
+<div class="method" id="RetrieveCurrentMachineInformation">
+<code class="signature"><a href="#EOSMachineInfo">EOSMachineInfo</a> <b>RetrieveCurrentMachineInformation</b>()</code>
+<p>Retrieves the current machine information. Fails if no machine configuration is activated.</p>
+<table class="params"><tr><th>Parameter</th><th>Direction</th><th>Type</th><th>Description</th></tr>
+<tr><td><code>MachineInformation</code></td><td>return</td><td><a href="#EOSMachineInfo">EOSMachineInfo</a></td><td>Machine information instance.</td></tr>
+</table>
+</div>
+<div class="method" id="AuthenticateToolpathAPI">
+<code class="signature">void <b>AuthenticateToolpathAPI</b>(uint32 <span class="param">ClientID</span>, string <span class="param">ClientKey</span>)</code>
+<p>Authenticates the toolpath API. Loads the SDK if it is not loaded yet. Fails if authentication is not successful. Prefer AuthenticateToolpathAPIFromCredentialStore, which keeps the client key out of the calling application.</p>
+<table class="params"><tr><th>Parameter</th><th>Direction</th><th>Type</th><th>Description</th></tr>
+<tr><td><code>ClientID</code></td><td>in</td><td>uint32</td><td>Client ID issued by EOS GmbH under the Toolpath API contract.</td></tr>
+<tr><td><code>ClientKey</code></td><td>in</td><td>string</td><td>PEM text of the client key issued by EOS GmbH under the Toolpath API contract. The client key is a confidential credential: do not log it or store it in plain files.</td></tr>
+</table>
+</div>
+<div class="method" id="AuthenticateToolpathAPIFromCredentialStore">
+<code class="signature">void <b>AuthenticateToolpathAPIFromCredentialStore</b>(uint32 <span class="param">ClientID</span>, string <span class="param">CredentialName</span>)</code>
+<p>Authenticates the toolpath API with a client key stored as a generic credential in the Windows Credential Manager of the current user. The library reads the key and erases its copies after use, so the key never passes through the calling application. Loads the SDK if it is not loaded yet. Fails with TOOLPATHCREDENTIALNOTFOUND if there is no such credential, with TOOLPATHCREDENTIALINVALID if it does not hold the PEM text of a client key, and with TOOLPATHAUTHENTICATIONFAILED if authentication is not successful.</p>
+<table class="params"><tr><th>Parameter</th><th>Direction</th><th>Type</th><th>Description</th></tr>
+<tr><td><code>ClientID</code></td><td>in</td><td>uint32</td><td>Client ID issued by EOS GmbH under the Toolpath API contract.</td></tr>
+<tr><td><code>CredentialName</code></td><td>in</td><td>string</td><td>Target name of the generic Windows credential that holds the PEM text of the client key.</td></tr>
+</table>
+</div>
+<div class="method" id="CreateToolpathConversionSettings">
+<code class="signature"><a href="#EOSToolpathConversionSettings">EOSToolpathConversionSettings</a> <b>CreateToolpathConversionSettings</b>()</code>
+<p>Creates toolpath conversion settings with the default values.</p>
+<table class="params"><tr><th>Parameter</th><th>Direction</th><th>Type</th><th>Description</th></tr>
+<tr><td><code>Settings</code></td><td>return</td><td><a href="#EOSToolpathConversionSettings">EOSToolpathConversionSettings</a></td><td>Conversion settings.</td></tr>
+</table>
+</div>
+<div class="method" id="CreateRawTaskWriter">
+<code class="signature"><a href="#EOSRawTaskWriter">EOSRawTaskWriter</a> <b>CreateRawTaskWriter</b>(<a href="#EOSToolpathConversionSettings">EOSToolpathConversionSettings</a> <span class="param">Settings</span>)</code>
+<p>Creates a raw task writer for writing toolpath data to an EOS task file. Manages its own working directory internally. Fails if SDK has not been loaded yet.</p>
+<table class="params"><tr><th>Parameter</th><th>Direction</th><th>Type</th><th>Description</th></tr>
+<tr><td><code>Settings</code></td><td>in</td><td><a href="#EOSToolpathConversionSettings">EOSToolpathConversionSettings</a></td><td>Conversion settings. They are copied, later changes do not affect the writer.</td></tr>
+<tr><td><code>RawTaskWriterInstance</code></td><td>return</td><td><a href="#EOSRawTaskWriter">EOSRawTaskWriter</a></td><td>Raw Task Writer instance.</td></tr>
+</table>
+</div>
+<div class="method" id="CreateEOSRawTaskLayer">
+<code class="signature"><a href="#EOSRawTaskLayer">EOSRawTaskLayer</a> <b>CreateEOSRawTaskLayer</b>(int64 <span class="param">ZHeightInMicrometers</span>)</code>
+<p>Creates an empty raw task layer for population via AddData.</p>
+<table class="params"><tr><th>Parameter</th><th>Direction</th><th>Type</th><th>Description</th></tr>
+<tr><td><code>ZHeightInMicrometers</code></td><td>in</td><td>int64</td><td>Layer Z height in micrometers.</td></tr>
+<tr><td><code>LayerInstance</code></td><td>return</td><td><a href="#EOSRawTaskLayer">EOSRawTaskLayer</a></td><td>Raw Task Layer instance.</td></tr>
+</table>
+</div>
+<div class="method" id="ComputeToolpathFrom3MF">
+<code class="signature"><a href="#ToolpathComputationFuture">ToolpathComputationFuture</a> <b>ComputeToolpathFrom3MF</b>(<span class="external">Lib3MF::Model</span> <span class="param">InputModel</span>, <a href="#MachineConfigFuture">MachineConfigFuture</a> <span class="param">MachineConfiguration</span>)</code>
+<p>Computes toolpath from a 3MF model. Internally loads the job, activates the machine configuration, and starts async raw task generation. Toolpath API must be authenticated before calling.</p>
+<table class="params"><tr><th>Parameter</th><th>Direction</th><th>Type</th><th>Description</th></tr>
+<tr><td><code>InputModel</code></td><td>in</td><td><span class="external">Lib3MF::Model</span></td><td>Input 3MF Model with geometry, metadata and embedded material set.</td></tr>
+<tr><td><code>MachineConfiguration</code></td><td>in</td><td><a href="#MachineConfigFuture">MachineConfigFuture</a></td><td>Machine configuration to activate for computation.</td></tr>
+<tr><td><code>Future</code></td><td>return</td><td><a href="#ToolpathComputationFuture">ToolpathComputationFuture</a></td><td>Future for tracking progress and retrieving results.</td></tr>
+</table>
+</div>
+<div class="method" id="LoadMachineConfigFromDirectory">
+<code class="signature"><a href="#MachineConfigFuture">MachineConfigFuture</a> <b>LoadMachineConfigFromDirectory</b>(string <span class="param">Path</span>)</code>
+<p>Loads a machine configuration from a directory on disk (e.g. one of the SDK&#x27;s DefaultMachineConfigs folders) and returns it as a machine config future. Will load SDK if it has not been loaded yet.</p>
+<table class="params"><tr><th>Parameter</th><th>Direction</th><th>Type</th><th>Description</th></tr>
+<tr><td><code>Path</code></td><td>in</td><td>string</td><td>Path of the machine configuration directory.</td></tr>
+<tr><td><code>MachineConfigInstance</code></td><td>return</td><td><a href="#MachineConfigFuture">MachineConfigFuture</a></td><td>Machine config instance.</td></tr>
+</table>
+</div>
+<div class="method" id="Convert3MFToOpenJZ">
+<code class="signature">void <b>Convert3MFToOpenJZ</b>(<span class="external">Lib3MF::Model</span> <span class="param">Model</span>, string <span class="param">OpenJZFileName</span>)</code>
+<p>Converts a 3MF model into an OpenJZ file on disk. Will load SDK if it has not been loaded yet.</p>
+<table class="params"><tr><th>Parameter</th><th>Direction</th><th>Type</th><th>Description</th></tr>
+<tr><td><code>Model</code></td><td>in</td><td><span class="external">Lib3MF::Model</span></td><td>Lib3MF Model Object to convert.</td></tr>
+<tr><td><code>OpenJZFileName</code></td><td>in</td><td>string</td><td>Absolute filename of the OpenJZ file to write.</td></tr>
+</table>
+</div>
+<div class="method" id="ConvertOpenJZTo3MF">
+<code class="signature">void <b>ConvertOpenJZTo3MF</b>(string <span class="param">OpenJZFileName</span>, <span class="external">Lib3MF::Model</span> <span class="param">Model</span>)</code>
+<p>Converts an OpenJZ file on disk into a 3MF model. Reads the geometry, metadata and material set from the OpenJZ and populates the provided model.</p>
+<table class="params"><tr><th>Parameter</th><th>Direction</th><th>Type</th><th>Description</th></tr>
+<tr><td><code>OpenJZFileName</code></td><td>in</td><td>string</td><td>Absolute filename of the OpenJZ file to read.</td></tr>
+<tr><td><code>Model</code></td><td>in</td><td><span class="external">Lib3MF::Model</span></td><td>Lib3MF Model Object to populate.</td></tr>
+</table>
+</div>
+<div class="method" id="AttachMaterialSetTo3MF">
+<code class="signature">void <b>AttachMaterialSetTo3MF</b>(<span class="external">Lib3MF::Model</span> <span class="param">Model</span>, string <span class="param">EOSParFileName</span>)</code>
+<p>Attaches an EOS material set (.eospar) file to a 3MF model as a material set attachment.</p>
+<table class="params"><tr><th>Parameter</th><th>Direction</th><th>Type</th><th>Description</th></tr>
+<tr><td><code>Model</code></td><td>in</td><td><span class="external">Lib3MF::Model</span></td><td>Lib3MF Model Object to attach the material set to.</td></tr>
+<tr><td><code>EOSParFileName</code></td><td>in</td><td>string</td><td>Absolute filename of the .eospar material set file.</td></tr>
+</table>
+</div>
+<div class="method" id="GetMaterialSetRelationshipType">
+<code class="signature">string <b>GetMaterialSetRelationshipType</b>()</code>
+<p>Returns the 3MF relationship type used for material set attachments.</p>
+<table class="params"><tr><th>Parameter</th><th>Direction</th><th>Type</th><th>Description</th></tr>
+<tr><td><code>RelationshipType</code></td><td>return</td><td>string</td><td>Material set relationship type string.</td></tr>
+</table>
+</div>
+<div class="method" id="GetNamespace">
+<code class="signature">string <b>GetNamespace</b>(<a href="#EOSNamespaceKind">EOSNamespaceKind</a> <span class="param">Kind</span>)</code>
+<p>Returns the current XML namespace of a kind, which is the one LibEOS writes.</p>
+<table class="params"><tr><th>Parameter</th><th>Direction</th><th>Type</th><th>Description</th></tr>
+<tr><td><code>Kind</code></td><td>in</td><td><a href="#EOSNamespaceKind">EOSNamespaceKind</a></td><td>The kind of namespace.</td></tr>
+<tr><td><code>NamespaceURI</code></td><td>return</td><td>string</td><td>The current namespace URI of the kind.</td></tr>
+</table>
+</div>
+<div class="method" id="RegisterLegacyNamespace">
+<code class="signature">void <b>RegisterLegacyNamespace</b>(<a href="#EOSNamespaceKind">EOSNamespaceKind</a> <span class="param">Kind</span>, string <span class="param">NamespaceURI</span>)</code>
+<p>Registers a legacy namespace that LibEOS also accepts when reading files of the given kind. Writing always uses the current namespace. Registered namespaces apply to this context and to the futures and loaders created afterwards. Note that a host reading a 3MF must still add any legacy material set relationship type to its reader with AddRelationToRead. Fails with INVALIDPARAM on an empty URI or the current namespace; a namespace already registered is ignored.</p>
+<table class="params"><tr><th>Parameter</th><th>Direction</th><th>Type</th><th>Description</th></tr>
+<tr><td><code>Kind</code></td><td>in</td><td><a href="#EOSNamespaceKind">EOSNamespaceKind</a></td><td>The kind of namespace the legacy URI belongs to.</td></tr>
+<tr><td><code>NamespaceURI</code></td><td>in</td><td>string</td><td>The legacy namespace URI to accept when reading.</td></tr>
+</table>
+</div>
+<div class="method" id="ClearLegacyNamespaces">
+<code class="signature">void <b>ClearLegacyNamespaces</b>()</code>
+<p>Removes all legacy namespaces registered with RegisterLegacyNamespace.</p>
+</div>
+<div class="method" id="ComputeToolpathFromOpenJZ">
+<code class="signature"><a href="#ToolpathComputationFuture">ToolpathComputationFuture</a> <b>ComputeToolpathFromOpenJZ</b>(string <span class="param">OpenJZFileName</span>, <a href="#MachineConfigFuture">MachineConfigFuture</a> <span class="param">MachineConfiguration</span>)</code>
+<p>Computes toolpath from an OpenJZ file. Internally converts the OpenJZ to a 3MF model, loads the job, activates the machine configuration, and starts async raw task generation. Toolpath API must be authenticated before calling.</p>
+<table class="params"><tr><th>Parameter</th><th>Direction</th><th>Type</th><th>Description</th></tr>
+<tr><td><code>OpenJZFileName</code></td><td>in</td><td>string</td><td>Absolute filename of the OpenJZ file to compute from.</td></tr>
+<tr><td><code>MachineConfiguration</code></td><td>in</td><td><a href="#MachineConfigFuture">MachineConfigFuture</a></td><td>Machine configuration to activate for computation.</td></tr>
+<tr><td><code>Future</code></td><td>return</td><td><a href="#ToolpathComputationFuture">ToolpathComputationFuture</a></td><td>Future for tracking progress and retrieving results.</td></tr>
+</table>
+</div>
+<div class="method" id="CreateTaskFrom3MFToolpath">
+<code class="signature"><a href="#TaskCreationFuture">TaskCreationFuture</a> <b>CreateTaskFrom3MFToolpath</b>(<span class="external">Lib3MF::Model</span> <span class="param">Model</span>, <a href="#MachineConfigFuture">MachineConfigFuture</a> <span class="param">MachineConfiguration</span>, <a href="#EOSToolpathConversionSettings">EOSToolpathConversionSettings</a> <span class="param">Settings</span>, string <span class="param">Name</span>, string <span class="param">Comment</span>, string <span class="param">GeneratorName</span>, string <span class="param">GeneratorVersion</span>)</code>
+<p>Creates an EOS task from a 3MF model containing a toolpath. Loads the job from the model&#x27;s meshes, activates the machine configuration, writes the toolpath through a raw task writer and starts conversion. Laser power modifiers of the toolpath profiles are evaluated and written according to the conversion settings. Toolpath API must be authenticated before calling. Fails immediately only for invalid parameters; if the conversion fails, the returned future has failed, and its error message and conversion log give the reason.</p>
+<table class="params"><tr><th>Parameter</th><th>Direction</th><th>Type</th><th>Description</th></tr>
+<tr><td><code>Model</code></td><td>in</td><td><span class="external">Lib3MF::Model</span></td><td>Input 3MF Model containing geometry and a toolpath.</td></tr>
+<tr><td><code>MachineConfiguration</code></td><td>in</td><td><a href="#MachineConfigFuture">MachineConfigFuture</a></td><td>Machine configuration to activate for the task.</td></tr>
+<tr><td><code>Settings</code></td><td>in</td><td><a href="#EOSToolpathConversionSettings">EOSToolpathConversionSettings</a></td><td>Conversion settings. They are copied, later changes do not affect the conversion.</td></tr>
+<tr><td><code>Name</code></td><td>in</td><td>string</td><td>The name of the output task.</td></tr>
+<tr><td><code>Comment</code></td><td>in</td><td>string</td><td>An optional comment for the task.</td></tr>
+<tr><td><code>GeneratorName</code></td><td>in</td><td>string</td><td>Name of the application that generated the task.</td></tr>
+<tr><td><code>GeneratorVersion</code></td><td>in</td><td>string</td><td>Version of the application that generated the task.</td></tr>
+<tr><td><code>Result</code></td><td>return</td><td><a href="#TaskCreationFuture">TaskCreationFuture</a></td><td>Task Creation Future for tracking conversion progress.</td></tr>
+</table>
+</div>
+</section>
+<section id="EOSTaskBlockType"><h2>enum EOSTaskBlockType</h2><table class="params"><tr><th>Name</th><th>Value</th></tr>
+<tr><td><code>Unknown</code></td><td>0</td></tr>
+<tr><td><code>HatchBlock</code></td><td>1</td></tr>
+<tr><td><code>PolylineBlock</code></td><td>2</td></tr>
+</table></section>
+<section id="EOSPowerRampMode"><h2>enum EOSPowerRampMode</h2><table class="params"><tr><th>Name</th><th>Value</th></tr>
+<tr><td><code>Polyline</code></td><td>0</td></tr>
+<tr><td><code>SplitHatches</code></td><td>1</td></tr>
+<tr><td><code>Flatten</code></td><td>2</td></tr>
+<tr><td><code>Reject</code></td><td>3</td></tr>
+</table></section>
+<section id="EOSHatchWriteMode"><h2>enum EOSHatchWriteMode</h2><table class="params"><tr><th>Name</th><th>Value</th></tr>
+<tr><td><code>JoinTouching</code></td><td>0</td></tr>
+<tr><td><code>AllPolylines</code></td><td>1</td></tr>
+</table></section>
+<section id="EOSDwellTimeUnit"><h2>enum EOSDwellTimeUnit</h2><table class="params"><tr><th>Name</th><th>Value</th></tr>
+<tr><td><code>Unset</code></td><td>0</td></tr>
+<tr><td><code>Microseconds</code></td><td>1</td></tr>
+<tr><td><code>Milliseconds</code></td><td>2</td></tr>
+<tr><td><code>Seconds</code></td><td>3</td></tr>
+</table></section>
+<section id="EOSLayerZConvention"><h2>enum EOSLayerZConvention</h2><table class="params"><tr><th>Name</th><th>Value</th></tr>
+<tr><td><code>Top</code></td><td>0</td></tr>
+<tr><td><code>Base</code></td><td>1</td></tr>
+</table></section>
+<section id="EOSLogSeverity"><h2>enum EOSLogSeverity</h2><table class="params"><tr><th>Name</th><th>Value</th></tr>
+<tr><td><code>Info</code></td><td>1</td></tr>
+<tr><td><code>Warning</code></td><td>2</td></tr>
+<tr><td><code>Error</code></td><td>3</td></tr>
+</table></section>
+<section id="EOSVolumeType"><h2>enum EOSVolumeType</h2><table class="params"><tr><th>Name</th><th>Value</th></tr>
+<tr><td><code>Unknown</code></td><td>0</td></tr>
+<tr><td><code>CuboidVolume</code></td><td>1</td></tr>
+<tr><td><code>CylinderVolume</code></td><td>2</td></tr>
+</table></section>
+<section id="EOSSimulationMode"><h2>enum EOSSimulationMode</h2><table class="params"><tr><th>Name</th><th>Value</th></tr>
+<tr><td><code>NoSimulation</code></td><td>0</td></tr>
+<tr><td><code>SimulateConnectivity</code></td><td>1</td></tr>
+<tr><td><code>SimulateFullSDK</code></td><td>2</td></tr>
+<tr><td><code>SimulatePlasticConnectivity</code></td><td>3</td></tr>
+<tr><td><code>SimulatePlasticFullSDK</code></td><td>4</td></tr>
+<tr><td><code>Recording</code></td><td>5</td></tr>
+</table></section>
+<section id="EOSModelType"><h2>enum EOSModelType</h2><table class="params"><tr><th>Name</th><th>Value</th></tr>
+<tr><td><code>Unknown</code></td><td>0</td></tr>
+<tr><td><code>M290</code></td><td>1</td></tr>
+<tr><td><code>M400</code></td><td>2</td></tr>
+<tr><td><code>M404</code></td><td>3</td></tr>
+<tr><td><code>P500</code></td><td>4</td></tr>
+<tr><td><code>M304</code></td><td>5</td></tr>
+<tr><td><code>P900</code></td><td>6</td></tr>
+<tr><td><code>P396</code></td><td>7</td></tr>
+<tr><td><code>P420</code></td><td>8</td></tr>
+<tr><td><code>P711</code></td><td>9</td></tr>
+<tr><td><code>M100</code></td><td>10</td></tr>
+<tr><td><code>P120</code></td><td>11</td></tr>
+<tr><td><code>M292</code></td><td>12</td></tr>
+<tr><td><code>P520</code></td><td>13</td></tr>
+<tr><td><code>M293</code></td><td>14</td></tr>
+<tr><td><code>P110</code></td><td>15</td></tr>
+<tr><td><code>M294</code></td><td>17</td></tr>
+<tr><td><code>M314</code></td><td>18</td></tr>
+<tr><td><code>P397</code></td><td>20</td></tr>
+<tr><td><code>M808</code></td><td>21</td></tr>
+<tr><td><code>P501</code></td><td>22</td></tr>
+<tr><td><code>P521</code></td><td>23</td></tr>
+<tr><td><code>M450</code></td><td>25</td></tr>
+<tr><td><code>M451</code></td><td>27</td></tr>
+<tr><td><code>M405</code></td><td>28</td></tr>
+</table></section>
+<section id="EOSNamespaceKind"><h2>enum EOSNamespaceKind</h2><table class="params"><tr><th>Name</th><th>Value</th></tr>
+<tr><td><code>JobMetadata</code></td><td>0</td></tr>
+<tr><td><code>MaterialSetRelationship</code></td><td>1</td></tr>
+<tr><td><code>ToolpathProfile</code></td><td>2</td></tr>
+<tr><td><code>MachinePackage</code></td><td>3</td></tr>
+</table></section>
+<section id="EOSTaskPoint"><h2>struct EOSTaskPoint</h2><table class="params"><tr><th>Member</th><th>Type</th><th>Description</th></tr>
+<tr><td><code>X</code></td><td>double</td><td></td></tr>
+<tr><td><code>Y</code></td><td>double</td><td></td></tr>
+<tr><td><code>LaserPower</code></td><td>double</td><td>Laser power in Watts at this point. In a hatch block, the power ramps linearly from the first to the second point of a hatch. In a polyline block, it is the power of the vector that ends at this point. Values of 0 or less use the DefaultLaserPower of the block.</td></tr>
+<tr><td><code>ScanSpeed</code></td><td>double</td><td>Scan speed in mm/s at this point, with the same rule as LaserPower. Values of 0 or less use the ScanSpeed of the block.</td></tr>
+<tr><td><code>LaserFocus</code></td><td>double</td><td>EOS focus value at this point, from 0.0 (fully defocused) to 1.0 (fully focused), with the same rule as LaserPower. It is not a distance. Only used if HasLaserFocus is true.</td></tr>
+<tr><td><code>HasLaserFocus</code></td><td>bool</td><td>If false, the focus of the block is used. Focus values can be 0, so they need this flag.</td></tr>
+<tr><td><code>Timestamp</code></td><td>double</td><td>EOS timestamp in microseconds that the EOS SDK reported with this point when the task was read: the time of the hatch for both points of a hatch, and of the polyline start or coordinate for a polyline point. The end point of a polyline, which has none, repeats the previous one. Ignored when writing.</td></tr>
+</table></section>
+<section id="EOSTaskBlock"><h2>struct EOSTaskBlock</h2><table class="params"><tr><th>Member</th><th>Type</th><th>Description</th></tr>
+<tr><td><code>Type</code></td><td><a href="#EOSTaskBlockType">EOSTaskBlockType</a></td><td></td></tr>
+<tr><td><code>StartPointIndex</code></td><td>uint32</td><td></td></tr>
+<tr><td><code>EndPointIndex</code></td><td>uint32</td><td></td></tr>
+<tr><td><code>PartID</code></td><td>uint32</td><td></td></tr>
+<tr><td><code>LaserScannerIndex</code></td><td>uint32</td><td></td></tr>
+<tr><td><code>DefaultLaserPower</code></td><td>double</td><td>Default laser power in Watts</td></tr>
+<tr><td><code>ScanSpeed</code></td><td>double</td><td>Scan speed in mm/s</td></tr>
+<tr><td><code>LaserFocus</code></td><td>double</td><td>EOS focus value from 0.0 (fully defocused) to 1.0 (fully focused). Only used if HasLaserFocus is true.</td></tr>
+<tr><td><code>PreDelay</code></td><td>double</td><td>pre block delay in microseconds</td></tr>
+<tr><td><code>ExposureSetIndex</code></td><td>uint32</td><td></td></tr>
+<tr><td><code>ExposureStepIndex</code></td><td>uint32</td><td></td></tr>
+<tr><td><code>ExposureType</code></td><td>uint32</td><td></td></tr>
+<tr><td><code>SkywritingEnabled</code></td><td>bool</td><td></td></tr>
+<tr><td><code>PulsedWavePeriodTime</code></td><td>double</td><td>Pulsed Wave period time in Microseconds</td></tr>
+<tr><td><code>PulsedWavePowerOnTime</code></td><td>double</td><td>Pulsed Wave power on time in Microseconds</td></tr>
+<tr><td><code>ExposedDepth</code></td><td>uint32</td><td>Exposed Depth in Micrometers</td></tr>
+<tr><td><code>PostDelay</code></td><td>double</td><td>Delay in microseconds after every hatch of a hatch block, or after the end of a polyline block. Touching collinear hatches count as one hatch.</td></tr>
+<tr><td><code>BeamShapeProfile</code></td><td>int32</td><td>Beam shape profile of the block&#x27;s vectors. -1 keeps the current beam shape. Needs EOS SDK 2.26; with older SDKs, values above 0 fail in strict mode and are otherwise left out with a warning.</td></tr>
+<tr><td><code>HasLaserFocus</code></td><td>bool</td><td>If false, the block has no focus value, and its vectors are exposed with the nominal focus (1.0) unless a point sets its own focus. No focus command is written for the nominal focus, so machines without focus control accept such blocks.</td></tr>
+<tr><td><code>StripeIndex</code></td><td>uint32</td><td>Number of the EOS stripe segment the block belongs to, counted from 1 within the layer when the task was read; 0 outside a stripe segment. Ignored when writing.</td></tr>
+</table></section>
+<section id="Errors"><h2>Error codes</h2><table class="params"><tr><th>Code</th><th>Name</th><th>Description</th></tr>
+<tr><td>1</td><td><code>NOTIMPLEMENTED</code></td><td>functionality not implemented</td></tr>
+<tr><td>2</td><td><code>INVALIDPARAM</code></td><td>an invalid parameter was passed</td></tr>
+<tr><td>3</td><td><code>INVALIDCAST</code></td><td>a type cast failed</td></tr>
+<tr><td>4</td><td><code>BUFFERTOOSMALL</code></td><td>a provided buffer is too small</td></tr>
+<tr><td>5</td><td><code>GENERICEXCEPTION</code></td><td>a generic exception occurred</td></tr>
+<tr><td>6</td><td><code>COULDNOTLOADLIBRARY</code></td><td>the library could not be loaded</td></tr>
+<tr><td>7</td><td><code>COULDNOTFINDLIBRARYEXPORT</code></td><td>a required exported symbol could not be found in the library</td></tr>
+<tr><td>8</td><td><code>INCOMPATIBLEBINARYVERSION</code></td><td>the version of the binary interface does not match the bindings interface</td></tr>
+<tr><td>9</td><td><code>COULDNOTGETTEMPPATHFROMWINDOWS</code></td><td>could not get temp path from windows</td></tr>
+<tr><td>10</td><td><code>COULDNOTFINDEOSSDKDIRECTORY</code></td><td>could not find EOS SDK Directory</td></tr>
+<tr><td>11</td><td><code>COULDWRITELOGCONFIG</code></td><td>could not write log config</td></tr>
+<tr><td>12</td><td><code>EOSSDKERROR</code></td><td>EOS SDK Error</td></tr>
+<tr><td>13</td><td><code>DETECTEDINCOMPATIBLEEOSSDKVERSION</code></td><td>Detected incompatible EOS SDK Version.</td></tr>
+<tr><td>14</td><td><code>INVALIDMATERIALSETINFO</code></td><td>Invalid material set info</td></tr>
+<tr><td>15</td><td><code>UNKNOWNMATERIALSETMODELTYPE</code></td><td>Unknown material set model type</td></tr>
+<tr><td>16</td><td><code>EOSSDKHASNOTBEENLOADED</code></td><td>EOS SDK has not been loaded</td></tr>
+<tr><td>17</td><td><code>EOSSDKHASALDREADYBEENLOADED</code></td><td>EOS SDK has already been loaded</td></tr>
+<tr><td>18</td><td><code>INVALIDSTREAMDATA</code></td><td>Invalid stream data</td></tr>
+<tr><td>19</td><td><code>MACHINEPACKAGEFILENOTFOUND</code></td><td>Machine package file not found.</td></tr>
+<tr><td>20</td><td><code>MACHINEPACKAGEFILEISDIRECTORY</code></td><td>Machine package file is directory.</td></tr>
+<tr><td>21</td><td><code>MACHINEPACKAGEFILEISEMPTY</code></td><td>Machine package file is empty</td></tr>
+<tr><td>22</td><td><code>EMPTYNETWORKADDRESS</code></td><td>Empty network address</td></tr>
+<tr><td>23</td><td><code>RETRIEVEDINVALIDSESSIONHANDLE</code></td><td>Retrieved invalid session handle</td></tr>
+<tr><td>24</td><td><code>MACHINECONFIGTRANSFERALREADYINPROGRESS</code></td><td>Machine config transfer already in progress</td></tr>
+<tr><td>25</td><td><code>RETRIEVEDINVALIDFILETRANSFERHANDLE</code></td><td>Retrieved invalid file transfer handle</td></tr>
+<tr><td>26</td><td><code>MACHINESESSIONNOTCONNECTED</code></td><td>Machine session not connected</td></tr>
+<tr><td>27</td><td><code>EOSTASKFILE_NOTEXISTING</code></td><td>EOS Task File not existing</td></tr>
+<tr><td>28</td><td><code>EOSTASKFILE_AMBIGUOUS</code></td><td>EOS Task File ambiguous</td></tr>
+<tr><td>29</td><td><code>BUILDTIMEESTIMATIONDIDNOTFINISH</code></td><td>Build time estimation did not finish</td></tr>
+<tr><td>30</td><td><code>NOFILESTOUPLOAD</code></td><td>No files to upload</td></tr>
+<tr><td>31</td><td><code>ALREADYSTARTEDUPLOADING</code></td><td>Already started uploading</td></tr>
+<tr><td>32</td><td><code>FILETRANSFERHANDLEBECAMEINVALID</code></td><td>File transfer handle became invalid.</td></tr>
+<tr><td>33</td><td><code>BUILDVOLUMEISNOTCUBOID</code></td><td>Build volume is not cuboid</td></tr>
+<tr><td>34</td><td><code>BUILDVOLUMEISNOTCYLINDER</code></td><td>Build volume is not a cylinder</td></tr>
+<tr><td>35</td><td><code>UNKNOWNVOLUMETYPE</code></td><td>Unknown volume type</td></tr>
+<tr><td>36</td><td><code>UNKNOWNMODELTYPE</code></td><td>Unknown model type</td></tr>
+<tr><td>37</td><td><code>COULDNOTGETMACHINEINFORMATION</code></td><td>Could not get machine information.</td></tr>
+<tr><td>38</td><td><code>EOSSDKISNOTINSIMULATIONMODE</code></td><td>EOS SDK is not in simulation mode.</td></tr>
+<tr><td>39</td><td><code>INVALIDMACHINECONFIGPACKAGESIZE</code></td><td>Invalid machine config package size.</td></tr>
+<tr><td>40</td><td><code>EMPTYMACHINECONFIGSTREAM</code></td><td>Empty machine config stream</td></tr>
+<tr><td>41</td><td><code>TOOLPATHSDKNOTSUPPORTED</code></td><td>Toolpath SDK is not supported</td></tr>
+<tr><td>42</td><td><code>TOOLPATHAUTHENTICATIONFAILED</code></td><td>Toolpath SDK authentication failed.</td></tr>
+<tr><td>43</td><td><code>EOSTASKFILE_NOTUNIQUE</code></td><td>EOS Task file is not unique.</td></tr>
+<tr><td>44</td><td><code>TASKHASBEENRELEASED</code></td><td>Task has been released.</td></tr>
+<tr><td>45</td><td><code>COULDNOTOPENTASKFILE</code></td><td>Could not open task file.</td></tr>
+<tr><td>46</td><td><code>TASKISNOTRAWTASK</code></td><td>Task is not raw task.</td></tr>
+<tr><td>47</td><td><code>TASKISNOTFINISHED</code></td><td>Task is not finished.</td></tr>
+<tr><td>48</td><td><code>INVALIDTASKBLOCKTYPE</code></td><td>Invalid Task block type.</td></tr>
+<tr><td>49</td><td><code>ERRORSDURINGTASKREADING</code></td><td>Errors during task reading.</td></tr>
+<tr><td>50</td><td><code>INVALIDPOINTINDEXINBLOCK</code></td><td>Invalid point index in block.</td></tr>
+<tr><td>51</td><td><code>STARTINDEXLARGERTHANENDINDEX</code></td><td>Start index is larger than end index.</td></tr>
+<tr><td>52</td><td><code>NOPOINTSTOADDTOLAYER</code></td><td>No points to add to layer.</td></tr>
+<tr><td>53</td><td><code>TOOLPATHCOMPUTENOTFINISHED</code></td><td>Toolpath computation has not finished yet.</td></tr>
+<tr><td>54</td><td><code>TOOLPATHCOMPUTEFAILED</code></td><td>Toolpath computation has failed.</td></tr>
+<tr><td>55</td><td><code>POWERRAMPREJECTED</code></td><td>Toolpath contains a laser power ramp and the power ramp mode is Reject.</td></tr>
+<tr><td>57</td><td><code>INVALIDCONVERSIONSETTINGS</code></td><td>Invalid toolpath conversion settings.</td></tr>
+<tr><td>58</td><td><code>EXPOSURESETAMBIGUOUS</code></td><td>No exposure set could be chosen for a part: none or several match, and none is assigned.</td></tr>
+<tr><td>59</td><td><code>UNEQUALCONSTANTHATCH</code></td><td>A constant modifier has different factors at the two ends of a hatch.</td></tr>
+<tr><td>60</td><td><code>MODIFICATIONFACTOROUTOFRANGE</code></td><td>A modification factor is below 0 or above 1, and strict mode is on.</td></tr>
+<tr><td>61</td><td><code>DWELLTIMEUNITMISSING</code></td><td>The toolpath has dwell times, but the conversion settings give no dwell time unit.</td></tr>
+<tr><td>62</td><td><code>LASERINDEXUNDECLARED</code></td><td>A toolpath segment uses a laser index that the toolpath does not declare as laser source.</td></tr>
+<tr><td>63</td><td><code>LAYERTHICKNESSINCONSISTENT</code></td><td>The layer Z values of a part do not follow one layer thickness.</td></tr>
+<tr><td>64</td><td><code>LAYERZINVALID</code></td><td>A toolpath layer Z value does not fit the layer Z convention, for example a layer top at Z 0.</td></tr>
+<tr><td>65</td><td><code>LAYERSTACKMISMATCH</code></td><td>A toolpath layer has no matching layer in the layer stack of the loaded job, and strict mode is on.</td></tr>
+<tr><td>66</td><td><code>PROCESSHEIGHTEXCEEDED</code></td><td>The job needs more Z travel than the machine allows.</td></tr>
+<tr><td>67</td><td><code>TOOLPATHORDERVIOLATION</code></td><td>In recording mode, a toolpath command was written in an order the EOS SDK does not accept, for example an exposure without a part.</td></tr>
+<tr><td>68</td><td><code>SIMULATORNOTRECORDING</code></td><td>The SDK simulator does not record toolpath commands, because the simulation mode is not Recording.</td></tr>
+<tr><td>69</td><td><code>FOCUSNOTSUPPORTED</code></td><td>A focus was requested that cannot be written: the laser scanner cannot change the focus, or the toolpath gives laserfocus as an offset in mm, which has no EOS equivalent.</td></tr>
+<tr><td>70</td><td><code>INVALIDFOCUS</code></td><td>A focus value is outside 0.0 to 1.0, or is neither 0.0 nor 1.0 on a laser scanner that can only fully focus or defocus.</td></tr>
+<tr><td>71</td><td><code>LASERSCANNERNOTAVAILABLE</code></td><td>A block or toolpath segment uses a laser scanner that the machine configuration does not have.</td></tr>
+<tr><td>72</td><td><code>LASERSYNCNOTSUPPORTED</code></td><td>The toolpath asks for a synchronization between lasers with lasersync or a sync or delay segment, which an EOS task cannot express.</td></tr>
+<tr><td>73</td><td><code>TOOLPATHCREDENTIALNOTFOUND</code></td><td>The Windows Credential Manager of the current user has no generic credential with the given name.</td></tr>
+<tr><td>74</td><td><code>TOOLPATHCREDENTIALINVALID</code></td><td>The Windows credential cannot be read or does not hold the PEM text of a Toolpath API client key.</td></tr>
+<tr><td>75</td><td><code>PROFILEPARAMETERNOTSUPPORTED</code></td><td>A toolpath profile has a parameter that is unknown or has no EOS equivalent, such as jumpspeed, and strict mode is on.</td></tr>
+<tr><td>76</td><td><code>SHRINKAGECOMPENSATIONNOTSUPPORTED</code></td><td>The loaded job applies a Z shrinkage compensation, which cannot be applied to a toolpath, and strict mode is on.</td></tr>
+</table></section>
+</main></div></body></html>

@@ -1,0 +1,21 @@
+# CMake build and release directories
+/build/
+/build-*/
+/out/
+CMakeUserPresets.json
+
+# Visual Studio and Visual Studio Code
+.vs/
+.vscode/
+*.user
+*.suo
+
+# Python
+__pycache__/
+*.pyc
+
+# Output of ACT/generate.bat that is not part of the repository
+/ACT/*_component/
+
+# Toolpath API client keys must never be committed; store them in the Windows Credential Manager
+*.pem

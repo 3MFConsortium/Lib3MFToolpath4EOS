@@ -1,0 +1,276 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>Lib3MFToolpath4EOS power ramps</title>
+<link rel="stylesheet" href="style.css">
+<style>
+	figure { margin: 24px 0; }
+	figure svg { width: 100%; height: auto; background: var(--paper-warm); border: 1px solid var(--line); }
+	figcaption { margin-top: 6px; font-size: 13.5px; color: var(--muted); }
+</style>
+</head>
+<body>
+<header class="site"><a class="brand" href="index.html"><img src="images/3mf-logo.png" alt=".3MF"><span>Lib3MFToolpath4EOS</span></a><nav><a href="index.html">Library guide</a><a href="api.html">API reference</a><a href="examples.html">Examples</a><a href="power-ramps.html" class="active">Power ramps</a><a href="conversion.html">Conversion</a></nav></header>
+<div class="layout">
+<aside class="toc">
+<h3>Power ramps</h3>
+<ul>
+<li><a href="#summary">Summary</a></li>
+<li><a href="#modifiers">The 3MF modifier system</a></li>
+<li><a href="#eos">What EOS can express</a></li>
+<li><a href="#settings">Settings</a></li>
+<li><a href="#to-eos">3MF to EOS</a></li>
+<li><a href="#raw">Raw layers</a></li>
+<li><a href="#writer">Writing the task</a></li>
+<li><a href="#to-3mf">EOS to 3MF</a></li>
+<li><a href="#decisions">Design decisions</a></li>
+</ul>
+</aside>
+<main>
+
+<h1>Power ramps</h1>
+
+<section id="summary">
+<h2>Summary</h2>
+<p>A power ramp means the laser power changes <em>along</em> a single hatch or polyline vector. The 3MF toolpath
+extension models this with <b>profile modifiers</b> and per-segment <b>modification factors</b>. The EOS toolpath
+interface has no ramp primitive: laser power is a modal state that applies to every following vector. Lib3MFToolpath4EOS
+therefore <b>discretizes</b> a ramp into sub-vectors of constant power, each at the mean power of its interval,
+so the deposited energy is preserved. Scan speed and focus are treated the same way.</p>
+<p>By default, a ramped hatch is written as one continuous polyline with the new values before every sub-vector,
+and hatches that touch are joined into one polyline. Power changes survive both directions: 3MF toolpaths to EOS tasks,
+and EOS tasks to 3MF toolpaths.</p>
+</section>
+
+<section id="modifiers">
+<h2>The 3MF modifier system</h2>
+<p>This is how the toolpath API of the vendored lib3mf models overrides. A profile parameter is a
+<em>default</em>. A modifier says how per-segment factors override it.</p>
+<table>
+<tr><th>Element</th><th>Meaning</th></tr>
+<tr><td>Profile parameter</td><td>A double value, for example <code>laserpower = 280</code>. It applies wherever a segment carries no factors.</td></tr>
+<tr><td>Modifier</td><td>Attached to one double parameter (<code>ToolpathProfile::AddModifier</code>). It names a
+<b>factor channel</b> (F, G, H or E), a <b>type</b> (constant, linear or nonlinear) and a <b>range</b>: <code>MinValue</code>
+at factor 0 and <code>MaxValue</code> at factor 1.</td></tr>
+<tr><td>Segment factors</td><td>Normalized values per hatch or per point, stored in the layer data for one channel.</td></tr>
+</table>
+<p>The effective value at position <i>t</i> &isin; [0, 1] along a hatch is</p>
+<pre><code>P(t) = MinValue + clamp(f(t), 0, 1) &middot; (MaxValue - MinValue)</code></pre>
+<table>
+<tr><th>Type</th><th>Hatch data</th><th>f(t)</th></tr>
+<tr><td>Constant</td><td>one factor per hatch; the hatch data has a factor for each end, and both must be equal</td><td>f</td></tr>
+<tr><td>Linear</td><td>factor at point 1 and at point 2 (<code>sHatch2DFactors</code>)</td><td>linear from f<sub>1</sub> to f<sub>2</sub></td></tr>
+<tr><td>Nonlinear</td><td>f<sub>1</sub>, f<sub>2</sub> plus interior points (<i>t</i>, f) with 0 &lt; <i>t</i> &lt; 1, strictly increasing (<code>sHatchModificationInterpolationData</code>)</td><td>piecewise linear through all points</td></tr>
+<tr><td>Polyline / loop</td><td>one factor per point; the first describes the initial jump</td><td>linear along each vector; for a constant modifier, the factor of the vector's end point</td></tr>
+</table>
+<p>Lib3MFToolpath4EOS does not clamp silently: in strict mode (the default) a factor outside [0, 1] fails the conversion with
+<code>MODIFICATIONFACTOROUTOFRANGE</code>. With strict mode off it is clamped, counted in <code>factorsClamped</code>
+and logged as <code>FACTOR_CLAMPED</code>.</p>
+
+<figure>
+<svg viewBox="0 0 760 256" xmlns="http://www.w3.org/2000/svg" font-family="IBM Plex Mono, Consolas, monospace" font-size="12">
+	<line x1="60" y1="200" x2="710" y2="200" stroke="#111318"/>
+	<line x1="60" y1="30" x2="60" y2="200" stroke="#111318"/>
+	<line x1="60" y1="40" x2="700" y2="40" stroke="#dddbd4" stroke-dasharray="4 4"/>
+	<text x="8" y="44" fill="#6b7694">f = 1</text>
+	<text x="8" y="204" fill="#6b7694">f = 0</text>
+	<text x="60" y="220" fill="#6b7694">t = 0 (point 1)</text>
+	<text x="700" y="220" fill="#6b7694" text-anchor="end">t = 1 (point 2)</text>
+	<line x1="60" y1="152" x2="700" y2="136" stroke="#6b7694" stroke-dasharray="6 4"/>
+	<path d="M60,127 H140 V80.6 H220 V67.5 H300 V62.6 H380 V58.1 H460 V73.5 H540 V98.5 H620 V123.5 H700" fill="none" stroke="#00899e" stroke-width="2.5"/>
+	<polyline points="60,152 188,72 444,56 700,136" fill="none" stroke="#111318" stroke-width="2"/>
+	<circle cx="60" cy="152" r="4" fill="#111318"/>
+	<circle cx="188" cy="72" r="4" fill="#fff" stroke="#111318" stroke-width="2"/>
+	<circle cx="444" cy="56" r="4" fill="#fff" stroke="#111318" stroke-width="2"/>
+	<circle cx="700" cy="136" r="4" fill="#111318"/>
+	<text x="250" y="52" fill="#111318">nonlinear f(t)</text>
+	<text x="470" y="168" fill="#6b7694">linear: f1 and f2 only</text>
+	<text x="160" y="118" fill="#00899e">EOS: constant power per sub-vector</text>
+	<text x="8" y="244" fill="#111318">hatch</text>
+	<line x1="60" y1="240" x2="700" y2="240" stroke="#111318" stroke-width="2"/>
+	<circle cx="60" cy="240" r="3.5" fill="#111318"/>
+	<circle cx="700" cy="240" r="3.5" fill="#111318"/>
+</svg>
+<figcaption>One hatch. Filled dots are the endpoint factors and open dots the interior interpolation points.
+The cyan steps are what is sent to EOS: sub-vectors, each at the mean power of its interval.</figcaption>
+</figure>
+</section>
+
+<section id="eos">
+<h2>What EOS can express</h2>
+<p>In the toolpath write interface, <code>WriteSetLaserPower(power, delay)</code>, <code>WriteSetScanSpeed</code> and
+<code>WriteSetFocus</code> set their value for all vectors that follow, and <code>WriteHatch(start, end)</code> and
+<code>WritePolyCoord</code> carry no values. A change between <code>PolyCoord</code> records applies to the next vector.
+A ramp is therefore written in one of these forms:</p>
+<table>
+<tr><th>Mode</th><th>Records</th><th>Effect</th></tr>
+<tr><td><code>Polyline</code> (default)</td><td><code>SetLaserPower(p0) PolyStart(A) SetLaserPower(p1) PolyCoord(X1) &hellip; PolyEnd(B)</code></td>
+<td>The laser stays on, so there are no on/off artefacts at the joints.</td></tr>
+<tr><td><code>SplitHatches</code></td><td><code>SetLaserPower(pk) Hatch(Xk-1, Xk)</code> per sub-vector</td>
+<td>Each sub-vector switches the laser off and on and may skywrite, which can cause over- or under-exposure at the joints.
+In this mode, hatches are never joined into polylines.</td></tr>
+<tr><td><code>Flatten</code></td><td>one hatch at the length-weighted mean values</td><td>The ramp is lost, but the energy is the same.</td></tr>
+<tr><td><code>Reject</code></td><td>none</td><td>The conversion fails with <code>POWERRAMPREJECTED</code> and the position of the ramp.</td></tr>
+</table>
+<p>Hatches are never joined with <code>StartStripeSegment</code> or <code>EndLine</code>, because these records do not form
+one continuous line. Every <code>SetLaserPower</code> carries the <code>PowerDelay</code> of the settings (190&nbsp;&micro;s by
+default), also between the points of a polyline.</p>
+</section>
+
+<section id="settings">
+<h2>Settings</h2>
+<p>The power ramp settings are part of the <a href="conversion.html">conversion settings</a>, which are passed to
+<code>CreateTaskFrom3MFToolpath</code> and <code>CreateRawTaskWriter</code>.</p>
+<pre><code>auto pSettings = pContext-&gt;CreateToolpathConversionSettings();
+pSettings-&gt;SetMaxPowerStep(1.0);
+pSettings-&gt;SetMinSubVectorLength(0.05);
+pSettings-&gt;SetPowerRampMode(Lib3MF4EOS::eEOSPowerRampMode::Polyline);</code></pre>
+<table>
+<tr><th>Setting</th><th>Default</th><th>Meaning</th></tr>
+<tr><td><code>MaxPowerStep</code></td><td>1 W</td><td>Largest power difference between neighbouring sub-vectors.</td></tr>
+<tr><td><code>MaxSpeedStep</code></td><td>10 mm/s</td><td>Largest scan speed difference between neighbouring sub-vectors.</td></tr>
+<tr><td><code>MaxFocusStep</code></td><td>0.05</td><td>Largest difference of the EOS focus value (0 to 1) between neighbouring sub-vectors.</td></tr>
+<tr><td><code>MinSubVectorLength</code></td><td>0.05 mm</td><td>Shortest sub-vector. On a short vector it limits the number of sub-vectors and wins over the step limits.</td></tr>
+<tr><td><code>PowerRampMode</code></td><td><code>Polyline</code></td><td><code>Polyline</code>, <code>SplitHatches</code>, <code>Flatten</code> or <code>Reject</code>, see above.</td></tr>
+<tr><td><code>PowerDelay</code></td><td>190 &micro;s</td><td>Delay passed with every <code>SetLaserPower</code>.</td></tr>
+</table>
+<p>The values must be positive and finite, otherwise the setter fails with <code>INVALIDCONVERSIONSETTINGS</code>.
+The <a href="conversion.html#log">conversion log</a> counts ramped hatches and sub-vectors, and warns about every flattened ramp.
+For a linear piece over length L whose power goes from p<sub>1</sub> to p<sub>2</sub>, speed from s<sub>1</sub> to s<sub>2</sub>
+and focus from z<sub>1</sub> to z<sub>2</sub>, the number of sub-vectors and their values are</p>
+<pre><code>m  = max(ceil(|p2 - p1| / MaxPowerStep), ceil(|s2 - s1| / MaxSpeedStep), ceil(|z2 - z1| / MaxFocusStep))
+n  = max(1, min(m, floor(L / MinSubVectorLength), 100000))
+pk = p1 + (k + 0.5) / n * (p2 - p1)        // mean power of sub-vector k, k = 0 &hellip; n-1; speed and focus alike</code></pre>
+<p>Values that differ by less than 10<sup>-6</sup> count as equal, and a record is only written when its value changes.</p>
+</section>
+
+<section id="to-eos">
+<h2>3MF to EOS</h2>
+<p><code>CreateTaskFrom3MFToolpath</code> reads the <code>laserpower</code>, <code>laserspeed</code> and <code>eos:focus</code>
+modifiers of each segment's profile, with all three modifier types. Segments without factors use the profile's values.
+Each modifier can use its own factor channel.</p>
+<table>
+<tr><th>Segment</th><th>Conversion</th></tr>
+<tr><td>Hatch, constant</td><td>Both points of a hatch get the value of its factor. If the two factors of a hatch differ, the
+conversion fails with <code>UNEQUALCONSTANTHATCH</code>; with <code>RefuseUnequalConstantHatch</code> off, the factor of
+the second point is used and <code>CONSTANT_HATCH_UNEQUAL</code> logged.</td></tr>
+<tr><td>Hatch, linear</td><td>The points get the values of f<sub>1</sub> and f<sub>2</sub>; the writer discretizes the ramp.</td></tr>
+<tr><td>Hatch, nonlinear</td><td>The hatch is split at the interpolation points of all its modifiers into collinear sub-hatches,
+each with a linear ramp. The writer treats them as one line again. Parameters that do not strictly increase in (0, 1) are an error.</td></tr>
+<tr><td>Polyline or loop</td><td>Every point gets its values. A vector whose values change is discretized right away, following
+<code>PowerRampMode</code>; a loop is closed with its first point. Zero-length vectors are skipped. With a constant modifier
+the value is a step: each vector is written at the value of the point it ends at, without sub-vectors.</td></tr>
+</table>
+<h3>Pulse settings</h3>
+<p>EOS can only change the pulse settings between blocks, so <code>eos:pulsedwaveperiodtime</code> and
+<code>eos:pulsedwavepowerontime</code> (<code>SetLaserPulse</code>) accept <b>constant</b> modifiers only.
+In a hatch segment, every hatch can have its own value; the segment is split into blocks wherever a value changes.
+A polyline or loop is one continuous mark, so its value must be the same on every vector (the factor of the initial jump
+is ignored). Otherwise the conversion fails, because splitting the polyline would switch the laser off in between.</p>
+<h3>Delays and dwell times</h3>
+<table>
+<tr><th>Parameter</th><th>Effect</th></tr>
+<tr><td><code>eos:predelay</code> (&micro;s)</td><td>A delay before the segment.</td></tr>
+<tr><td><code>eos:postdelay</code> (&micro;s)</td><td>A delay after every hatch, or after the end of a polyline or loop.</td></tr>
+<tr><td><code>postwaittime</code>, with or without modifier (any type and factor channel)</td><td>A dwell after every vector, in the
+<code>DwellTimeUnit</code> of the settings: after each hatch (the factor at its end; for a constant modifier both ends must be equal),
+and after each polyline vector (the factor of its end point). A dwell inside a polyline ends the polyline there and starts a new one
+at the same point. If <code>eos:postdelay</code> is also given, both are added.</td></tr>
+</table>
+<p>Toolpaths with dwell times fail with <code>DWELLTIMEUNITMISSING</code> (log code <code>DWELL_UNIT_MISSING</code>) while
+<code>DwellTimeUnit</code> is <code>Unset</code>. Hatch segments are split into blocks where the dwell changes.</p>
+<h3>Other parameters</h3>
+<p>The conversion fails with <code>INVALIDPARAM</code> if a segment carries factors for a modifier on a parameter that EOS cannot
+change between vectors, such as <code>laserindex</code>, <code>eos:exposeddepth</code> or parameters of other namespaces.
+A modifier whose factor channel carries no data in a segment has no effect there and is not checked.</p>
+</section>
+
+<section id="raw">
+<h2>Raw layers</h2>
+<p>A raw layer stores power, speed and focus per point in <code>sEOSTaskPoint</code>, so it holds ramps without loss.
+A <code>LaserPower</code> or <code>ScanSpeed</code> of 0 or less uses the block's value. A focus of 0 (fully defocused) is valid, so
+<code>LaserFocus</code> is only used if <code>HasLaserFocus</code> is true; without a focus, the scanner stays fully focused (1.0). A point that is all zero uses the block values.</p>
+<table>
+<tr><th>Block</th><th>Meaning of the point values</th></tr>
+<tr><td>Hatch block</td><td>The values at the point. A hatch ramps linearly from its first to its second point.</td></tr>
+<tr><td>Polyline block</td><td>The values of the vector that ends at this point. The first point's values are ignored.</td></tr>
+</table>
+<p>A block's <code>PostDelay</code> is written after every hatch (touching collinear hatches count as one), or after the end of a
+polyline. <code>BeamShapeProfile</code> sets the beam shape of its vectors with EOS SDK 2.26 and later; -1 keeps the current one.
+With older SDKs, a profile above 0 fails the conversion in strict mode; otherwise it is left out and
+<code>SDK_FEATURE_UNAVAILABLE</code> is logged once.</p>
+<p>When an EOS task is read, every point gets the power, speed and focus in force, and the block values are those of the block's
+first point. A speed or focus change inside a polyline does not end the block. The delay of a <code>SetLaserPower</code> record is
+not read as a pre-delay, because the writer adds the <code>PowerDelay</code> of its settings to every power change.</p>
+</section>
+
+<section id="writer">
+<h2>Writing the task</h2>
+<p>The raw task writer goes through each hatch block and collects chains of hatches that touch within 10<sup>-6</sup> mm and
+continue in the same direction, for example the pieces of a nonlinear ramp. A chain with a ramp is discretized in the
+configured mode. Polyline blocks are written as polylines, with the changed values before every coordinate.</p>
+<h3 id="joining">Joining</h3>
+<p>In the default <code>JoinTouching</code> mode, a run of hatches in which each starts within <code>JoinTolerance</code> of the
+previous end, in any direction, is written as one polyline. The values are written between the points, and a gap within the
+tolerance becomes a short vector with the values of the next hatch. A hatch that touches nothing is written with
+<code>WriteHatch</code>, unless it has a ramp. In <code>AllPolylines</code> mode, every hatch is written as a polyline, and touching
+hatches are joined the same way. In <code>SplitHatches</code> ramp mode, hatches are never joined.</p>
+<p>Runs continue across hatch blocks, and are broken by a dwell (<code>PostDelay</code>), a pre-delay, or a change of part, scanner,
+exposure type, skywriting, exposure step, laser pulse, depth or beam shape. Inside a run, a power change smaller than
+<code>HatchPowerDeadband</code>, compared with the power in force, is not written.</p>
+<p>With <code>JoinContours</code> on (the default), a polyline block that starts within <code>JoinTolerance</code> of the end of the
+polyline block before it is appended to it, under the same conditions. A closed loop is never extended.</p>
+<h3>Layer state</h3>
+<p>Every setting is written to the selected scanner when it changes, and again for each scanner in every layer. Before the first
+vector of a scanner in a layer, <code>LayerOpening</code> writes <code>SetBeamShape(standard, 0)</code> and a delay of
+<code>LayerOpeningDelay</code>. This needs EOS SDK 2.26; with older SDKs it is left out and <code>SDK_FEATURE_UNAVAILABLE</code>
+is logged once.</p>
+</section>
+
+<section id="to-3mf">
+<h2>EOS to 3MF</h2>
+<p>When EOS tasks or computed toolpaths are written as 3MF, each block whose power varies gets a profile with a
+<code>laserpower</code> modifier on channel F, from 0 W to a maximum rounded up to the next 100 W (at least 100 W). Blocks of
+similar power share a profile.</p>
+<table>
+<tr><th>Block</th><th>Written as</th></tr>
+<tr><td>Hatches with constant power per hatch</td><td>Constant modifier, one factor per hatch.</td></tr>
+<tr><td>Hatches with ramps</td><td>Linear modifier, factors at both points.</td></tr>
+<tr><td>Polyline with power changes</td><td>Linear modifier, factors per point. A power step at a joint is written as a repeated point,
+so the step stays a step and does not become a ramp.</td></tr>
+</table>
+<p>lib3mf 2.4.0 writes one factor list per segment, and power uses it. Speed and focus changes are therefore kept by
+cutting the block: a polyline is cut at every point where speed or focus change, and hatches are grouped into runs of equal speed
+and focus. Each part gets a profile with its own <code>laserspeed</code> and <code>eos:focus</code> (left out when fully focused). The parts of a polyline share
+their joint points, so with <code>JoinContours</code> on (the default) they are written as one polyline again when the 3MF is
+converted back to EOS. A speed or focus ramp inside a single hatch is stored as its mean. A delay in front of a block
+(<code>eos:predelay</code>) stays with the first part only, and each part carries the EOS timestamp of its own first point.</p>
+<p>Power, speed and focus are no longer rounded to whole numbers.</p>
+</section>
+
+<section id="decisions">
+<h2>Design decisions</h2>
+<table>
+<tr><th>Question</th><th>Decision</th></tr>
+<tr><td>Does EOS apply <code>SetLaserPower</code> between <code>PolyCoord</code> records?</td><td>Yes. This is what the <code>Polyline</code> mode relies on.</td></tr>
+<tr><td>Can <code>StartStripeSegment</code> or <code>EndLine</code> join hatches into one line?</td><td>No. They are not used for ramps.</td></tr>
+<tr><td>Delay of <code>SetLaserPower</code></td><td><code>PowerDelay</code> of the settings, also inside a ramp.</td></tr>
+<tr><td>Factors outside [0, 1]</td><td>An error in strict mode, otherwise clamped and logged.</td></tr>
+<tr><td>Which parameters are evaluated</td><td><code>laserpower</code>, <code>laserspeed</code>, <code>eos:focus</code> and
+<code>postwaittime</code> with all modifier types. The two pulse times with constant modifiers only. Everything else is an error.</td></tr>
+<tr><td>How focus is marked as set in a raw point</td><td>With <code>HasLaserFocus</code>, because 0 (fully defocused) is a valid focus value.</td></tr>
+<tr><td>Speed and focus step defaults</td><td>10&nbsp;mm/s and 0.05.</td></tr>
+<tr><td>Joining in <code>SplitHatches</code> mode</td><td>Off. The mode exists to keep hatches.</td></tr>
+<tr><td>Dwell inside a polyline</td><td>The polyline is split at the dwell. A plain <code>postwaittime</code> parameter is a dwell after
+every vector. <code>eos:postdelay</code> and <code>postwaittime</code> are added.</td></tr>
+<tr><td>Beam shape profile on EOS SDK 2.18</td><td>An error in strict mode, otherwise left out with a warning.</td></tr>
+<tr><td>Joins in the log</td><td>Only the summary counters (<code>hatchesJoined</code>, <code>contoursJoined</code>,
+<code>laserBreaksAvoided</code>), no message per layer.</td></tr>
+</table>
+</section>
+
+</main>
+</div>
+</body>
+</html>
