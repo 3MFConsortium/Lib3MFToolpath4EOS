@@ -28,7 +28,8 @@ with the permission of EOS GmbH, and are only used at build time to generate and
 
 - **The client-side key is confidential.** The client-side encryption key assigned by EOS is a confidential credential, even though RSA libraries may refer to it as a "public key" and it is provided in PEM format. Do not ship it as a file alongside an application or check it into a repository. Protect it from unauthorized access. The examples store it in the Windows Credential Manager; see [Examples/README.md](Examples/README.md#toolpath-api-client-key).
 
-Detailed documentation: [Documentation/index.html](Documentation/index.html) (library) and
+The documentation is published at [3mfconsortium.github.io/Lib3MFToolpath4EOS](https://3mfconsortium.github.io/Lib3MFToolpath4EOS/).
+Its source is in `Documentation/`: [Documentation/index.html](Documentation/index.html) (library) and
 [Documentation/examples.html](Documentation/examples.html) (examples). How laser power ramps on hatches and
 polylines are written to EOS is described in [Documentation/power-ramps.html](Documentation/power-ramps.html), the
 conversion settings and the conversion log in [Documentation/conversion.html](Documentation/conversion.html).
